@@ -1,0 +1,15 @@
+<app-nabvar (toggle)="toggleSideBar(shouldOpen)" [isOpen]="sideBarIsOpened"></app-nabvar>
+<div class="container-fluid container-custom" style="margin-top: -11px;">
+
+    <app-side-nabvar [isOpen]="sideBarIsOpened"></app-side-nabvar>
+
+    <div [className]="sideBarIsOpened?'main-content':' main-content main-content-collapsed'" id="result">
+        <app-breadcrumb></app-breadcrumb>
+
+        <router-outlet>
+
+        </router-outlet>
+
+    </div>
+    <!-- <app-footer></app-footer> -->
+</div>

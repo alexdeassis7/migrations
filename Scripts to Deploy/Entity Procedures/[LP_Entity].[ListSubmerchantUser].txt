@@ -1,0 +1,55 @@
+
+/****** Object:  StoredProcedure [LP_Entity].[ListSubmerchantUser]    Script Date: 2/19/2020 2:51:58 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [LP_Entity].[ListSubmerchantUser]
+AS
+BEGIN
+
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED; -- turn it on
+	
+	DECLARE @JSON XML
+
+	SET @JSON	=
+				(
+					SELECT
+						CAST
+						( 
+							(
+								SELECT								
+									[ESM].[idEntityUser],
+									[ESM].[Description],
+									[ESM].[idEntitySubMerchant],
+									[ESM].[SubMerchantIdentification],
+									[EA].[Identification],
+									[EA].UserSiteIdentification as MailAccount,
+									[LC].ISO3166_1_ALFA003 as CountryCode, 
+									[ESM].IsCorporate 	
+								FROM 
+									[LP_Entity].[EntitySubMerchant] [ESM]			
+								INNER JOIN
+									[LP_Entity].[EntityUser] [EU] on [EU].[idEntityUser] = [ESM].[idEntityUser]
+								inner JOIN
+									[LP_Security].[EntityApiCredential] [EAC] on [EAC].[idEntityUser] = [EU].[idEntityUser]
+								inner join 
+									[LP_Security].EntityAccountUser EAU on EAU.idEntityUser =  [EU].[idEntityUser]
+								inner join 
+									[LP_Security].EntityAccount EA on EA.idEntityAccount = [EAU].idEntityAccount
+								INNER JOIN
+									[LP_Location].[Country] [LC] on [LC].idCountry = [EU].idCountry
+								WHERE 
+									[ESM].[Active] = 1
+								ORDER BY [ESM].[SubMerchantIdentification] ASC
+								FOR JSON PATH
+							) AS XML
+						)
+				)
+
+	SELECT @JSON
+
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED; -- turn it off
+
+END

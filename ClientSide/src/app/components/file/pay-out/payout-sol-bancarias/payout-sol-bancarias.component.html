@@ -1,0 +1,397 @@
+<div class="btn-group" style="margin-top:-9px">
+    <label class="btn btn-secondary" style="font-size:14px" [ngClass]="action == 'upload' ? 'inactiveOption': '' " [(ngModel)]="action" *ngIf="userPermission == 'ADMIN'" (ngModelChange)="clearUploadView()" btnRadio="download" tabindex="0" role="button">Download</label>
+    <label class="btn btn-secondary" style="font-size:14px" [ngClass]="action == 'download' ? 'inactiveOption' : '' " [(ngModel)]="action" btnRadio="upload" tabindex="0" (ngModelChange)="clearDownloadView()" role="button">Upload</label>
+
+
+</div>
+
+<!-- DOWNLOAD -->
+<ng-template [ngIf]="action == 'download'" [ngIfElse]="uploadTemp">
+
+    <div class="components-container animated fadeIn" style="text-align: left;">
+        <div class="row container-fluid" style="margin: 0">
+            <div class="col-2 text-left">
+                <label for="">Country</label>
+                <ng-select [items]="ListCountries" bindLabel="NameCode" bindValue="Code" [clearable]="false" [searchable]="false" placeholder="Select Country" (ngModelChange)="loadProviderFilter($event)" [(ngModel)]="countryCode">
+                    <ng-template ng-label-tmp let-item="item">
+                        <div>
+                            <img height="30" width="30" [class]="item.FlagIcon" />
+                            <label class="lblCountries" for=""> {{item.Name}} </label>
+                        </div>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-index="index">
+                        <div>
+                            <img height="30" width="30" [class]="item.FlagIcon" />
+                            <label class="lblCountries" for=""> {{item.Name}}</label>
+                        </div>
+                    </ng-template>
+               </ng-select>
+            </div>
+            <div class="col-2">
+                <label for="">Transaction</label>
+                <ng-select [items]="ListTransactions" bindLabel="name" bindValue="val" [searchable]="false" [clearable]="false" style=" text-align: left;" placeholder="Select Transaction" [(ngModel)]="trSelect">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Provider</label>
+                <ng-select [items]="ListProviderFilter" [disabled]="countryCode == null" bindLabel="name" bindValue="code" [searchable]="false" placeholder="Select Provider" [(ngModel)]="providerSelect" (ngModelChange)="loadTxLimit()">
+                </ng-select>
+            </div>
+
+
+            <div class="form-group col-2">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchantFilter" bindLabel="FirstName" bindValue="idEntityUser" [searchable]="true" placeholder="Select Merchant" [(ngModel)]="merchantSelect" (ngModelChange)="loadSubmerchantFilter($event)">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>SubMerchant</label>
+
+                <ng-select [items]="ListSubMerchantFilter" bindLabel="SubMerchantIdentification" bindValue="idEntitySubMerchant" [searchable]="true" placeholder="Select SubMerchant" [(ngModel)]="subMerchantSelect">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Date To</label>
+                <div class="input-group">
+                    <input type="text" [(ngModel)]="downloadDateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig" style="cursor:pointer" style="background-color: white;">
+                    <div class="input-group-text  c-pointer prependRight" title="Clear Date" (click)="clearDateFilter()"> <span class="fa fa-window-close"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Hour</label>
+                <input type="time" class="form-control" [(ngModel)]="downloadHour" />
+            </div>
+
+            <div class="form-group col-2">
+                <label>  Amount{{ currencySelect != "" ? ' (' + currencySelect + ')' : '' }}</label>
+                <input type="text" [(ngModel)]="amountLimit" class="form-control" #pop="bs-popover" triggers="" 
+                [ngClass]="validateNumber(amountLimit) == false  ? 'is-invalid inputError' : ''" 
+                containerClass="customPopover" [isOpen]="validateNumber(amountLimit) == false "
+                popover="El importe debe de ser un número">
+            </div>
+
+            <div class="form-group col-2">
+                <label>Transactions Limit</label>
+                <input type="number" min="0" [(ngModel)]="txLimit" class="form-control" (ngModelChange)="onTextMaxAmountChange($event)">
+                <span *ngIf="maxAmountExceeded" class="msgDownloadNotProccess">Transactions Limit Exceeded ({{maxAmountLimitProvider}})</span>
+                <span *ngIf="minAmountRequired" class="msgDownloadNotProccess">Transactions Limit value must be greater than 0</span>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Transactions Max Amount</label>
+                <input type="text" [(ngModel)]="txMaxAmount" #pop="bs-popover" triggers="" 
+                    [ngClass]="validateNumber(amountLimit) == false  ? 'is-invalid inputError' : ''" 
+                    containerClass="customPopover" 
+                    [isOpen]="validateNumber(amountLimit) == false"
+                    popover="El importe debe de ser un número " class="form-control">
+            </div>
+
+        </div>
+        <div class="row container-fluid" style=" margin: 0">
+            <div class="form-group col-4">
+                <label>Beneficiary Bank Include</label>
+                <ng-select [items]="ListBankInclude" [multiple]="true"  (remove)="onRemoveInclude($event)" [disabled]="modifyExclude" bindLabel="bankFullName" bindValue="bankCode" [searchable]="true" placeholder="Select Bank Include" (ngModelChange)="filterBankChange('Include')" [(ngModel)]="bankIncludeSelect" (clear)="loadTxLimit()">
+                </ng-select>
+            </div>
+            <div class="form-group col-4">
+               <label>Beneficiary Bank Exclude</label>
+               <ng-select [items]="ListBankExclude" [multiple]="true" (remove)="onRemoveExclude($event)" [disabled]="modifyInclude" 
+               bindLabel="bankFullName" bindValue="bankCode" [searchable]="true" placeholder="Select Bank Exclude" (ngModelChange)="filterBankChange('Exclude')" 
+               [(ngModel)]="bankExcludeSelect" (clear)="loadTxLimit()">
+                </ng-select>
+                
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-4">
+                <button *ngIf="providerSelect == 'MIFEL'" style="float: right; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp" [disabled]="!validationDownload" (click)="getFileTxtInternal()">Download Internal Files</button>
+                <button *ngIf="providerSelect == 'MIFEL'" style="float: right; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp" [disabled]="!validationFilter" (click)="filter(true)">Filter Internal txs</button>
+                <button *ngIf="providerSelect == 'SABADELL'" style="float: right; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp" [disabled]="!validationFilter" (click)="filter(true)">Filter Internal txs</button>
+            </div>
+            <div class="col-4">
+                <div style="padding-top: 8px" class="text-center">
+                    <i class="fa fa-check-circle statusOk" *ngIf="downloadStatus=='OK'"></i>
+                    <i class="fa fa-times-circle statusError" *ngIf="downloadStatus == 'ERROR'"> </i>
+                    <i class="fa fa-exclamation statusNotProcess" *ngIf="downloadStatus == 'NOTPROCESS'"> </i>
+
+                    <span *ngIf="downloadStatus == 'OK'" class="msgDownloadSuccess">File  downloaded successfully</span>
+                    <span *ngIf="downloadStatus == 'ERROR'" class="msgDownloadError">Errors occurred in the process</span>
+                    <span *ngIf="downloadStatus == 'NOTPROCESS'" class="msgDownloadNotProccess">There is no data to process</span>
+                    <span *ngIf="repeatedFlag" class="msgDownloadError">Repeated id, you cannot download the batch</span>
+                </div>
+            </div>
+            <div class="col-4">
+                <button style="float: right; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp" 
+                        [disabled]="!validationDownload || repeatedFlag" 
+                        (click)="getFileTxt()">{{ (providerSelect == 'BSPVIELLE') ? 'Generate and transfer encripted file' : 'Download' }}</button>
+                <button style="float: right; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp" 
+                        [disabled]="!validationFilter || maxAmountExceeded"
+                        (click)="filter()"
+                        >Filter</button>
+            </div>
+
+        </div>
+        <div class="components-container">
+            <div class="table-responsive " style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true">
+                <table class="table table-hover ">
+                    <thead class="headerLP">
+                        <tr style="white-space: nowrap">
+                            <th><input type="checkbox" [disabled]="filteredPayouts.length < 1" [(ngModel)]="rejectAll" (ngModelChange)="loadAllTransactions($event)"></th>
+                            <th>Lot Id</th>
+                            <th>Ticket Number</th>
+                            <th>Transaction Date</th>
+                            <th>Merchant Id</th>
+                            <th>Merchant Name</th>
+                            <th>SubMerchant</th>
+                            <th>Amount</th>
+                            <th *ngIf="countryCode == 'COL'">Local Tax</th>
+                            <th *ngIf="countryCode == 'ARG'">Tax Witholding</th>
+                            <th *ngIf="countryCode == 'ARG'">Tax Witholding Arba</th>
+                            <th>Beneficiary Bank</th>
+                            <th>Beneficiary Bank Type</th>
+                            <th>Payable</th>
+                            <th>Not Repeated in Lot</th>
+                            <th>Not Repeated</th>
+                            <ng-container *ngIf="countryCode == 'MEX'">
+                                <th>PreRegister Lot</th>
+                                <th>Approved</th>
+                            </ng-container>
+                        </tr>
+                    </thead>
+                    <tbody style="white-space: nowrap">
+                        <tr *ngFor="let tr of filteredPayouts">
+                            <td>                   
+                                <!-- <input [disabled]="tr.NetAmount > 5000000 && providerSelect == 'SEC' && tr.Bank != 'Banco Security'" type="checkbox" [(ngModel)]="tr.Reject" (ngModelChange)="loadCheckboxTransactions(tr, $event)"> -->
+                                <input [popover]="handleShowPopOver(tr.NetAmount,providerSelect,tr.Bank,tr.AccountType)" triggers="mouseenter:mouseleave" [ngClass]="handleDisabledCheckInput(tr.NetAmount,providerSelect,tr.Bank,tr.AccountType) ? 'disabledCheck' : '' "  [disabled]="handleDisabledCheckInput(tr.NetAmount,providerSelect,tr.Bank,tr.AccountType)" type="checkbox" [(ngModel)]="tr.Reject" (ngModelChange)="loadCheckboxTransactions(tr, $event)">
+                            </td>
+                            <td style="white-space: nowrap">{{tr.LotNumber}}</td>
+                            <td style="white-space: nowrap">{{tr.Ticket}}</td>
+                            <td style="white-space: nowrap">
+                                {{tr.TransactionDate == "" ? "" : (tr.TransactionDate | amDateFormat:'DD/MM/YYYY HH:mm A')}}</td>
+                            <td style="white-space: nowrap">{{tr.InternalDescription}}</td>
+                            <td style="white-space: nowrap">{{tr.LastName}}</td>
+                            <td style="white-space: nowrap">{{tr.SubMerchantIdentification}}</td>
+                            <td style="white-space: nowrap">{{tr.GrossValueClient | fixedDecimal: 2 }}</td>
+                            <td *ngIf="countryCode == 'COL'" style="white-space: nowrap">{{tr.LocalTax | fixedDecimal: 2}}</td>
+                            <td *ngIf="countryCode == 'ARG'" style="white-space: nowrap">{{tr.TaxWithholdings | fixedDecimal: 2}}</td>
+                            <td *ngIf="countryCode == 'ARG'" style="white-space: nowrap">{{tr.TaxWithholdingsARBA | fixedDecimal: 2}}</td>
+                            <td  style="white-space: nowrap">{{tr.Bank}}</td>
+                            <td  style="white-space: nowrap">{{tr.AccountTypeDescription}}</td>
+                            <td style="white-space: nowrap">{{tr.NetAmount | fixedDecimal: 2}}</td>
+                            <td style="white-space: nowrap"><img height="30" width="30" [className]="!tr.Repeated ? 'tickIcon' : 'crossIcon'" /></td>
+                            <td style="white-space: nowrap"><img height="30" width="30" [className]="!tr.HistoricalyRepetead ? 'tickIcon' : 'crossIcon'" /></td>
+                            <ng-container *ngIf="countryCode == 'MEX'">
+                                <td style="white-space: nowrap;">{{tr.PreRegisterLot}}</td>
+                                <td style="white-space: nowrap;">{{(tr.PreRegisterApproved) ? "Yes": "No"}}</td>
+                            </ng-container>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div *ngIf="filteredPayouts.length > 0" class="components-container">
+            <div class="table-responsive">
+                <table class="table table-hover ">
+                    <thead>
+                        <tr style="white-space: nowrap">
+                            <th></th>
+                            <th>Transactions</th>
+                            <th>Amount</th>
+                            <th>Payable</th>
+                        </tr>
+                    </thead>
+                    <tbody style="white-space: nowrap">
+                        <tr>
+                            <td>Total</td>
+                            <td style="white-space: nowrap">{{filteredPayouts.length}} </td>
+                            <td style="white-space: nowrap">{{filteredPayoutsTotal.GrossValueClient | fixedDecimal: 2 }}</td>
+                            <td style="white-space: nowrap">{{filteredPayoutsTotal.NetAmount | fixedDecimal: 2}}</td>
+                        </tr>
+                        <tr>
+                            <td>Checked</td>
+                            <td style="white-space: nowrap">{{checkedPayouts.length}} </td>
+                            <td style="white-space: nowrap">{{checkedPayoutsTotal.GrossValueClient | fixedDecimal: 2 }}</td>
+                            <td style="white-space: nowrap">{{checkedPayoutsTotal.NetAmount | fixedDecimal: 2}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- UPLOAD -->
+<ng-template #uploadTemp>
+    <div class="components-container animated fadeIn">
+
+        <div class="row text-left">
+            <div class="col-1"></div>
+            <div class="col-2 text-left ">
+                <label> Country</label>
+                <ng-select [items]="ListCountries" id="countryCmb" bindLabel="NameCode" bindValue="Code" [clearable]="false" [searchable]="false" placeholder="Select Country" (ngModelChange)="loadProviderFilter($event)" [(ngModel)]="countryCode">
+                    <ng-template ng-label-tmp let-item="item">
+                        <img height="30" width="30" [class]="item.FlagIcon" />
+                        <span class="lblCountries" for=""> {{item.Name}} </span>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-index="index">
+                        <img height="30" width="30" [class]="item.FlagIcon" />
+                        <span class="lblCountries" for=""> {{item.Name}}</span>
+                    </ng-template>
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2 text-left">
+                <label>Provider</label>
+                <ng-select [items]="ListProviderFilter" [disabled]="countryCode == null" bindLabel="name" bindValue="code" [searchable]="false" placeholder="Select Provider" [(ngModel)]="providerSelect">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Fx LP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</label>
+                <div class="row">
+                    <div class="col-5" style="padding-right:0px">
+                        <select [(ngModel)]="actionSelect" class="form-control" style="padding:0" placeholder="Choose" [disabled]="providerSelect == null ">
+                            <option *ngFor="let fx of ListFx" [ngValue]="fx.code">{{fx.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-7" style="padding-left:3px">
+                        <input type="text" [(ngModel)]="dollarPrice" class="form-control" #pop="bs-popover" [disabled]="actionSelect == ''|| actionSelect == 'WITHOUT_COT'" triggers="" [ngClass]="validateNumber(dollarPrice) == false  ? 'is-invalid inputError' : ''" containerClass="customPopover"
+                            [isOpen]="validateNumber(dollarPrice) == false " [(ngModel)]="dollarPrice" popover="El importe debe de ser un número ">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-2 text-left" style="margin-top:32px; ">
+                <form *ngIf="providerSelect != 'BSPVIELLE'">
+                    <div class="input-group">
+                        <div class="custom-file " style="overflow: hidden;" lang="es">
+                            <input type="file" class="custom-file-input" [disabled]="actionSelect == ''" #inputFileGM accept="text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, .csv" (change)="onFileChange($event)" id="inputGroupFile04">
+                            <label class="custom-file-label text-center" for="inputGroupFile04">{{filesUpload.length == 0 ? 'Select file' :  filesUpload[0].name }}</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row  col-sm-2 " style="padding-top:32px; ">
+                <div class="col-12">
+                    <button class="btn btn-success" *ngIf="stateValidation && stateUpload == false && providerSelect != 'BSPVIELLE'" [disabled]="!validateUpload" (click)="uploadServer()" type="button">Upload</button>
+                    <button class="btn btn-success" *ngIf="providerSelect == 'BSPVIELLE'" [disabled]="!validateUpload" (click)="uploadServer()" type="button">Scan SFTP for new files</button>
+                    <button class="btn btn-secondary" *ngIf="filesUpload.length > 0 " style="margin-left:3px" (click)="clearUploadView()" type="button"> <i class="fa fa-sync-alt"></i> </button>
+                </div>
+            </div>
+            <div class="col-1"></div>
+        </div>
+
+        <div class="row">
+            <p></p>
+        </div>
+
+        <div class="row" *ngIf="stateUpload && (countryCode == 'ARG' || (countryCode == 'MEX' && providerSelect != 'SRM'))">
+            <div class="col-sm-4">
+                <p style="font-size: .875em">Total records read</p>
+                <span class="">
+            <i class="material-icons md-24">arrow_upward</i>
+            <span class="nav-label resultRecordUpload">{{OkTrans+ErrorTrans}}</span>
+                </span>
+            </div>
+            <div class="col-sm-4">
+                <p style="font-size: .875em">Total records correct </p>
+                <span class="text-success">
+            <i class="material-icons md-24">check_circle_outline</i>
+            <span class="nav-label resultRecordUpload">
+              {{OkTrans}}
+            </span>
+                </span>
+            </div>
+            <div class="col-sm-4">
+                <p style="font-size: .875em">Total records wrong </p>
+                <span class="text-danger">
+            <i class="material-icons md-24">error_outline</i>
+            <span class="nav-label resultRecordUpload">
+              {{ErrorTrans}}
+            </span>
+                </span>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="stateUpload && (countryCode == 'COL' || countryCode == 'CHL' || countryCode == 'BRA' || (countryCode == 'MEX' && providerSelect == 'SRM'))">
+            <div style="width: 20%">
+                <p style="font-size: .875em">Total records read</p>
+                <span class="">
+            <i class="material-icons md-24">arrow_upward</i>
+            <span class="nav-label resultRecordUpload">
+              {{OkTrans+ErrorTrans+PendingTrans+IgnoredTrans}}
+            </span>
+                </span>
+            </div>
+            <div style="width: 20%">
+                <p style="font-size: .875em">Total records correct </p>
+                <span class="text-success">
+            <i class="material-icons md-24">check_circle_outline</i>
+            <span class="nav-label resultRecordUpload">
+              {{OkTrans}}
+            </span>
+                </span>
+            </div>
+            <div style="width: 20%">
+                <p style="font-size: .875em">Total records pending </p>
+                <span class="text-warning">
+            <i class="material-icons md-24">access_alarms</i>
+            <span class="nav-label resultRecordUpload">
+              {{PendingTrans}}
+            </span>
+                </span>
+            </div>
+            <div style="width: 20%">
+                <p style="font-size: .875em">Total records ignored (previous upload)</p>
+                <span class="text-danger">
+            <i class="material-icons md-24">thumb_down_alt</i>
+            <span class="nav-label resultRecordUpload">
+              {{IgnoredTrans}}
+            </span>
+                </span>
+            </div>
+            <div style="width: 20%">
+                <p style="font-size: .875em">Total records wrong </p>
+                <span class="text-danger">
+            <i class="material-icons md-24">error_outline</i>
+            <span class="nav-label resultRecordUpload">
+              {{ErrorTrans}}
+            </span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <h2></h2>
+
+    <div class="components-container">
+        <div class="table-responsive ">
+            <table class="table table-hover ">
+                <thead class="headerLP">
+                    <tr style="white-space: nowrap">
+                        <th>Ticket</th>
+                        <th>{{ countryCode == 'ARG' ? 'Beneficiary Cuit' : 'Beneficiary Id' }} </th>
+                        <th>Acreditation Date</th>
+                        <th>Amount</th>
+                        <th>Status Description</th>
+                    </tr>
+                </thead>
+                <tbody style="white-space: nowrap">
+                    <tr *ngFor="let tr of listTransactionsUpload">
+                        <td style="white-space: nowrap">{{tr.Ticket}}</td>
+                        <td style="white-space: nowrap">{{ countryCode == 'ARG' ? tr.RecipientCUIT : tr.RecipientId}}</td>
+                        <td style="white-space: nowrap">
+                            {{tr.AcreditationDate == "" ? "" : (tr.AcreditationDate | amDateFormat:'DD/MM/YYYY')}}</td>
+                        <td style="white-space: nowrap">{{tr.Amount | fixedDecimal: 2 : '' : tr.Currency }}</td>
+                        <td style="white-space: nowrap">{{tr.InternalStatusDescription}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-template>

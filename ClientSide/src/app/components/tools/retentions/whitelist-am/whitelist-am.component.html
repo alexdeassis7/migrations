@@ -1,0 +1,106 @@
+<!-- <div class="modal-content"> -->
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal">{{titleModal}} </h5>
+        <button type="button" class="close" (click)="bsModalRef.hide()"
+            data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <div class="row">
+
+            <div class="form-group col-6">
+
+                <label>Identification Type</label>
+                <ng-select [items]="ListTypeDoc" bindLabel="name" [disabled]="typeOperation == 'EDIT'" pattern="" bindValue="id" placeholder="Select Doc"
+                    [(ngModel)]="typeDocSelect">
+                </ng-select>
+
+            </div>
+            <div class="form-group col-6">
+
+                <label>Identification Number</label>
+                <input type="text" [(ngModel)]="cuitBeneficiary" #pop="bs-popover" triggers=""
+                [ngClass]="validateNumber(cuitBeneficiary) == false  ? 'is-invalid inputError' : ''"
+                containerClass="customPopover" [isOpen]="validateNumber(cuitBeneficiary) == false "
+                popover="Only numbers"   [disabled]="typeOperation == 'EDIT'"
+                    class="form-control">
+
+            </div>
+            <div class="form-group col-6">
+
+                <label>Name</label>
+                <input type="text" [(ngModel)]="nameBeneficiary" [disabled]="typeOperation == 'EDIT'"
+                    class="form-control">
+
+            </div>
+            <div class="form-group col-6">
+
+                <label>Lastname</label>
+                <input type="text" [(ngModel)]="lastNameBeneficiary" [disabled]="typeOperation == 'EDIT'"
+                    class="form-control">
+
+            </div>
+            <div class="form-group col-12" style="margin-bottom: 0px">
+
+                <table class="table table-sm table-bordered text-center">
+                    <thead class="headerLP">
+                        <tr>
+                            <th class="fw-500">Type Retention</th>
+                            <th class="fw-500">Merchant</th>
+                            <th class="fw-500">SubMerchant </th>
+                            <th class="fw-500"> <a  class="c-pointer" (click)="addDetail()"> <i class="fa fa-plus-square"></i> </a></th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-left">
+                        
+                        <ng-container *ngFor="let det of ListDetailWL">
+
+                            <tr *ngIf="det.Active" >
+                                <td>
+                                    <ng-select [items]="listRetentions" bindLabel="name" bindValue="id" 
+                                        placeholder="Select Ret" [(ngModel)]="det.idRetentionType"  (ngModelChange)="validateRepeat($event,det)"  [ngClass]="{'errorTest': det.isRepeat} ">
+                                    </ng-select>
+                                </td>
+                                <td>
+                                    <ng-select [items]="ListMerchants" bindLabel="FirstName" bindValue="idEntityUser"
+                                        placeholder="Select Merchant" 
+                                        (ngModelChange)="loadSubmerchantFilter($event,det)"
+                                        [(ngModel)]="det.idMerchant" [ngClass]="{'errorTest': det.isRepeat} ">
+                                    </ng-select>
+                                </td>
+                                <td>
+                                    <ng-select [items]="det.ListSubmerchantFilter" bindLabel="SubMerchantIdentification"
+                                        bindValue="idEntitySubMerchant" placeholder="Select Submerchant"
+                                        [(ngModel)]="det.idEntitySubMerchant" (ngModelChange)="validateRepeat($event,det)" [ngClass]="{'errorTest': det.isRepeat} " >
+                                    </ng-select>
+                                </td>
+                                <td class="text-center " style="width: 30px;padding-top: 10px;"  [ngStyle]="{'color': det.isRepeat ? 'red' : '' } " (click)="removeDetail(det)"><i class="far fa-minus-square"></i></td>
+                            </tr>
+                            
+                        </ng-container>
+                    </tbody>
+
+                </table>
+
+                <label for="" *ngIf="validateRepeatFlag" style="color:red;margin-bottom: 0p">  ** The record is repeated.</label>
+
+            </div>
+            <!-- <div class="form-group col">
+
+            </div> -->
+
+
+        </div>
+
+    </div>
+
+    <div class="modal-footer" style="padding-bottom: 0">
+        <div class="btn-footercontainer ">
+                <!-- [disabled]="!validateFrm" -->
+            <button type="button" class="btn btn-dark" (click)="sendData()" [disabled]="!validateBtn" 
+               >{{buttonText}}</button>
+        </div>
+    </div>
+<!-- </div> -->

@@ -1,0 +1,71 @@
+<div class="accordion">
+  <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+    <div class="card-header blueBtnLp">
+      <h6 class="mb-0 fw-400">Create Transaction</h6>
+    </div>
+
+    <div class="collapse show col-12 p-0" aria-labelledby="headingOne">
+      <div class="card-body pl-0 pr-0">
+        <div class="row col-12 p-0 ml-0">
+
+          <div class="form-group col-3">
+            <label class="lblForm">Transaction Type (*)</label>
+            <ng-select [items]="ListTransactionsTypes" bindLabel="TT_Name" bindValue="idTransactionType"
+              [(ngModel)]="selectTransactionType" (ngModelChange)="handleChangeTransactionType($event)"></ng-select>
+          </div>
+
+          <div class="form-group col-3">
+            <label class="lblForm">Client (*)</label>
+            <ng-select [items]="ListEntitiesUsers" bindLabel="FirstName" bindValue='idEntityUser'
+              [(ngModel)]="selectEntityUser" (ngModelChange)="handleChangeClient($event)"></ng-select>
+          </div>
+
+          <div class="form-group col-3">
+            <label class="lblForm">Currency (*)</label>
+            <ng-select [items]="ListCurrenciesTypes" bindLabel="Name" bindValue="idCurrencyType"
+              placeholder="Select Currency"
+              [(ngModel)]="selectCurrencyType">
+            </ng-select>
+          </div>
+
+          <div class="form-group col-3">
+            <label for="amount">Amount (*)</label>
+            <input type="text" [(ngModel)]="amount" class="form-control" #pop="bs-popover" triggers=""
+              containerClass="customPopover"
+              [ngClass]="validateNumber(amount) == false ? 'is-invalid inputError' : ''"
+              [isOpen]="validateNumber(amount) == false" popover="The amount must be a number">
+          </div>
+
+          <div class="form-group col-3" *ngIf="showValueFx">
+            <label class="lblForm">Value FX (*)</label>
+            <input type="text" [(ngModel)]="valueFx" class="form-control" #pop="bs-popover" triggers=""
+              containerClass="customPopover" [ngClass]="validateNumber(valueFx) == false ? 'is-invalid inputError' : ''"
+              [isOpen]="validateNumber(valueFx) == false" popover="The Value FX must be a number">
+
+         
+          </div>
+          
+          <div class="form-group col-3" style="padding-top: 37px" *ngIf="showValueFx">
+              <label for="" style="font-weight: 500"> Total:  USD  {{'' + amount/valueFx }}</label>
+          </div>
+          
+          <div class="form-group col-12">
+            <label class="lblForm">Description (*)</label>
+            <textarea [(ngModel)]="description" class="form-control"></textarea>
+          </div>
+        </div>
+
+        <div>
+          <div class="form-group col-3" id="fields-required">
+            <span>* Required Fields</span>
+          </div>
+          <div class="form-group col-3 btn-footercontainer">
+            <button type="button" class="btn btn-dark btn-create" [disabled]="!validateForm"
+              (click)="createTransaction()">Create</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

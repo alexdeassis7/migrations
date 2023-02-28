@@ -1,0 +1,29 @@
+<div class="card-header blueBtnLp ">
+
+    <h6 class="mb-0 fw-400"> <i class="fa fa-users" style="font-size:20px"></i> Keys  <i class="fa fa-user-plus float-right c-pointer"
+       style="font-size:20px" title="Crear Key" (click)="createKey()" ></i> </h6>
+   
+  </div>
+  <div class="components-container" style="margin-top:20px">
+    <div class="table-responsive ">
+      <table class="table table-hover  ">
+        <thead class="headerLP" style="white-space: nowrap;">
+          <tr style="    background-color: #e0dede;
+          color: black;">
+            <th class="headerTr">Identification </th>
+            <th class="headerTr">User Site Identification</th>
+            <td class="headerTr">Key</td>
+            <td class="headerTr">Reset</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of ListKeyUsers">
+            <td>{{user.Admin}}</td>
+            <td>{{user.UserSiteIdentification}}</td>
+            <td>{{user.Key}}</td>
+            <td><button type="button" class="btn btn-danger"
+               (click)="resetKey(user.Admin)">Reset</button></td>
+        </tbody>
+      </table>
+    </div>
+  </div>

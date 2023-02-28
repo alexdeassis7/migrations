@@ -1,0 +1,299 @@
+<!-- <nav class="navbar blueBtnLp " style="height: 35px;border-radius: 5px; margin-top: -7px;padding-top: 3px;">
+  <a class="navbar-brand" style="font-size:14px">Utilidades</a>
+  <form class="form-inline">
+      
+    <i class="fa  fa-money-bill c-pointer" tooltip="Pagos/Cobros" style="font-size: 20px; padding-right: 21px;" (click)="openModalPagosCobros()"></i>    
+    <i class="fa fa-edit c-pointer" tooltip="Editar Transacciones" style="font-size: 20px; padding-right: 18px;" (click)="openModalEditValues()"></i>
+    <i class="fa fa-barcode c-pointer" tooltip="Crear Checkout" style="font-size: 22px; padding-right: 20px;" (click)="openModalCheckout()"></i>
+    <i class="fa fa-hand-holding-usd c-pointer" tooltip="Carga Saldo" (click)="openModalCarga(CargaSaldo)" style="font-size:20px;padding-bottom: 2px;"></i>
+  </form>
+</nav>
+ -->
+
+<div class="container-fluid" *ngIf="!showReportState" style="margin-top:9px">
+  <div class="row">
+
+    <div class="col-12 pl-0 pr-0" style="margin-top:15px">
+      <div class="components-container table-responsive">
+        <h6 class="fw-600">MERCHANTS BALANCE </h6>
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>
+                <ng-select placeholder="Country" [(ngModel)]="balanceSelectedCountry"
+                          (ngModelChange)="filterBalanceList()">
+                  <ng-option *ngFor="let code of balanceCountryCodes" [value]="code">{{code}}</ng-option>
+                </ng-select>
+              <th></th>
+              <th></th>
+              <th colspan="3">Payouts</th>
+              <th>Payins</th>
+              <th></th>
+            </tr>
+            <tr>
+              <th><label (click)="orderBy('CountryCode')">Country</label></th>  
+              <th><label (click)="orderBy('LastName')">Client</label></th>
+              <th>Balance</th>
+              <th>In Progress</th>
+              <th>Received</th>
+              <th>On Hold</th>
+              <th>In Progress</th>
+              <th>Projected Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let report of ListClientReportFilter">
+              <tr>
+                <td>{{report.CountryCode}}</td>
+                <td>{{ report.LastName }}</td>
+                <td>{{ report.SaldoActual | fixedDecimal: 2:'':report.CurrencyCode }}</td>
+                <td>{{ report.AmtInProgressPO | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntInProgressPO }})</td>
+                <td>{{ report.AmtReceived | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntReceived }})</td>
+                <td>{{ report.AmtOnHoldPO | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntOnHoldPO }})</td>
+                <td>{{ report.AmtInProgressPI | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntInProgressPI }})</td>
+                <td>{{ (report.SaldoActual - report.AmtInProgressPO - report.AmtReceived - report.AmtOnHoldPO + report.AmtInProgressPI) ? ((report.SaldoActual - report.AmtInProgressPO - report.AmtReceived - report.AmtOnHoldPO + report.AmtInProgressPI - report.CommTaxesInProgressPI - report.CommTaxesInProgressPO) | fixedDecimal: 2:'':report.CurrencyCode) : '-'}}</td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col pr-0 pl-0"  style="min-width: 552px">
+      <div class="components-container"   id="compMainReport"  style="padding-bottom: 4px">
+        <div class="row">
+          <div class="col-2" >
+            <div class="btn-group float-left">
+              <label class="btn btn-secondary" style="font-size:14px" [ngClass]="ciclo == 'MONTH' ? 'inactiveOption' : '' " [(ngModel)]="ciclo" btnRadio="WEEK"
+                (ngModelChange)="handleRadioButton($event)"
+                tabindex="0" role="button">Weekly</label>
+              <label class="btn btn-secondary" style="font-size:14px"
+                [ngClass]="ciclo == 'WEEK' ? 'inactiveOption': '' " [(ngModel)]="ciclo" btnRadio="MONTH"
+                (ngModelChange)="handleRadioButton($event)"
+                tabindex="0" role="button">Monthly</label>
+            </div>
+          </div>
+          <div class="col-8">
+            <h6 class="fw-600">MAIN REPORT</h6>
+          </div>
+          <div class="col-2"></div>
+        </div>
+        <div>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th >Ranking</th>
+                <th>Merchant</th>
+                <th>Gross </th>
+                <th>Gross %</th>
+                <th>TX Quantity</th>
+                <th>Tx % </th>
+                <th>Total </th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let report of ListMainReport">
+                <tr >
+                  <td>{{ report.Ranking }}</td>
+                  <td>{{ report.Merchant }}</td>
+                  <td>{{ report.Gross | fixedDecimal: 2 }}</td>
+                  <td></td>
+                  <td>{{ report.txsQuantity || '-' }}</td>
+                  <td>{{ report.txsQuantityVariation + '%' || '-' }}</td>
+                  <td>-</td>
+                </tr>
+              </ng-container>
+            </tbody>
+            <tfoot class="bkgLg">
+              <tr>
+                <td class="fw-600">TOTALS:</td>
+                <td></td>
+                <td>{{mainReportTotals.gross | fixedDecimal: 2}}</td>
+                <td></td>
+                <td>{{mainReportTotals.txsQuantity}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" [ngClass]="resMatch.matches == false ? 'col pr-0 pl-0 pr-0' : 'col pr-0'" style="min-width: 552px" [ngStyle]="{'margin-top': resMatch.matches == false ? '15px'  : '0px'} " >
+      <div class="components-container" style="height: 100%;">
+        <h6 class="fw-600">DOLLAR TODAY</h6>
+        <table class="table table-sm table-bordered" style="margin-top: 24px; margin-bottom: 0">
+          <thead>
+            <tr>
+              <th>Merchant</th>
+              <th>Buy</th>    
+              <th>Base Buy  </th>                      
+              <th>Spot</th>
+              <th>Base Sell </th>
+              <th>Sell</th>
+        
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let dollarToday of ListDollarToday">
+              <tr class="text-nowrap">
+                <td>{{ dollarToday.merchant }}</td>
+                <td>{{ dollarToday.buy | fixedDecimal: 2 }}</td>    
+                <td>{{ dollarToday.base_buy + '%' || '-'  }}</td>              
+                <td>{{ dollarToday.spot | fixedDecimal: 2}}</td>
+                <td>{{ dollarToday.base_sell + '%' || '-' }}</td>
+                <td>{{ dollarToday.sell | fixedDecimal: 2}}</td>
+          
+              </tr>
+            </ng-container>
+          </tbody>
+          <!-- <tfoot class="bkgLg">
+            <tr>
+              <td class="fw-600">TOTALS:</td>           
+              <td>{{totalsTest.spot | fixedDecimal: 2 }}</td>
+              <td>{{totalsTest.sell | fixedDecimal: 2 }}</td>
+              <td>{{totalsTest.base_sell}}</td>
+              <td>{{totalsTest.buy | fixedDecimal: 2 }}</td>
+              <td>{{totalsTest.base_buy}}</td>
+            </tr>
+          </tfoot> -->
+        </table>
+      </div>
+    </div>
+
+    
+
+    <div class="col-12 pl-0 pr-0" style="margin-top:15px">
+      <div class="components-container table-responsive">
+        <h6 class="fw-600">PROVIDER COLLECTION CYCLE </h6>
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Gross</th>
+              <th>Comission</th>
+              <th>Vat</th>
+              <th>Perc. IIBB</th>
+              <th>Perc. vat</th>
+              <th>Perc. Profit</th>
+              <th>Net</th>
+              <th>Cycle</th>
+              <th>Date Received</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let ProviderCycle of ListProviderCycle">
+              <tr>
+                <td>
+                  <div class="btn-link c-pointer" (click)="showReport(ProviderCycle.provider, ProviderCycle.transactionType,'PROVIDER')"
+                    title="VIEW REPORT">
+                    {{ ProviderCycle.provider }}
+                  </div>
+                </td>
+                <td>{{ ProviderCycle.gross | fixedDecimal: 2}}</td>
+                <td>{{ ProviderCycle.comission | fixedDecimal: 2 }}</td>
+                <td>{{ ProviderCycle.vat  | fixedDecimal: 2}}</td>
+                <td>{{ ProviderCycle.percIIBB | fixedDecimal: 2}}</td>
+                <td>{{ ProviderCycle.percVat | fixedDecimal: 2}}</td>
+                <td>{{ ProviderCycle.percProfit | fixedDecimal: 2 }}</td>
+                <td>{{ ProviderCycle.net | fixedDecimal: 2}}</td>
+                <td>{{ ProviderCycle.cycle || '-' }}</td>
+                <td>{{ ProviderCycle.dateReceived == NULL ? '-' : (ProviderCycle.dateReceived | amUtc | amDateFormat:'DD/MM/YYYY') }}</td>
+                <td>  <button type="button" class="btn btn-sm blueBtnLp" (click)="cashProvider(ProviderCycle.idProvider,ProviderCycle.cycle)"><i class="fa fa-hand-holding-usd"></i> </button>    </td>
+              </tr>
+            </ng-container>
+          </tbody>
+          <tfoot class="bkgLg">
+            <tr>
+              <td class="fw-600">TOTALS:</td>
+              <td>{{ providerCycleTotals.gross | fixedDecimal: 2}}</td>
+              <td>{{ providerCycleTotals.comission  | fixedDecimal: 2 }}</td>
+              <td>{{ providerCycleTotals.vat  | fixedDecimal: 2 }}</td>
+              <td>{{ providerCycleTotals.percIIBB  | fixedDecimal: 2 }}</td>
+              <td>{{ providerCycleTotals.percVat  | fixedDecimal: 2}}</td>
+              <td>{{ providerCycleTotals.percProfit  | fixedDecimal: 2}}</td>
+              <td>{{ providerCycleTotals.net  | fixedDecimal: 2 }}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-12 pl-0 pr-0" style="margin-top:15px">
+      <div class="components-container table-responsive">
+        <h6 class="fw-600">MERCHANT PAYMENT CYCLE </h6>
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Merchant</th>
+              <!-- <th>Payment Method</th> -->
+              <th>Gross</th>
+              <th>Comission</th>
+              <th>Vat</th>
+              <th>Net (ARS) </th>
+              <th>Ex Rate</th>
+              <th>Net (USD)</th>
+              <th>Cycle</th>
+              <th>Payment Date</th>
+              <th>Ex Change</th>
+              <th>Revenue Oper.</th>
+              <th>Revenue Fx</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>        
+              <ng-container *ngFor="let merchantCycle of ListMerchantCycle">
+                <tr>
+              <td>
+                <div class="btn-link c-pointer" (click)="showReport(merchantCycle.merchant,merchantCycle.idEntityMerchant,'MERCHANT')" title="VIEW REPORT">{{merchantCycle.merchant}}</div>
+              </td>
+              <!-- <td>{{merchantCycle.method}}</td> -->
+              <td>{{merchantCycle.gross | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.comission | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.vat | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.ars | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.exrate}}</td>
+              <td>{{merchantCycle.usd | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.cycle}}</td>
+              <td>{{merchantCycle.payDate == null ? '' : (merchantCycle.payDate | amDateFormat:'DD/MM/YYYY') }} </td>
+              <td>{{merchantCycle.exchange}}</td>
+              <td>{{merchantCycle.revenueOper | fixedDecimal: 2}}</td>
+              <td>{{merchantCycle.revenueFx}}</td>
+              <td>  <button type="button" class="btn btn-sm blueBtnLp" (click)="payMerchant(merchantCycle.idEntityMerchant,merchantCycle.StartCycle,merchantCycle.EndCycle)"><i class="fa fa-money-check-alt"></i> </button>    </td>
+            </tr>
+          </ng-container>
+  
+          </tbody>
+          <tfoot class="bkgLg">
+            <tr>
+              <td class="fw-600">TOTALS:</td>
+              <!-- <td></td> -->
+              <td>{{merchantCycleTotals.gross | fixedDecimal: 2}}</td>
+              <td>{{merchantCycleTotals.comission | fixedDecimal: 2}}</td>
+              <td>{{merchantCycleTotals.vat | fixedDecimal: 2}}</td>
+              <td>{{merchantCycleTotals.ars | fixedDecimal: 2}}</td>
+              <td></td>
+              <td>{{merchantCycleTotals.usd | fixedDecimal: 2}}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div *ngIf="showReportState">
+  <app-all-database-report fromDashboard="{{showReportState}}"  typeReport="{{typeReport}}" IdFilter="{{idSelect}}" titleReport="{{titleSelect}}" (backToDashboard)="hideReport()"></app-all-database-report>
+</div>

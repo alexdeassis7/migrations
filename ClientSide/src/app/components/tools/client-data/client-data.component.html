@@ -1,0 +1,124 @@
+<div class="card">
+
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="card-body" id="filterPanel" class="collapse show">
+        <form [formGroup]="myForm" (ngSubmit)="search()">
+            <div class="row" style="margin: 10px 10px 0px 10px">
+                <div class="form-group col-12">
+                    <label>User Name</label>
+                    <input type="text" formControlName="clientName"  class="form-control" placeholder="10 to 100 Characteres">
+                    <div *ngIf="myForm.controls['clientName'].invalid && (myForm.controls['clientName'].dirty || myForm.controls['clientName'].touched)">
+                        <div class="text-danger" *ngIf="myForm.controls['clientName'].errors.required">Required</div>
+                        <div class="text-danger" *ngIf="myForm.controls['clientName'].errors.minlength">Only allow min 4 characteres</div>
+                        <div class="text-danger" *ngIf="myForm.controls['clientName'].errors.maxlength">Only allow max 60 characteres</div>
+                        </div>
+                </div>
+                <div class="col-12" style="padding: 10px;">
+                    <button type="submit" class="btn blueBtnLp" [disabled]="myForm.invalid" style="float: right;font-size: 14px"> <i class="fa fa-filter"></i> Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+    <div class="alert alert-secondary noDataAlert" *ngIf="UserApi.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+    <div *ngIf="UserApi != '' && UsersWeb.length > 0 && AccountConfigList.length > 0">
+        <ul class="nav nav-tabs" >
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="handleChangeSelectItem('UserApi')">
+              <a class="nav-link " style="color:#909294"
+                [ngClass]="{'active itemNavActive': itemSelect == 'UserApi' } ">UserApi</a>
+            </li>
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="handleChangeSelectItem('UsersWeb')">
+              <a class="nav-link" style="color:#909294" [ngClass]="{'active itemNavActive': itemSelect == 'UsersWeb' }">UsersWeb</a>
+            </li>
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="handleChangeSelectItem('AccountConfigList')">
+              <a class="nav-link" style="color:#909294"
+                [ngClass]="{'active itemNavActive': itemSelect == 'AccountConfigList' }">AccountConfigList</a>
+            </li>
+            
+          </ul>
+
+          <div class="card-body pl-0 pr-0 tabsBody" [ngSwitch]="itemSelect">
+
+                <ng-container *ngSwitchCase="'UserApi'">
+                    <textarea class="form-control" rows="19" #UserApiInput [(ngModel)]="UserApi"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn blueBtnLp" (click)="copyInputMessage(UserApiInput)"  style="margin:10px;font-size: 14px"> 
+                            <div *ngIf="copied">
+                                <i class="fa fa-check"></i> Copied
+                            </div>
+                            <div *ngIf="!copied">
+                                <i class="fa fa-file"></i> Copy
+                            </div>
+                        </button>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'UsersWeb'">
+                    <textarea class="form-control" rows="19" #UsersWebInput [(ngModel)]="UsersWeb"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn blueBtnLp" (click)="copyInputMessage(UsersWebInput)"  style="margin:10px;font-size: 14px">
+                            <div *ngIf="copied">
+                                <i class="fa fa-check"></i> Copied
+                            </div>
+                            <div *ngIf="!copied">
+                                <i class="fa fa-file"></i> Copy
+                            </div>
+                        </button>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'AccountConfigList'">
+                    <textarea class="form-control" rows="19" #AccountConfigListInput [(ngModel)]="AccountConfigList"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn blueBtnLp"   (click)="copyInputMessage(AccountConfigListInput)"  style="margin:10px;font-size: 14px">
+                            <div *ngIf="copied">
+                                <i class="fa fa-check"></i> Copied
+                            </div>
+                            <div *ngIf="!copied">
+                                <i class="fa fa-file"></i> Copy
+                            </div>
+                        </button>
+                    </div>
+                </ng-container>
+                
+            </div>
+        <!-- <div class="table-responsive" id="divContainerTable" style="max-height: calc(100vh - 275px);">
+            <table class="table table-hover text-nowrap">
+                <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+                    <tr>
+                        <th>FirstName</th>
+                        <th>Identification</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <ng-container *ngFor="let data of responseData">
+                        <tr class="borderComplete" (click)="selectRecord(data)">
+                          <td>{{ data.FirstName }}</td>
+                          <td>{{ data.Identification }}</td>
+                          <td>{{ data.Active ? "Yes" : "No" }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div> -->
+    </div>
+    <div *ngIf="selectedRecord != null">
+        <div class="col-12">
+            <textarea class="form-control" rows="15" [(ngModel)]="selectedRecord"></textarea>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn blueBtnLp" (click)="selectRecord(null)"  style="margin:10px;font-size: 14px"> <i class="fa fa-arrow-left"></i> Back</button>
+            </div>
+        </div>
+    </div>
+</div>

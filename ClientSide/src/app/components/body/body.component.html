@@ -1,0 +1,15 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<app-nabvar *ngIf="currentUser"></app-nabvar>
+
+<div class="container-fluid container-custom">
+    <app-side-nabvar *ngIf="currentUser"></app-side-nabvar>
+
+    <div class="main-content" id="result">
+        <app-breadcrumb *ngIf="currentUser"></app-breadcrumb>
+
+
+
+    </div>
+</div>
+
+<app-footer></app-footer>

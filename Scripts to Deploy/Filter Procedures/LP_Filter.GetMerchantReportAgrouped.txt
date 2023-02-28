@@ -1,0 +1,24 @@
+create PROCEDURE LP_Filter.GetMerchantReportAgrouped
+	@merchantId bigint,
+	@statusId int = null,
+	@dateFrom nvarchar(8),
+	@dateTo nvarchar(8)
+AS
+BEGIN
+select  idEntityUser, (cast(DATEPART(yyyy, [t].TransactionDate) as nvarchar(4)) + '-' +  (cast(DATEPART(mm, [t].TransactionDate) as nvarchar(2)))  + '-' +  (cast(DATEPART(dd, [t].TransactionDate) as nvarchar(2)))) Fecha , 
+(cast(DATEPART(yyyy, [t].processeddate) as nvarchar(4)) + '-' +  (cast(DATEPART(mm, [t].processeddate) as nvarchar(2)))  + '-' +  (cast(DATEPART(dd, [t].processeddate) as nvarchar(2)))) Fecha_Procesamiento, 
+count(t.idTransaction) Cant_transacciones, sum(GrossAmount) GrossAmount_Sum,
+sum([TD].[TaxWithholdings]) Sum_TaxWithholdings,sum([TD].[TaxWithholdingsArba]) Sum_TaxWithholdingsArba,	sum([TD].[NetAmount]) [Sum_Payable]
+from [LP_Operation].[Transaction] [t]
+inner join [LP_Operation].[TransactionDetail] [td] on t.idTransaction = td.idTransaction and (@statusId is null or t.idStatus = @statusId)
+left join [LP_Common].[Status] pend on pend.idStatus = t.idStatus and (pend.idStatus = 1 or pend.idStatus = 2)
+left join [LP_Common].[Status] conf on conf.idStatus = t.idStatus and (conf.idStatus = 4)
+where [t].Active = 1 and t.idEntityUser = @merchantId and [t].TransactionDate between LP_Common.[fnStringToDate](@dateFrom) and LP_Common.[fnStringToDate](@dateTo)
+group by
+idEntityUser, cast(DATEPART(yyyy, [t].TransactionDate) as nvarchar(4)) + '-' +  (cast(DATEPART(mm, [t].TransactionDate) as nvarchar(2)))  + '-' +  (cast(DATEPART(dd, [t].TransactionDate) as nvarchar(2))),
+cast(DATEPART(yyyy, [t].processeddate) as nvarchar(4)) + '-' +  (cast(DATEPART(mm, [t].processeddate) as nvarchar(2)))  + '-' +  (cast(DATEPART(dd, [t].processeddate) as nvarchar(2)))
+order by 
+cast(DATEPART(yyyy, [t].TransactionDate) as nvarchar(4)) + '-' +  (cast(DATEPART(mm, [t].TransactionDate) as nvarchar(2)))  + '-' +  (cast(DATEPART(dd, [t].TransactionDate) as nvarchar(2))) asc
+
+END
+GO

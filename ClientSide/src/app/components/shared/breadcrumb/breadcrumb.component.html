@@ -1,0 +1,8 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb" >       
+      <ng-container *ngFor= "let item of breadCrumbItems ; last as $last" >
+            <li *ngIf="!$last"  class="breadcrumb-item "><span >{{item}}</span></li>
+            <li *ngIf="$last"  class="breadcrumb-item active ">{{item}}</li>
+        </ng-container>  
+    </ol>
+</nav>

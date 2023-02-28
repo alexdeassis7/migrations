@@ -1,0 +1,1330 @@
+openapi: 3.0.0
+info:
+  version: v1
+  title: WA_LP
+  x-logo:
+    url: https://www.localpayment.com/wp-content/uploads/2019/04/lp_logo_lineal.png
+    altText: LocalPayment logo
+paths:
+  /v2/tokens:
+    post:
+      tags:
+        - Authentication
+      summary: Tokens
+      operationId: Authentication_Token
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Id of costumer
+          required: true
+          schema:
+            type: string
+        - name: api_key
+          in: header
+          description: api key
+          required: true
+          schema:
+            type: string
+        - name: app
+          in: header
+          description: app
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+        "400":
+          description: BadRequest
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+        "500":
+          description: InternalServerError
+  /v2/payouts/payout:
+    post:
+      tags:
+        - PayOut
+      summary: Create
+      operationId: PayOut_Payouts
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+        - name: countryCode
+          in: header
+          description: Country code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+      requestBody:
+        content:
+            application/json:
+              schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/ARG_(Create_Request)'
+                    - $ref: '#/components/schemas/COL_(Create_Request)'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_(Payout_Response)'
+                      - $ref: '#/components/schemas/COL_(Payout_Response)'
+            text/json:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_(Payout_Response)'
+                      - $ref: '#/components/schemas/COL_(Payout_Response)'
+            application/xml:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_(Payout_Response)'
+                      - $ref: '#/components/schemas/COL_(Payout_Response)'
+            text/xml:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_(Payout_Response)'
+                      - $ref: '#/components/schemas/COL_(Payout_Response)'
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+      x-code-samples:
+        - lang: -CURL ARG
+          source: >
+            curl --location --request POST
+            'https://live.localpayment.com/qa/v2/payouts/payout' \
+
+            --header 'Content-Type: application/json' \--header 'customer_id: 000001500001' \
+
+            --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjAwMDAwMTUwMDAwMSIsIm5iZiI6MTU3OTEwMjQxMywiZXhwIjoxNTc5MTA0MjEzLCJpYXQiOjE1NzkxMDI0MTMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCJ9.wPb-x9yGCvcC49z8NOH9MmKUlmW3iVHCRF-oVI25-QI' \
+
+            --header 'countryCode: ARG' \
+
+            --data-raw '[
+
+            {
+              "beneficiary_cuit":"20205803980",
+              "beneficiary_name":"Pereyra Carlos",
+              "bank_account_type":"A",
+              "bank_cbu":"0150501601000245488475",
+              "amount":567819,
+              "beneficiary_softd":null,
+              "site_transaction_id":169872563,
+              "concept_code":0,
+              "payment_type":null,
+              "currency":"ARS",
+              "payout_date":"20200115",
+              "address":null,
+              "annotation":null,
+              "birth_date":null,
+              "city":null,
+              "country":null,
+              "email":null,
+              "subclient_code":"Airbnb"
+            }
+
+            ]'
+        - lang: -CURL COL
+          source: >
+            curl --location --request POST
+            'https://live.localpayment.com/qa/v2/payouts/payout' \
+
+            --header 'Content-Type: application/json' \
+
+            --header 'customer_id: 000001500001' \
+
+            --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjAwMDAwMTUwMDAwMSIsIm5iZiI6MTU3ODkwOTU1NiwiZXhwIjoxNTc4OTExMzU2LCJpYXQiOjE1Nzg5MDk1NTYsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCJ9.hPOGqC2_8xzeKtXCfGdtO_l_tsfFIA_8fDalRhKyypc' \
+
+            --header 'countryCode: COL' \
+
+            --data-raw '[
+              {
+                  "amount":26880000,
+                  "type_of_id":"1",
+                  "id":"54544241243",
+                  "beneficiary_name":"Erica Paola Garcia",
+                  "account_type":"37",
+                  "bank_code":"1062",
+                  "beneficiary_account_number":"111660011171",
+                  "beneficiary_email":"",
+                  "site_transaction_id":"8889157",
+                  "concept_code":"AB",
+                  "payout_date":"20200113",
+                  "currency":"COP",
+                  "address":"francia 55",
+                  "city":"BOGOTA",
+                  "country":"COLOMBIA",
+                  "subclient_code":"Airbnb"
+               }
+            ]'
+  /v2/payouts/update:
+    put:
+      tags:
+        - PayOut
+      summary: Update
+      operationId: PayOut_Payout_update
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+        - name: countryCode
+          in: header
+          description: Country Code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+        - name: TransactionMechanism
+          in: header
+          description: Transaction Mechanism
+          required: true
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ARG_(Update_Request)'
+                - $ref: '#/components/schemas/COL_(Update_Request)'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_(Update_Response)'
+                  - $ref: '#/components/schemas/COL_(Update_Response)'
+            text/json:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_(Update_Response)'
+                  - $ref: '#/components/schemas/COL_(Update_Response)'
+            application/xml:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_(Update_Response)'
+                  - $ref: '#/components/schemas/COL_(Update_Response)'
+            text/xml:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_(Update_Response)'
+                  - $ref: '#/components/schemas/COL_(Update_Response)'
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+      x-code-samples:
+        - lang: -CURL ARG
+          source: >
+            curl --location --request PUT
+            'https://live.localpayment.com/qa/v2/payouts/update' \
+
+            --header 'Content-Type: application/json' \
+
+            --header 'customer_id: 000001500001' \
+
+            --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjAwMDAwMTUwMDAwMSIsIm5iZiI6MTU3ODA1MzU2MywiZXhwIjoxNTc4MDU1MzYzLCJpYXQiOjE1NzgwNTM1NjMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCJ9.SXVnIfG5jjhdG1IKZHR7Hn7CooSsSNxd-Or9A1iYxoY' \
+
+            --header 'countryCode: COL' \
+
+            --data-raw '[
+              {
+                  "amount":26885000,
+                  "type_of_id":"1",
+                  "id":"54544241243",
+                  "beneficiary_name":"Erica Paola Garcia",
+                  "account_type":"37",
+                  "bank_code":"1062",
+                  "beneficiary_account_number":"111660011171",
+                  "beneficiary_email":"",
+                  "site_transaction_id":"8889150",
+                  "payout_date":"20200103",
+                  "currency":"COP",
+                  "address":"francia 55",
+                  "city":"BOGOTA",
+                  "country":"COLOMBIA",
+                  "subclient_code":"Airbnb"
+               }
+            ]'
+        - lang: -CURL COL
+          source: >
+            curl --location --request PUT
+            'https://live.localpayment.com/qa/v2/payouts/update' \
+
+            --header 'Content-Type: application/json' \
+
+            --header 'customer_id: 000001500001' \
+
+            --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjAwMDAwMTUwMDAwMSIsIm5iZiI6MTU3ODA1MzU2MywiZXhwIjoxNTc4MDU1MzYzLCJpYXQiOjE1NzgwNTM1NjMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjgyMCJ9.SXVnIfG5jjhdG1IKZHR7Hn7CooSsSNxd-Or9A1iYxoY' \
+
+            --header 'countryCode: COL' \
+
+            --data-raw '[
+              {
+                  "amount":26885000,
+                  "type_of_id":"1",
+                  "id":"54544241243",
+                  "beneficiary_name":"Erica Paola Garcia",
+                  "account_type":"37",
+                  "bank_code":"1062",
+                  "beneficiary_account_number":"111660011171",
+                  "beneficiary_email":"",
+                  "site_transaction_id":"8889150",
+                  "payout_date":"20200103",
+                  "currency":"COP",
+                  "address":"francia 55",
+                  "city":"BOGOTA",
+                  "country":"COLOMBIA",
+                  "subclient_code":"Airbnb"
+               }
+            ]'
+  /v2/payouts/cancel:
+    delete:
+      tags:
+        - PayOut
+      summary: Cancel
+      operationId: PayOut_Payout_cancel
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+        - name: TransactionMechanism
+          in: header
+          description: Transaction Mechanism
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/payouts/list:
+    get:
+      tags:
+        - PayOut
+      summary: List
+      operationId: PayOut_List_payouts
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+        - name: countryCode
+          in: header
+          description: Country Code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+servers:
+  - url: http://localhost:6820/api
+components:
+  schemas:
+    SharedModel.Models.Security.Token:
+      type: object
+      properties:
+        token_id:
+          type: string
+    SharedModel.Models.Database.Security.Authentication.Account:
+      type: object
+      properties:
+        SecretKey:
+          type: string
+        ValidationResult:
+          $ref: "#/components/schemas/SharedModel.Models.Database.General.Result.Va\
+            lidation"
+        Login:
+          $ref: "#/components/schemas/SharedModel.Models.Security.AccountModel.Login"
+    SharedModel.Models.Database.General.Result.Validation:
+      type: object
+      properties:
+        ValidationStatus:
+          type: boolean
+        ValidationMessage:
+          type: string
+    SharedModel.Models.Security.AccountModel.Login:
+      type: object
+      properties:
+        ClientID:
+          type: string
+        Password:
+          type: string
+        WebAcces:
+          type: boolean
+    SharedModel.Models.General.ErrorModel.Error:
+      type: object
+      properties:
+        Errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Valid\
+              ationErrorGroup"
+        HasError:
+          type: boolean
+          readOnly: true
+    SharedModel.Models.General.ErrorModel.ValidationErrorGroup:
+      type: object
+      properties:
+        Key:
+          type: string
+        Messages:
+          type: array
+          items:
+            type: string
+        CodeTypeError:
+          type: array
+          items:
+            type: string
+    SharedModel.Models.General.GeneralErrorModel:
+      type: object
+      properties:
+        Code:
+          type: string
+        CodeDescription:
+          type: string
+        Message:
+          type: string
+    SharedModel.Models.Services.Banks.Galicia.PayOut.Delete.Response:
+      required:
+        - payout_id
+      type: object
+      properties:
+        status:
+          type: string
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          minimum: 1
+          type: integer
+        ErrorRow:
+          $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Error"
+    SharedModel.Models.Services.Banks.Galicia.PayOut.LotBatch:
+      type: object
+      properties:
+        payout_id:
+          format: int64
+          type: integer
+        customer_name:
+          type: string
+        transaction_type:
+          type: string
+        status:
+          type: string
+        process_date:
+          type: string
+        gross_amount:
+          format: int32
+          type: integer
+        net_amount:
+          format: int32
+          type: integer
+        account_balance:
+          format: int32
+          type: integer
+        transaction_list:
+          type: array
+          items:
+            $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Galicia.P\
+              ayOut.List.Response"
+        error:
+          type: string
+    SharedModel.Models.Services.Banks.Galicia.PayOut.List.Response:
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        type_of_id:
+          type: string
+        beneficiary_cuit:
+          type: string
+        beneficiary_name:
+          type: string
+        bank_account_type:
+          type: string
+        bank_account:
+          type: string
+        bank_code:
+          type: string
+        bank_cbu:
+          type: string
+        amount:
+          format: int32
+          type: integer
+        accreditation_date:
+          type: string
+        beneficiary_softd:
+          type: string
+        site_transaction_id:
+          type: string
+        concept_code:
+          format: int32
+          type: integer
+        currency:
+          type: string
+        payment_type:
+          type: string
+        status:
+          type: string
+        withholding_tax:
+          format: int32
+          type: integer
+        subclient_code:
+          type: string
+    ARG_(Create_Request):
+      required:
+        - beneficiary_cuit
+        - beneficiary_name
+        - bank_account_type
+        - bank_cbu
+        - amount
+        - site_transaction_id
+        - currency
+        - subclient_code
+      type: object
+      properties:
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+        amount:
+          format: int64
+          maximum: 100000000
+          minimum: 100
+          type: integer
+        beneficiary_softd:
+          type: string
+        site_transaction_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+        concept_code:
+          format: int32
+          type: integer
+        payment_type:
+          type: string
+        currency:
+          type: string
+        payout_date:
+          type: string
+        address:
+          type: string
+        annotation:
+          type: string
+        birth_date:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        email:
+          type: string
+        subclient_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+    ARG_(Payout_Response):
+        required:
+          - beneficiary_cuit
+          - beneficiary_name
+          - bank_account_type
+          - bank_cbu
+          - amount
+          - site_transaction_id
+          - currency
+          - subclient_code
+        type: object
+        properties:
+          transaction_id:
+            format: int64
+            type: integer
+          payout_id:
+            format: int64
+            type: integer
+          status:
+            type: string
+          withholding_tax:
+            format: int64
+            type: integer
+          beneficiary_cuit:
+            maxLength: 11
+            minLength: 11
+            type: string
+          beneficiary_name:
+            maxLength: 60
+            minLength: 1
+            type: string
+          bank_account_type:
+            maxLength: 1
+            minLength: 1
+            type: string
+          bank_cbu:
+            maxLength: 22
+            minLength: 22
+            type: string
+          amount:
+            format: int64
+            maximum: 100000000
+            minimum: 100
+            type: integer
+          beneficiary_softd:
+            type: string
+          site_transaction_id:
+            maxLength: 22
+            minLength: 0
+            type: string
+          concept_code:
+            format: int32
+            type: integer
+          currency:
+            type: string
+          payout_date:
+            type: string
+          email:
+            type: string
+          address:
+            type: string
+          birth_date:
+            type: string
+          country:
+            type: string
+          city:
+            type: string
+          annotation:
+            type: string
+          subclient_code:
+            maxLength: 60
+            minLength: 3
+            type: string
+          ErrorRow:
+            $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+              or"
+    ARG_(Update_Request):
+          required:
+            - transaction_id
+            - payout_id
+            - beneficiary_cuit
+            - beneficiary_name
+            - bank_account_type
+            - bank_cbu
+            - amount
+            - site_transaction_id
+            - currency
+            - subclient_code
+          type: object
+          properties:
+            transaction_id:
+              format: int64
+              type: integer
+            payout_id:
+              format: int64
+              type: integer
+            beneficiary_cuit:
+              maxLength: 11
+              minLength: 11
+              type: string
+            beneficiary_name:
+              maxLength: 60
+              minLength: 1
+              type: string
+            bank_account_type:
+              maxLength: 1
+              minLength: 1
+              type: string
+            bank_cbu:
+              maxLength: 22
+              minLength: 22
+              type: string
+            amount:
+              format: int64
+              maximum: 100000000
+              minimum: 100
+              type: integer
+            beneficiary_softd:
+              type: string
+            site_transaction_id:
+              maxLength: 22
+              minLength: 0
+              type: string
+            concept_code:
+              format: int32
+              type: integer
+            currency:
+              type: string
+            payout_date:
+              type: string
+            email:
+              type: string
+            address:
+              type: string
+            birth_date:
+              type: string
+            country:
+              type: string
+            city:
+              type: string
+            annotation:
+              type: string
+            subclient_code:
+              maxLength: 60
+              minLength: 3
+              type: string
+            ErrorRow:
+              $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+                or"
+    ARG_(Update_Response):
+          required:
+            - transaction_id
+            - payout_id
+            - beneficiary_cuit
+            - beneficiary_name
+            - bank_account_type
+            - bank_cbu
+            - amount
+            - site_transaction_id
+            - currency
+            - subclient_code
+          type: object
+          properties:
+            status:
+              type: string
+            withholding_tax:
+              format: int32
+              type: integer
+            transaction_id:
+              format: int64
+              type: integer
+            payout_id:
+              format: int64
+              type: integer
+            beneficiary_cuit:
+              maxLength: 11
+              minLength: 11
+              type: string
+            beneficiary_name:
+              maxLength: 60
+              minLength: 1
+              type: string
+            bank_account_type:
+              maxLength: 1
+              minLength: 1
+              type: string
+            bank_cbu:
+              maxLength: 22
+              minLength: 22
+              type: string
+            amount:
+              format: int64
+              maximum: 100000000
+              minimum: 100
+              type: integer
+            beneficiary_softd:
+              type: string
+            site_transaction_id:
+              maxLength: 22
+              minLength: 0
+              type: string
+            concept_code:
+              format: int32
+              type: integer
+            currency:
+              type: string
+            payout_date:
+              type: string
+            email:
+              type: string
+            address:
+              type: string
+            birth_date:
+              type: string
+            country:
+              type: string
+            city:
+              type: string
+            annotation:
+              type: string
+            subclient_code:
+              maxLength: 60
+              minLength: 3
+              type: string
+            ErrorRow:
+              $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+                or"
+    COL_(Create_Request):
+      required:
+        - type_of_id
+        - id
+        - beneficiary_name
+        - account_type
+        - bank_code
+        - beneficiary_account_number
+        - site_transaction_id
+        - amount
+        - currency
+      type: object
+      properties:
+        amount:
+          format: int64
+          minimum: 100
+          type: integer
+        type_of_id:
+          maxLength: 1
+          minLength: 1
+          type: string
+        id:
+          maxLength: 15
+          minLength: 1
+          type: string
+        beneficiary_name:
+          maxLength: 30
+          minLength: 1
+          type: string
+        account_type:
+          maxLength: 2
+          minLength: 2
+          type: string
+        bank_code:
+          type: string
+        beneficiary_account_number:
+          maxLength: 20
+          minLength: 4
+          type: string
+        beneficiary_email:
+          type: string
+        site_transaction_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+        concept_code:
+          type: string
+        payout_date:
+          type: string
+        currency:
+          type: string
+        address:
+          maxLength: 100
+          minLength: 0
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        subclient_code:
+          type: string
+    COL_(Payout_Response):
+        required:
+          - type_of_id
+          - id
+          - beneficiary_name
+          - account_type
+          - bank_code
+          - beneficiary_account_number
+          - site_transaction_id
+          - amount
+          - currency
+        type: object
+        properties:
+          transaction_id:
+            format: int64
+            type: integer
+          payout_id:
+            format: int64
+            type: integer
+          status:
+            type: string
+          type_of_id:
+            maxLength: 1
+            minLength: 1
+            type: string
+          id:
+            maxLength: 15
+            minLength: 1
+            type: string
+          beneficiary_name:
+            maxLength: 30
+            minLength: 1
+            type: string
+          account_type:
+            maxLength: 2
+            minLength: 2
+            type: string
+          bank_code:
+            type: string
+          beneficiary_account_number:
+            maxLength: 20
+            minLength: 4
+            type: string
+          beneficiary_email:
+            type: string
+          site_transaction_id:
+            maxLength: 22
+            minLength: 0
+            type: string
+          amount:
+            format: int64
+            minimum: 100
+            type: integer
+          payout_date:
+            type: string
+          currency:
+            type: string
+          address:
+            maxLength: 100
+            minLength: 0
+            type: string
+          country:
+            type: string
+          city:
+            type: string
+          subclient_code:
+            type: string
+          ErrorRow:
+            $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+              or"
+    COL_(Update_Request):
+          required:
+            - transaction_id
+            - payout_id
+            - type_of_id
+            - id
+            - beneficiary_name
+            - account_type
+            - bank_code
+            - beneficiary_account_number
+            - amount
+            - site_transaction_id
+            - currency
+            - subclient_code
+          type: object
+          properties:
+            transaction_id:
+              format: int64
+              type: integer
+            payout_id:
+              format: int64
+              type: integer
+            type_of_id:
+              maxLength: 1
+              minLength: 1
+              type: string
+            id:
+              maxLength: 15
+              minLength: 1
+              type: string
+            beneficiary_name:
+              maxLength: 60
+              minLength: 1
+              type: string
+            account_type:
+              maxLength: 2
+              minLength: 2
+              type: string
+            bank_code:
+              type: string
+            beneficiary_account_number:
+              maxLength: 20
+              minLength: 4
+              type: string
+            amount:
+              format: int64
+              maximum: 100000000
+              minimum: 100
+              type: integer
+            beneficiary_softd:
+              type: string
+            site_transaction_id:
+              maxLength: 22
+              minLength: 0
+              type: string
+            concept_code:
+              format: int32
+              type: integer
+            currency:
+              type: string
+            payout_date:
+              type: string
+            email:
+              type: string
+            address:
+              type: string
+            birth_date:
+              type: string
+            country:
+              type: string
+            city:
+              type: string
+            annotation:
+              type: string
+            subclient_code:
+              maxLength: 60
+              minLength: 3
+              type: string
+            ErrorRow:
+              $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+                or"
+    COL_(Update_Response):
+        required:
+          - transaction_id
+          - payout_id
+          - type_of_id
+          - id
+          - beneficiary_name
+          - account_type
+          - bank_code
+          - beneficiary_account_number
+          - amount
+          - site_transaction_id
+          - currency
+          - subclient_code
+        type: object
+        properties:
+          status:
+            type: string
+          withholding_tax:
+            format: int32
+            type: integer
+          transaction_id:
+            format: int64
+            type: integer
+          payout_id:
+            format: int64
+            type: integer
+          type_of_id:
+            maxLength: 1
+            minLength: 1
+            type: string
+          id:
+            maxLength: 15
+            minLength: 1
+            type: string
+          beneficiary_name:
+            maxLength: 60
+            minLength: 1
+            type: string
+          account_type:
+            maxLength: 2
+            minLength: 2
+            type: string
+          bank_code:
+            type: string
+          beneficiary_account_number:
+            maxLength: 20
+            minLength: 4
+            type: string
+          amount:
+            format: int64
+            maximum: 100000000
+            minimum: 100
+            type: integer
+          beneficiary_softd:
+            type: string
+          site_transaction_id:
+            maxLength: 22
+            minLength: 0
+            type: string
+          concept_code:
+            format: int32
+            type: integer
+          currency:
+            type: string
+          payout_date:
+            type: string
+          email:
+            type: string
+          address:
+            type: string
+          birth_date:
+            type: string
+          country:
+            type: string
+          city:
+            type: string
+          annotation:
+            type: string
+          subclient_code:
+            maxLength: 60
+            minLength: 3
+            type: string
+          ErrorRow:
+            $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Err\
+              or"

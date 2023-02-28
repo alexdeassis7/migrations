@@ -1,0 +1,48 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal">Close Merchant Cycle </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <div class="card">
+                <span class="float-left fw-500 blue-font " style="padding-left: 15px;padding-top: 5px">Merchant Data</span>
+            <div class="card-body" style="margin-top:5px">
+                    
+                <div class="row">
+                    <div class="col-2 pr-0"> Merchant </div>
+                    <div class="col-4 font-weight-bold pr-0">{{merchantCycle.merchant}} </div>
+                    <div class="col-2">Cycle </div>
+                    <div class="col-4 font-weight-bold"> {{merchantCycle.cycle}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-top:15px">
+                <span class="float-left fw-500 blue-font " style="padding-left: 15px;padding-top: 5px">Payment Data</span>
+            <div class="card-body">
+                    
+                <div class="row">
+                    <div class="col-2"> Amount </div>
+                    <div class="col-4 font-weight-bold"> <input type="text" [(ngModel)] = "merchantCycle.ars" class="form-control form-control-sm"  >  </div>
+                    <div class="col-2 pr-0">     <input type="checkbox" (change)="changeDollar($event)" name="checkDollar" id="checkDollar" [(ngModel)]="isDollar">&nbsp; <label for="checkDollar"> Dollar?</label> </div>
+                    <div class="col-4 font-weight-bold" *ngIf="isDollar"> <input type="text" [(ngModel)] = "merchantCycle.exchange" class="form-control form-control-sm"  > </div>
+                </div>
+                     
+                <div class="row" *ngIf="isDollar" style="margin-top:20px">
+                        <div class="col-2 pr-0"> Total USD </div>
+                        <div class="col-4 font-weight-bold"> {{usdCalculate}} </div>
+                      
+                    </div>
+            </div>
+        </div>
+ 
+    </div>
+
+    <div class="modal-footer" style="padding-bottom: 0" >
+        <div class="btn-footercontainer " >
+            <button type="button" class="btn btn-dark" style="color:white;">Confirm</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+<nav class="navbar fixed-top navbar-light navbar-global components-header">
+    <a class="navbar-brand" *ngIf="noHome" style="cursor: pointer;" (click)="toggleTrigger()">
+        <i class="btn-expand-collapse material-icons md-24" [hidden]="isOpen">menu</i>
+        <i class="btn-expand-collapse material-icons md-24" [hidden]="!isOpen">close</i>
+    </a>
+    <a class="navbar-brand" [routerLink]="['/Home/Dashboard']" style="position: fixed;margin-left: 30px;">
+        <img class="img-responsive d-inline-block align-top logoDashboard" alt="">
+
+        <!-- <img *ngIf="UserLogued.Country != null" [src]="UserLogued.Country.FlagIcon" [title]="UserLogued.Country.NameCode"  class="img-responsive d-inline-block align-top"  -->
+        <!-- style="width: 30px;margin-top: 9px;margin-left: 5px"> -->
+    </a>
+    <div class="dropdown info-client-menu" *ngIf="noHome">
+
+
+        <button class="btn btn-outline-blueLP dropdown-toggle btn-menuUser" type="button" id="dropdownMenuButton"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user-circle" *ngIf="UserLogued.Permisos == 'COMMON' "
+                style="margin-right: 7px; font-size: 23px"></i>
+            <i class="fas fa-user-tie" *ngIf="UserLogued.Permisos == 'ADMIN' "
+                style="margin-right: 7px; font-size: 23px"></i>
+            {{UserLogued.UserSiteIdentification}}
+            <img *ngIf="UserLogued.Permisos == 'COMMON' && UserLogued.Country != null"
+            [class]="UserLogued.Country.FlagIcon" [title]="UserLogued.Country.NameCode"
+                class="img-responsive d-inline-block align-top"
+                style="width: 30px;margin-top: -3px;margin-left: 10px;margin-right: 8px">
+
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <div class="row info-client  m-0" style="width: 340px;padding: .5rem 0;">
+                <div class="col-6 info-client-prev" style="padding:0">
+                    <img class="img-responsive d-inline-block align-top logoUserAdmin" alt="">
+                    <!-- <h6 class="dropdown-header">{{UserLogued.Permisos == 'ADMIN' ? 'Admin - LP' : 'Usuario'}} </h6> -->
+                    <div style="width:100%" class="text-center"> <label style="font-weight: 600">{{UserLogued.Permisos == 'ADMIN' ? 'Admin - LP'
+                            : 'Merchant'}}</label></div>
+
+                </div>
+                <div class="col-6 subItemsNabvar p-0" style="font-size:15px">
+                    <a class="dropdown-item blue-font c-pointer" *ngIf="UserLogued.Permisos == 'COMMON'"
+                        (click)="changeCountry()">
+                        <i class="fas fa-globe-americas"></i>   Change Country</a>
+                    <!-- <a class="dropdown-item blue-font" href="#">Ver Perfil</a>
+                    <a class="dropdown-item blue-font" href="#">Ayuda</a> -->
+                    <div class="dropdown-divider" style="border-color: lightgray;"></div>
+                    <a class="dropdown-item logout-client blue-font" style="cursor:pointer;" (click)="logout()"> <i
+                            class="fas fa-sign-out-alt"></i>   Logout</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>

@@ -1,0 +1,6 @@
+CREATE PROCEDURE [LP_Entity].[Get_Payout_Concepts]
+AS
+BEGIN
+select * from [LP_Entity].[Payout_Concepts] where active = 1
+END
+GO

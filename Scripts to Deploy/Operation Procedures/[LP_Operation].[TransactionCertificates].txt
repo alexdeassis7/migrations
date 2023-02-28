@@ -1,0 +1,20 @@
+CREATE TABLE [LP_Operation].[TransactionCertificates](
+	[idTransactionCertificate] [bigint] IDENTITY(1,1) NOT NULL,
+	[idTransaction] [bigint] NOT NULL,
+	[CertificateFileBytes] [varbinary](max) NULL,
+	[CertificateDate] [LP_Common].[LP_A_OP_INSDATETIME] NULL,
+	[certificateNumber] [bigint] NOT NULL UNIQUE,
+	
+PRIMARY KEY CLUSTERED 
+(
+	[idTransactionCertificate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[idTransaction] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [LP_Operation].[TransactionCertificates] ADD  CONSTRAINT [DF__Transacti__DB_In__38B96646]  DEFAULT (getdate()) FOR [CertificateDate] 
+GO

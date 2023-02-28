@@ -1,0 +1,1811 @@
+openapi: 3.0.0
+info:
+  version: v1
+  title: WA_LP
+  x-logo:
+    url: https://www.localpayment.com/wp-content/uploads/2019/04/lp_logo_lineal.png
+    altText: LocalPayment logo
+tags:
+  - name: Concept-Code
+    description:  |
+      | Code | Description                                          |
+      |------|------------------------------------------------------|
+      | 0001 | Payroll                                              |
+      | 0002 | Extras labor hours                                   |
+      | 0003 | Expenses reimbursement                               |
+      | 0004 | Annual extra salary (SAC)                            |
+      | 0005 | Vacation fee                                         |
+      | 0006 | Representation expenses                              |
+      | 0007 | Professional services                                |
+      | 0008 | Hired personnel                                      |
+      | 0009 | Trainees/scholarships                                |
+      | 0010 | Productivity or quality prizes                       |
+      | 0011 | Expenses reimbursement                               |
+      | 0012 | Lay-off payment                                      |
+      | 0013 | Family support                                       |
+      | 0014 | Education                                            |
+      | 0015 | Gift and other donations                             |
+      | 0016 | Medical treatment                                    |
+      | 0017 | Maintenance or other expenses                        |
+      | 0018 | Small value remittance                               |
+      | 0019 | Liberalized remittance                               |
+      | 0020 | Hotel accommodation                                  |
+      | 0021 | Advertising and/or public relations related expenses |
+      | 0022 | Fees for advisory or consulting service              |
+      | 0023 | Business related insurance payment                   |
+      | 0024 | Insurance claims payment                             |
+      | 0025 | Delivery fees                                        |
+      | 0026 | Payments for exported goods                          |
+      | 0027 | Payment of loans                                     |
+      | 0028 | Residential property purchase                        |
+      | 0029 | Property rental payment                              |
+      | 0030 | Royalty, trademark, patent and copyright fees        |
+      | 0031 | Investment in shares                                 |
+      | 0032 | Fund investment                                      |
+      | 0033 | Tax payment                                          |
+      | 0034 | Transportation fees                                  |
+      | 0035 | Utility bills                                        |
+      | 0036 | Personal transfer                                    |
+      | 0037 | Payment of salary                                    |
+      | 0038 | Other purposes                                       |
+      | 0039 | Remittances                                          |
+      | 0040 | Corporate payments                                   |
+x-tagGroups:
+  - name: General
+    tags:
+      - Authentication
+      - PayOut
+      - Get Balance
+      - Currency Exchange
+  - name: Appendixes
+    tags:
+      - Concept-Code
+paths:
+  /v2/tokens:
+    post:
+      tags:
+        - Authentication
+      summary: Tokens
+      operationId: Authentication_Token
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+        - name: api_key
+          in: header
+          description: api key
+          required: true
+          schema:
+            type: string
+        - name: app
+          in: header
+          description: app
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Security.Token"
+        "400":
+          description: BadRequest
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.Database.Security.Au\
+                  thentication.Account"
+        "500":
+          description: InternalServerError
+  /v2/payouts/payout:
+    post:
+      tags:
+        - PayOut
+      summary: Create
+      operationId: PayOut_Payouts
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+        - name: countryCode
+          in: header
+          description: Country code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+      requestBody:
+        content:
+            application/json:
+              schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/ARG_array_Request_create'
+                    - $ref: '#/components/schemas/COL_array_Request_create'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_array_Response_create'
+                      - $ref: '#/components/schemas/COL_array_Response_create'
+            text/json:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_array_Response_create'
+                      - $ref: '#/components/schemas/COL_array_Response_create'
+            application/xml:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_array_Response_create'
+                      - $ref: '#/components/schemas/COL_array_Response_create'
+            text/xml:
+               schema:
+                  oneOf:
+                      - $ref: '#/components/schemas/ARG_array_Response_create'
+                      - $ref: '#/components/schemas/COL_array_Response_create'
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/payouts/update:
+    put:
+      tags:
+        - PayOut
+      summary: Update
+      operationId: PayOut_Payout_update
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+        - name: countryCode
+          in: header
+          description: Country Code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+        - name: TransactionMechanism
+          in: header
+          description: Transaction Mechanism
+          required: true
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ARG_array_Request_update'
+                - $ref: '#/components/schemas/COL_array_Request_update'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_array_Response_update'
+                  - $ref: '#/components/schemas/COL_array_Response_update'
+            text/json:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_array_Response_update'
+                  - $ref: '#/components/schemas/COL_array_Response_update'
+            application/xml:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_array_Response_update'
+                  - $ref: '#/components/schemas/COL_array_Response_update'
+            text/xml:
+               schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ARG_array_Response_update'
+                  - $ref: '#/components/schemas/COL_array_Response_update'
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/payouts/cancel:
+    delete:
+      tags:
+        - PayOut
+      summary: Cancel
+      operationId: PayOut_Payout_cancel
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+        - name: TransactionMechanism
+          in: header
+          description: Transaction Mechanism
+          required: true
+          schema:
+            type: boolean
+      
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.Delete.Response"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/payouts/list:
+    get:
+      tags:
+        - PayOut
+      summary: List
+      operationId: PayOut_List_payouts
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+        - name: countryCode
+          in: header
+          description: Country Code
+          required: true
+          schema:
+            type: string
+            enum:
+              - ARG
+              - COL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.LotBatch"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/getBalance:
+    get:
+      tags:
+        - Get Balance
+      summary: Get Balance
+      operationId: PayOut_GetClientBalance
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Galicia.PayOut.ClientBalance"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.ClientBalance"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.ClientBalance"
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Gal\
+                    icia.PayOut.ClientBalance"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+  /v2/currency/currency_exchange:
+    post:
+      tags:
+        - Currency Exchange
+      operationId: Currency Exchange Get
+      parameters:
+        - name: Content-Type
+          in: header
+          description: Content Type
+          required: true
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: header
+          description: Customer id
+          required: true
+          schema:
+            type: string
+            maximum: 12
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedModel.Models.View.CurrencyExchange.Single.Request'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/SharedModel.Models.View.CurrencyExchange.Single.Request'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SharedModel.Models.View.CurrencyExchange.Single.Request'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.View.CurrencyExchang\
+                  e.Single.Response"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.View.CurrencyExchang\
+                  e.Single.Response"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.View.CurrencyExchang\
+                  e.Single.Response"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.View.CurrencyExchang\
+                  e.Single.Response"
+        "400":
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/SharedModel.Models.General.GeneralError\
+                  Model"
+servers:
+  - url: https://live.localpayment.com/qa/
+components:
+  schemas:
+    SharedModel.Models.Security.Token:
+      type: object
+      properties:
+        token_id:
+          type: string
+    SharedModel.Models.Database.Security.Authentication.Account:
+      type: object
+      properties:
+        SecretKey:
+          type: string
+        ValidationResult:
+          $ref: "#/components/schemas/SharedModel.Models.Database.General.Result.Va\
+            lidation"
+        Login:
+          $ref: "#/components/schemas/SharedModel.Models.Security.AccountModel.Login"
+    SharedModel.Models.Database.General.Result.Validation:
+      type: object
+      properties:
+        ValidationStatus:
+          type: boolean
+        ValidationMessage:
+          type: string
+    SharedModel.Models.Security.AccountModel.Login:
+      type: object
+      properties:
+        ClientID:
+          type: string
+        Password:
+          type: string
+        WebAcces:
+          type: boolean
+    SharedModel.Models.General.ErrorModel.Error:
+      type: object
+      properties:
+        Errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Valid\
+              ationErrorGroup"
+        HasError:
+          type: boolean
+          readOnly: true
+    SharedModel.Models.General.ErrorModel.ValidationErrorGroup:
+      type: object
+      properties:
+        Key:
+          type: string
+        Messages:
+          type: array
+          items:
+            type: string
+        CodeTypeError:
+          type: array
+          items:
+            type: string
+    SharedModel.Models.General.GeneralErrorModel:
+      type: object
+      properties:
+        Code:
+          type: string
+        CodeDescription:
+          type: string
+        Message:
+          type: string
+    SharedModel.Models.Services.Banks.Galicia.PayOut.Delete.Response:
+      required:
+        - payout_id
+      type: object
+      properties:
+        status:
+          type: string
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          minimum: 1
+          type: integer
+        ErrorRow:
+          $ref: '#/components/schemas/SharedModel.Models.General.ErrorModel.Error'
+    SharedModel.Models.Services.Banks.Galicia.PayOut.LotBatch:
+      type: object
+      properties:
+        payout_id:
+          format: int64
+          type: integer
+        customer_name:
+          type: string
+        transaction_type:
+          type: string
+        status:
+          type: string
+        process_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        gross_amount:
+          format: int32
+          type: integer
+        net_amount:
+          format: int32
+          type: integer
+        account_balance:
+          format: int32
+          type: integer
+        transaction_list:
+          type: array
+          items:
+            $ref: "#/components/schemas/SharedModel.Models.Services.Banks.Galicia.P\
+              ayOut.List.Response"
+        error:
+          type: string
+    SharedModel.Models.Services.Banks.Galicia.PayOut.List.Response:
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        type_of_id:
+          type: string
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+          description: only numbers
+          pattern: ^[0-9]
+        beneficiary_name:
+          type: string
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+        bank_account:
+          type: string
+        bank_code:
+          type: string
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+          pattern: ^[0-9]{22}$
+        amount:
+          format: int32
+          type: integer
+          description: The last 2 digits represent the decimals
+        accreditation_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_softd:
+          type: string
+        site_transaction_id:
+          type: string
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+        payment_type:
+          type: string
+        status:
+          type: string
+        status_detail:
+          type: string
+        withholding_tax_afip:
+          format: double
+          type: number
+        withholding_tax_agip:
+          format: double
+          type: number
+        withholding_tax_arba:
+          format: double
+          type: number
+        exchange_rate:
+          format: int64
+          type: integer
+          description: The last 6 digits represent the decimals
+        submerchant_code:
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_taxid:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+    ARG_(Create_Request):
+      required:
+      - submerchant_code
+      - beneficiary_name
+      - beneficiary_cuit
+      - bank_account_type
+      - bank_cbu
+      - merchant_id
+      - currency
+      - amount
+      - concept_code
+      type: object
+      properties:
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_taxid:
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+          description: only numbers
+          pattern: ^[0-9]
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+          enum: 
+            - C
+            - A
+          description: "Available: 'C' – checking account / 'A' – savings account"
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+          pattern: ^[0-9]{22}$
+        beneficiary_address:
+          type: string
+        beneficiary_state:
+          type: string
+        beneficiary_country:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+              - ARS
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        amount:
+          format: int64
+          type: integer
+          description: The last 2 digits represent the decimals
+    ARG_(Update_Request):
+      required:
+        - transaction_id
+        - payout_id
+        - beneficiary_cuit
+        - beneficiary_name
+        - bank_account_type
+        - bank_cbu
+        - amount
+        - merchant_id
+        - currency
+        - submerchant_code
+        - concept_code
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+          description: only numbers
+          pattern: ^[0-9]
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+          pattern: ^[0-9]{22}$
+        amount:
+          format: int64
+          type: integer
+          description: The last 2 digits represent the decimals
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+              - ARS
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        beneficiary_address:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_country:
+          type: string
+        beneficiary_state:
+          type: string
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_taxid:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+    ARG_(Payout_Response):
+      required:
+        - submerchant_code
+        - beneficiary_name
+        - beneficiary_cuit
+        - bank_account_type
+        - bank_cbu
+        - merchant_id
+        - currency
+        - amount
+        - concept_code
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        status:
+          type: string
+        Ticket:
+          type: string
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_taxid:
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+          description: only numbers
+          pattern: ^[0-9]
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+          pattern: ^[0-9]{22}$
+        beneficiary_address:
+          type: string
+        beneficiary_state:
+          type: string
+        beneficiary_country:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+              - ARS
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        amount:
+          format: int64
+          maximum: 100000000
+          minimum: 100
+          type: integer
+          description: The last 2 digits represent the decimals
+        exchange_rate:
+          format: int64
+          type: integer
+          description: The last 6 digits represent the decimals
+        withholding_tax_afip:
+          format: int64
+          type: integer
+        withholding_tax_arba:
+          format: int64
+          type: integer
+        withholding_tax_agip:
+          format: int64
+          type: integer
+        ErrorRow:
+          $ref: '#/components/schemas/SharedModel.Models.General.ErrorModel.Error'
+    ARG_(Update_Response):
+      required:
+        - transaction_id
+        - payout_id
+        - beneficiary_cuit
+        - beneficiary_name
+        - bank_account_type
+        - bank_cbu
+        - amount
+        - merchant_id
+        - currency
+        - submerchant_code
+        - concept_code
+      type: object
+      properties:
+        status:
+          type: string
+        withholding_tax:
+          format: int32
+          type: integer
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        beneficiary_cuit:
+          maxLength: 11
+          minLength: 11
+          type: string
+          description: only numbers
+          pattern: ^[0-9]
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        bank_account_type:
+          maxLength: 1
+          minLength: 1
+          type: string
+        bank_cbu:
+          maxLength: 22
+          minLength: 22
+          type: string
+          pattern: ^[0-9]{22}$
+        amount:
+          format: int64
+          maximum: 100000000
+          minimum: 100
+          type: integer
+          description: The last 2 digits represent the decimals
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+              - ARS
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        beneficiary_address:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_country:
+          type: string
+        beneficiary_state:
+          type: string
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_taxid:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        ErrorRow:
+          $ref: '#/components/schemas/SharedModel.Models.General.ErrorModel.Error'
+    COL_(Create_Request):
+      required:
+        - submerchant_code
+        - beneficiary_name
+        - type_of_id
+        - id
+        - account_type
+        - bank_code
+        - beneficiary_account_number
+        - merchant_id
+        - currency
+        - amount
+        - concept_code
+      type: object
+      properties:
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_taxid:
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        beneficiary_name:
+          maxLength: 30
+          minLength: 1
+          type: string
+        type_of_id:
+          maxLength: 1
+          minLength: 1
+          type: string
+        id:
+          maxLength: 15
+          minLength: 1
+          type: string
+        account_type:
+          maxLength: 2
+          minLength: 2
+          type: string
+        bank_code:
+          type: string
+        beneficiary_account_number:
+          maxLength: 20
+          minLength: 4
+          type: string
+        beneficiary_address:
+          maxLength: 100
+          minLength: 0
+          type: string
+        beneficiary_state:
+          type: string
+        beneficiary_country:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+              - COP
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        amount:
+          format: int64
+          minimum: 100
+          type: integer
+          description: The last 2 digits represent the decimals
+    COL_(Update_Request):
+      required:
+        - transaction_id
+        - payout_id
+        - type_of_id
+        - id
+        - beneficiary_name
+        - account_type
+        - bank_code
+        - beneficiary_account_number
+        - amount
+        - site_transaction_id
+        - currency
+        - subclient_code
+        - concept_code
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        type_of_id:
+          maxLength: 1
+          minLength: 1
+          type: string
+        id:
+          maxLength: 15
+          minLength: 1
+          type: string
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        account_type:
+          maxLength: 2
+          minLength: 2
+          type: string
+        bank_code:
+          type: string
+        beneficiary_account_number:
+          maxLength: 20
+          minLength: 4
+          type: string
+        amount:
+          format: int64
+          maximum: 100000000
+          minimum: 100
+          type: integer
+          description: The last 2 digits represent the decimals
+        beneficiary_softd:
+          type: string
+        site_transaction_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+            - COP
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        email:
+          type: string
+        address:
+          type: string
+        birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        country:
+          type: string
+        city:
+          type: string
+        annotation:
+          type: string
+        subclient_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_taxid:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+    COL_(Payout_Response):
+      required:
+        - submerchant_code
+        - beneficiary_name
+        - type_of_id
+        - id
+        - account_type
+        - bank_code
+        - beneficiary_account_number
+        - merchant_id
+        - currency
+        - amount
+        - concept_code
+      type: object
+      properties:
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        status:
+          type: string
+        Ticket:
+          type: string
+        submerchant_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Your internal B2C/B2B reference table merchant names
+        sender_taxid:
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        beneficiary_name:
+          maxLength: 30
+          minLength: 1
+          type: string
+        type_of_id:
+          maxLength: 1
+          minLength: 1
+          type: string
+        id:
+          maxLength: 15
+          minLength: 1
+          type: string
+        account_type:
+          maxLength: 2
+          minLength: 2
+          type: string
+        bank_code:
+          type: string
+        beneficiary_account_number:
+          maxLength: 20
+          minLength: 4
+          type: string
+        beneficiary_address:
+          maxLength: 100
+          minLength: 0
+          type: string
+        beneficiary_state:
+          type: string
+        beneficiary_country:
+          type: string
+        beneficiary_birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        beneficiary_email:
+          type: string
+        merchant_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+          description: Your internal transaction/tracking ID
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+            - COP
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        amount:
+          format: int64
+          minimum: 100
+          type: integer
+          description: The last 2 digits represent the decimals
+        exchange_rate:
+          format: int64
+          type: integer
+          description: The last 6 digits represent the decimals
+        gmf_tax:
+          format: int64
+          type: integer
+        ErrorRow:
+          $ref: '#/components/schemas/SharedModel.Models.General.ErrorModel.Error'
+    COL_(Update_Response):
+      required:
+        - transaction_id
+        - payout_id
+        - type_of_id
+        - id
+        - beneficiary_name
+        - account_type
+        - bank_code
+        - beneficiary_account_number
+        - amount
+        - site_transaction_id
+        - currency
+        - subclient_code
+        - concept_code
+      type: object
+      properties:
+        status:
+          type: string
+        withholding_tax:
+          format: int32
+          type: integer
+        transaction_id:
+          format: int64
+          type: integer
+        payout_id:
+          format: int64
+          type: integer
+        type_of_id:
+          maxLength: 1
+          minLength: 1
+          type: string
+        id:
+          maxLength: 15
+          minLength: 1
+          type: string
+        beneficiary_name:
+          maxLength: 60
+          minLength: 1
+          type: string
+        account_type:
+          maxLength: 2
+          minLength: 2
+          type: string
+        bank_code:
+          type: string
+        beneficiary_account_number:
+          maxLength: 20
+          minLength: 4
+          type: string
+        amount:
+          format: int64
+          type: integer
+          description: The last 2 digits represent the decimals
+        beneficiary_softd:
+          type: string
+        site_transaction_id:
+          maxLength: 22
+          minLength: 0
+          type: string
+        concept_code:
+          type: string
+          description: You can see the concept code [specification](#tag/Concept-Code)
+        currency:
+          type: string
+          enum:
+            - COP
+        payout_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        email:
+          type: string
+        address:
+          type: string
+        birth_date:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        country:
+          type: string
+        city:
+          type: string
+        annotation:
+          type: string
+        subclient_code:
+          maxLength: 60
+          minLength: 3
+          type: string
+        sender_name:
+          type: string
+        sender_address:
+          type: string
+        sender_state:
+          type: string
+        sender_country:
+          type: string
+        sender_taxid:
+          type: string
+        sender_birthdate:
+          type: string
+          description: format - _yyyymmdd_
+          example: "20200207"
+        sender_email:
+          type: string
+        ErrorRow:
+          $ref: '#/components/schemas/SharedModel.Models.General.ErrorModel.Error'
+    SharedModel.Models.Services.Banks.Galicia.PayOut.ClientBalance:
+      type: object
+      properties:
+        merchant:
+          type: string
+        current_balance:
+          type: string
+        trx_in_progress_amt:
+          type: string
+        trx_in_progress_cnt:
+          type: string
+        balance_after_execution:
+          type: string
+        trx_received_amt:
+          type: string
+        trx_received_cnt:
+          type: string
+    ARG_array_Request_create:
+      type: array
+      items:
+        $ref: "#/components/schemas/ARG_(Create_Request)"
+    COL_array_Request_create:
+      type: array
+      items:
+        $ref: "#/components/schemas/COL_(Create_Request)"
+    ARG_array_Response_create:
+      type: array
+      items:
+        $ref: "#/components/schemas/ARG_(Payout_Response)"
+    COL_array_Response_create:
+      type: array
+      items:
+        $ref: "#/components/schemas/COL_(Payout_Response)"
+    ARG_array_Request_update:
+      type: array
+      items:
+        $ref: "#/components/schemas/ARG_(Update_Request)"
+    COL_array_Request_update:
+      type: array
+      items:
+        $ref: "#/components/schemas/COL_(Update_Request)"
+    ARG_array_Response_update:
+      type: array
+      items:
+        $ref: "#/components/schemas/ARG_(Update_Response)"
+    COL_array_Response_update:
+      type: array
+      items:
+        $ref: "#/components/schemas/COL_(Update_Response)"
+    SharedModel.Models.View.CurrencyExchange.Single.Request:
+      required:
+        - base_currency
+        - quote_currency
+        - transaction_type
+      type: object
+      properties:
+        base_currency:
+          type: string
+        quote_currency:
+          type: string
+        transaction_type:
+          pattern: PI|PO|RF
+          type: string
+        with_source:
+          type: string
+        date:
+          type: string
+    SharedModel.Models.View.CurrencyExchange.Single.Response:
+      required:
+        - base_currency
+        - quote_currency
+        - transaction_type
+      type: object
+      properties:
+        quote_date:
+          type: string
+          description: format - _yyyymmdd_
+        quote:
+          format: int32
+          type: integer
+          description: The last 6 digits represent the decimals
+        base_currency:
+          type: string
+        quote_currency:
+          type: string
+        transaction_type:
+          pattern: PI|PO|RF
+          type: string
+        valid_from_datetime:
+          type: string
+        expiration_datetime:
+          type: string
+        ErrorRow:
+          $ref: "#/components/schemas/SharedModel.Models.General.ErrorModel.Error"

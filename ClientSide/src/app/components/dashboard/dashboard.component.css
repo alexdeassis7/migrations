@@ -1,0 +1,70 @@
+
+  
+
+  table tbody  tr.detalleTr table tbody tr:hover{
+
+  background-color: white!important; 
+
+}
+
+
+.inputError{
+
+  background-color:#f7e9e9
+}
+.inputError:focus{
+
+  color: #495057;
+    background-color: #fff;
+    border-color: #F08080;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(255,0,0,.25);
+} 
+.indicador{
+  font-size: 18px; 
+  left: auto;  
+  line-height: 30px;
+  font-weight: 700;
+  padding-top: 0px; 
+  right: 35%;
+  vertical-align: text-top;
+  color:#666;
+
+}
+
+
+
+
+.titleIndicador{
+  font-size: .875em; font-weight: 500;margin-bottom: 0px;
+}
+.lblForm{
+font-weight: 500;
+
+}
+.footCarga .modal-footer{
+  justify-content: unset;
+}
+/* .table-height {
+	height:950px;
+	display: block;
+	overflow: scroll;
+	width: 100%;
+} */
+
+.fa-hand-holding-usd:hover, .fa-barcode:hover, .fa-edit:hover, .fa-money-bill:hover{
+  transition: transform .2s;
+  transform: scale(1.2);
+}
+
+th{
+  text-align: center;
+  background-color:#0c71c3;
+  color:white;
+  white-space: nowrap;
+
+}
+th{
+
+font-weight: 500 !important;
+}

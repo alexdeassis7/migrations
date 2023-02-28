@@ -1,0 +1,10 @@
+CREATE FUNCTION LP_Common.[fnStringToDate] 
+(
+	@dateString nvarchar(8)
+)
+RETURNS Date
+AS
+BEGIN
+	return parse(substring(@dateString,0,5) +'-' + SUBSTRING(@dateString,5,2) + '-' + SUBSTRING(@dateString,7,2) as date using 'en-US')
+END
+GO

@@ -1,0 +1,84 @@
+
+/****** Object:  StoredProcedure [LP_CurrencyExchange].[FillCurrencyExchange]    Script Date: 3/17/2020 9:39:57 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+alter PROCEDURE [LP_CurrencyExchange].[FillCurrencyExchange]
+															(
+																@JSON VARCHAR(MAX)
+															)
+AS
+BEGIN
+	
+
+	DECLARE
+		@API_QTY_ROWS				[LP_Common].[LP_F_INT]
+		, @DB_QTY_ROWS				[LP_Common].[LP_F_INT]
+		, @process_date DATETIME
+
+	SET @process_date = GETDATE()	
+
+	DECLARE @tCurrencyExchange_API TABLE
+	(
+		[idx]						[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT] IDENTITY(1,1)
+		, [process_date]			DATETIME
+		, [timestamp]				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]	
+		, [code_from_id]			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+		, [code_to_id]				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+		, [country_id]				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+		, [value]					[LP_Common].[LP_F_DECIMAL]
+	)
+
+	INSERT INTO @tCurrencyExchange_API ([process_date], [timestamp], [code_from_id], [code_to_id], [country_id], [value])
+	SELECT
+		@process_date, [timestamp], [code_from] = [CT_Source].[idCurrencyType], [code_to_id] = [CT_Target].[idCurrencyType], 1, [value]
+	FROM
+	(
+		SELECT [timestamp], [source], [code_to] = RIGHT([code_to_code], 3), [value] FROM OPENJSON(@JSON)
+		WITH
+		(	
+			[is_success]				[LP_Common].[LP_F_C5]	'$.success'
+			, [timestamp]				[LP_Common].[LP_F_INT]	'$.timestamp'
+			, [source]					[LP_Common].[LP_F_C3]	'$.source'
+			, [quotes]					NVARCHAR(MAX) AS JSON
+		)
+		AS [body]
+		CROSS APPLY OPENJSON ([body].[quotes])
+		WITH
+		(
+			[code_to_code]				[LP_Common].[LP_F_C6]		'$.code_to_code',
+			[value]						[LP_Common].[LP_F_DECIMAL]	'$.value'
+		)AS [currencies]
+	) [DATA]
+		LEFT JOIN [LP_Configuration].[CurrencyType] [CT_Source] ON [CT_Source].[Code] = [DATA].[source]
+		LEFT JOIN [LP_Configuration].[CurrencyType] [CT_Target] ON [CT_Target].[Code] = [DATA].[code_to]
+	WHERE
+		([CT_Source].[idCurrencyType] IS NOT NULL AND [CT_Target].[idCurrencyType] IS NOT NULL)
+
+	SET @API_QTY_ROWS = (SELECT COUNT(*) FROM @tCurrencyExchange_API)
+
+	IF(@API_QTY_ROWS > 0)
+	BEGIN
+
+		WITH LASTCURRENCYACTIVE AS 
+		(	
+		SELECT TOP 20 * 
+		FROM [LP_Configuration].[CurrencyExchange] 
+		ORDER BY idCurrencyExchange DESC
+		) 
+		UPDATE LASTCURRENCYACTIVE SET [Active] = 0, OP_UpdDateTime = getdate() 
+	
+		INSERT INTO [LP_Configuration].[CurrencyExchange] ([ProcessDate], [Timestamp], [CurrencyBase], [CurrencyTo], [idCountry], [Value], [Active])
+		SELECT [process_date], [timestamp], [code_from_id], [code_to_id], [country_id], [value], 1 FROM @tCurrencyExchange_API
+	END
+	ELSE
+	BEGIN
+		PRINT 'NO HAY REGISTROS EN EL RESULTADO DE LA API.'
+	END
+END
+GO
+
+

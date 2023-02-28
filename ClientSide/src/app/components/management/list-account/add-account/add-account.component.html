@@ -1,0 +1,288 @@
+<ng-container *ngIf="responseAPI == null">
+    <div class="modal-content" #modalAddNewUser>
+        <form [formGroup]="myForm" (ngSubmit)="submit()">
+            <!-- Modal Header -->
+            <div class="modal-header  modalSizeHeader modal-header-Lp ">
+                <h5 class="modal-title h5Modal">Add new client </h5>
+                <button type="button" class="close" (click)="bsModalRef.hide()"
+                    data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                
+                
+                <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+                    <div class="card-body pl-0 pr-0">
+
+                        <div class="row col-12 p-0 ml-0">
+
+                            <div class="form-group col">
+                                <label>Merchant Name</label>
+                                <input type="text" min="10" max="20" formControlName="MerchantName" (blur)="checkAccount()" class="form-control">
+                                <div
+                                    *ngIf="myForm.controls['MerchantName'].invalid && (myForm.controls['MerchantName'].dirty || myForm.controls['MerchantName'].touched)">
+                                    <div class="text-danger"
+                                        *ngIf="myForm.controls['MerchantName'].errors.required">
+                                        Required</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col">
+                                <label>Submerchant Name</label>
+                                <input type="text" min="10" max="20" formControlName="SubMerchantName"
+                                    class="form-control">
+                                <div
+                                    *ngIf="myForm.controls['SubMerchantName'].invalid && (myForm.controls['SubMerchantName'].dirty || myForm.controls['SubMerchantName'].touched)">
+                                    <div class="text-danger"
+                                        *ngIf="myForm.controls['SubMerchantName'].errors.required">
+                                        Required</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col">
+                                <label>Mail</label>
+                                <input type="email" min="10" max="20" formControlName="Mail" (blur)="checkAccount()" class="form-control">
+                                <div
+                                    *ngIf="myForm.controls['Mail'].invalid && (myForm.controls['Mail'].dirty || myForm.controls['Mail'].touched)">
+                                    
+                                    <div class="text-danger" *ngIf="myForm.controls['Mail'].errors.required">
+                                        Required</div>
+                                        <div class="text-danger" *ngIf="myForm.controls['Mail'].errors.pattern">
+                                            Enter a valid email</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col">
+                                <label>Fx Period</label>
+                                <!-- <input type="number" min="10" max="20" formControlName="FxPeriod"
+                                    class="form-control"> -->
+                                    <ng-select formControlName="FxPeriod" placeholder="Select Fx Period">
+                                        <ng-option value="1" >1 Minute</ng-option>
+                                        <ng-option value="2" >1 Hour</ng-option>
+                                    </ng-select>
+                                <div
+                                    *ngIf="myForm.controls['FxPeriod'].invalid && (myForm.controls['FxPeriod'].dirty || myForm.controls['FxPeriod'].touched)">
+                                    <div class="text-danger" *ngIf="myForm.controls['FxPeriod'].errors.required">
+                                        Required
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col">
+                                <label>Alias</label>
+                                <input type="text" formControlName="Alias" class="form-control">
+                                <div
+                                    *ngIf="myForm.controls['Alias'].invalid && (myForm.controls['Alias'].dirty || myForm.controls['Alias'].touched)">
+                                    <div class="text-danger" *ngIf="myForm.controls['Alias'].errors.required">
+                                        Required
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="container-fluid">
+
+                            <div class="row">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Country</th>
+                                            <th>Currency Account</th>
+                                            <th>Comission Value</th>
+                                            <th>Commission Currency</th>
+                                            <th>Spread</th>
+                                            <th>Afip Retention</th>
+                                            <th>Arba Retention</th>
+                                            <th>Local Tax</th>
+                                            <th>Opciones</th>
+                                        </tr>
+
+                                    </thead>
+                                    
+                                    <tbody formArrayName="DataCountries">
+                                        <tr *ngFor="let item of  myForm.get('DataCountries')['controls']; let i = index; "
+                                            [formGroupName]="i">
+                                            <td width="20%">
+                                                <ng-select [items]="ListCountries" bindLabel="NameCode"
+                                                    bindValue="Code" formControlName="CountryName"
+                                                    [clearable]="false" [searchable]="false"
+                                                    (change)="changeCountry($event,i)" (ngModelChange)="loadCurrencies($event)" placeholder="Select Country">
+                                                    <ng-template ng-label-tmp let-item="item">
+                                                        <div>
+                                                            <img height="30" width="30" [class]="item.FlagIcon" />
+                                                            <label class="lblCountries" for=""> {{item.Name}}
+                                                            </label>
+                                                        </div>
+                                                    </ng-template>
+                                                    <ng-template ng-option-tmp let-item="item" let-index="index">
+                                                        <div>
+                                                            <img height="30" width="30" [class]="item.FlagIcon" />
+                                                            <label class="lblCountries" for="">
+                                                                {{item.Name}}</label>
+                                                        </div>
+                                                    </ng-template>
+                                                </ng-select>
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('CountryName').invalid && myFormArrays.controls[i].get('CountryName').dirty || myFormArrays.controls[i].get('CountryName').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('CountryName').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <!-- <input type="text" formControlName="CurrencyAccount"
+                                                    class="form-control"> -->
+                                                    <!-- {{myFormArrays.controls[i].get('Currencies').value | json}} -->
+                                                    <ng-select formControlName="CurrencyAccount" placeholder="Select Currency Account">
+                                                        <ng-option *ngFor="let item of myFormArrays.controls[i].get('Currencies').value" [value]="item.Name" >{{item.Name}}</ng-option>
+                                                    </ng-select>
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('CurrencyAccount').invalid && myFormArrays.controls[i].get('CurrencyAccount').dirty || myFormArrays.controls[i].get('CurrencyAccount').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('CurrencyAccount').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" formControlName="CommisionValue"
+                                                    class="form-control">
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('CommisionValue').invalid && myFormArrays.controls[i].get('CommisionValue').dirty || myFormArrays.controls[i].get('CommisionValue').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('CommisionValue').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <!-- <input type="text" formControlName="CommissionCurrency"
+                                                    class="form-control"> -->
+                                                    <ng-select formControlName="CommissionCurrency" placeholder="Select Comission Currency">
+                                                        <ng-option *ngFor="let item of myFormArrays.controls[i].get('Currencies').value" [value]="item.Name" >{{item.Name}}</ng-option>
+                                                    </ng-select>
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('CommissionCurrency').invalid && myFormArrays.controls[i].get('CommissionCurrency').dirty || myFormArrays.controls[i].get('CommissionCurrency').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('CommissionCurrency').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" formControlName="Spread" class="form-control">
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('Spread').invalid && myFormArrays.controls[i].get('Spread').dirty || myFormArrays.controls[i].get('Spread').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('Spread').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" formControlName="AfipRetention" [readonly]="true" class="form-control">
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('AfipRetention').invalid && myFormArrays.controls[i].get('AfipRetention').dirty || myFormArrays.controls[i].get('AfipRetention').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('AfipRetention').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" formControlName="ArbaRetention" [readonly]="true"
+                                                    class="form-control">
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('ArbaRetention').invalid && myFormArrays.controls[i].get('ArbaRetention').dirty || myFormArrays.controls[i].get('ArbaRetention').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('ArbaRetention').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="text" formControlName="LocalTax" class="form-control">
+                                                <div
+                                                    *ngIf="myFormArrays.controls[i].get('LocalTax').invalid && myFormArrays.controls[i].get('LocalTax').dirty || myFormArrays.controls[i].get('LocalTax').touched">
+                                                    <div class="text-danger"
+                                                        *ngIf="myFormArrays.controls[i].get('LocalTax').errors?.required">
+                                                        Required</div>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <button type="button" (click)="removeCountry(i)"
+                                                    class="btn btn-danger"><i class="fa fa-minus-square"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+
+                            <div class="row col-12 p-0 ml-0">
+                                <button type="button" (click)="addCountry()" [disabled]="myForm.invalid"
+                                    class="btn btn-primary">Add Row</button>
+                            </div>
+
+                        </div>
+                        <!-- <div class="row col-12 p-0 ml-0 text-right">
+                    <div class="form-group col">
+                        
+                    </div>
+
+                </div> -->
+
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" (click)="bsModalRef.hide()" class="btn btn-danger"
+                    style="color:white;">Close</button>
+                <button type="submit" [disabled]="myForm.invalid || accountExists || loading" class="btn btn-success">Create</button>
+                <!-- <button type="submit" class="btn btn-success">Create</button> -->
+            </div>
+        </form>
+    </div>
+</ng-container>
+
+<ng-container *ngIf="responseAPI != null">
+    <div class="modal-content" #modalAddNewUserResponse>
+            <!-- Modal Header -->
+            <div class="modal-header  modalSizeHeader modal-header-Lp ">
+                <h5 class="modal-title h5Modal">Add new client </h5>
+                <button type="button" class="close" (click)="bsModalRef.hide()"
+                    data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+                    <div class="card-body pl-0 pr-0 p-4">
+                        <h3>Your Account Data</h3>
+                        <span><label><b>Merchant Name</b> : {{responseAPI.MerchantName}} </label></span><br/>
+                        <span><label><b>Identification</b> : {{responseAPI.Identification}} </label></span><br/>
+                        <span><label><b>Api Password</b> : {{responseAPI.ApiPassword}} </label></span><br/>
+                        <span><label><b>Mail</b> : {{responseAPI.Mail}} </label></span><br/>
+                        <span><label><b>Web Password</b> : {{responseAPI.WebPassword}} </label></span><br/>
+                    </div>
+                    <textarea class="form-control d-none" rows="5" #AccountDataInput [(ngModel)]="AccountDataTextArea" [ngModelOptions]="{standalone: true}"></textarea>
+                    <button type="button" class="btn blueBtnLp" (click)="copyInputMessage(AccountDataInput)"  style="margin:10px;font-size: 14px">
+                    <div *ngIf="copied">
+                        <i class="fa fa-check"></i> Copied
+                    </div>
+                    <div *ngIf="!copied">
+                        <i class="fa fa-file"></i> Copy
+                    </div>
+                </button>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" (click)="bsModalRef.hide()" class="btn btn-danger"
+                    style="color:white;">Close</button>
+            </div>
+    </div>
+</ng-container>
+        

@@ -1,0 +1,53 @@
+ALTER PROCEDURE [LP_CustomerInformation].[TransactionCustomerInfomation_INSERT]
+																				(
+																					@idTransaction	[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+																					, @FirstName	[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @LastName		[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @Email		[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @Address		[LP_Common].[LP_F_C150]			= NULL
+																					, @BirthDate	[LP_Common].[LP_F_C8]			= NULL
+																					, @Country		[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @City			[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @Annotation	[LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @SenderName   [LP_Common].[LP_F_DESCRIPTION]	= NULL
+																					, @SenderAddress [LP_Common].[LP_F_C150] = NULL
+																					, @SenderState [LP_Common].[LP_F_C20] = NULL
+																					, @SenderCountry [LP_Common].[LP_F_C20] = NULL 
+																					, @SenderTAXID  [LP_Common].[LP_F_C20] = NULL
+																					, @SenderBirthDate	[LP_Common].[LP_F_C8]	= NULL
+																					, @SenderEmail		[LP_Common].[LP_F_DESCRIPTION]= NULL
+																				)
+AS
+BEGIN
+
+	DECLARE @ErrorMessage VARCHAR(MAX)
+
+	BEGIN TRY
+		BEGIN TRANSACTION
+
+		IF(@idTransaction IS NULL)
+			RAISERROR ('Parameter @idTransaction is null.', 16, 0)
+
+		INSERT INTO [LP_CustomerInformation].[TransactionCustomerInfomation] ( [idTransaction], [FirstName], [LastName], [Email], [Address], [BirthDate], [Country], [City], [Annotation], [SenderName], [SenderAddress], [SenderState], [SenderCountry], [SenderTAXID], [SenderBirthDate], [SenderEmail])
+		VALUES ( @idTransaction, @FirstName, @LastName, @Email, @Address, @BirthDate, @Country, @City, @Annotation, @SenderName, @SenderAddress, @SenderState, @SenderCountry, @SenderTAXID,@SenderBirthDate, @SenderEmail)
+
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRAN
+
+		IF(@ErrorMessage IS NULL)
+			SET @ErrorMessage = ERROR_MESSAGE()
+
+        DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+
+		RAISERROR
+				(
+					@ErrorMessage,
+					@ErrorSeverity,
+					@ErrorState
+				);
+	END CATCH
+END

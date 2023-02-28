@@ -1,0 +1,720 @@
+/****** Object:  StoredProcedure [LP_Operation].[COL_Payout_Generic_Entity_Operation_Update]    Script Date: 2/4/2020 2:21:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [LP_Operation].[COL_Payout_Generic_Entity_Operation_Update]
+																						(
+																							@Customer				[LP_Common].[LP_F_C50]
+																							, @JSON					NVARCHAR(MAX)
+																							, @TransactionMechanism [LP_Common].[LP_F_BOOL]
+																						)
+AS
+
+--DECLARE @Customer				[LP_Common].[LP_F_C50]
+--DECLARE @JSON					NVARCHAR(MAX)
+--DECLARE @TransactionMechanism	[LP_Common].[LP_F_BOOL]
+--SET @Customer = '000001500001'
+--SET @JSON = '{"idTransactionLot":0,"LotNumber":0,"LotCode":null,"Description":null,"LotDate":null,"CustomerName":null,"TransactionType":null,"Status":null,"GrossAmount":0,"NetAmount":0,"TaxWithholdings":0,"Balance":0,"idFlow":0,"idStatus":0,"Active":false,"Transactions":[{"idTransaction":62560,"TransactionDate":"20200103","Value":5000000,"Version":0,"idTransactionLot":440,"idTransactionType":0,"idStatus":0,"idEntityAccount":0,"Status":null,"Active":false,"StatusObservation":null,"idCurrencyType":0,"id":"45558888","type_of_id":"1","bank_code":"1061","TransactionDetail":{"idTransactionDetail":0,"IdTransaction":0,"GrossAmount":0,"NetAmount":0,"TaxWithholdings":0,"Commission":0,"IVACommission":0,"Balance":0,"BankCost":0,"IVABankCost":0,"DebitTax":0,"CreditTax":0,"TotalCostRdo":0,"IVATotal":0,"TransactionDate":0,"idStatus":0,"Active":false,"Version":0},"TransactionRecipientDetail":{"idTransactionRecipientDetail":0,"Recipient":"Federico Arroyo","RecipientCUIT":null,"CBU":null,"RecipientAccountNumber":"56444","TransactionAcreditationDate":"20201231","Description":"Prueba","InternalDescription":"9888159","ConceptCode":"0","BankAccountType":"37","EntityIdentificationType":null,"CurrencyType":"COP","PaymentType":null,"idTransaction":0,"idStatus":0,"Active":false,"IdType":"1","Id":"45558888","BankCode":"1061"},"TransactionPayWayDetail":{"idTransactionPayWayDetail":0,"AmountPaymentInstallments":0,"StartDate":null,"EndDate":null,"FinalAmount":0,"idTransaction":0,"idStatus":0,"Active":false},"TransactionDebinDetail":{"idTransactionDebinDetail":0,"idTransaction":0,"idStatus":0,"Active":false,"id_ticket":null,"bank_transaction":null,"currency":null,"amount":0,"beneficiary_softd":null,"site_transaction_id":null,"description":null,"concept_code":null,"payment_type":null,"payout_date":null,"alias":null,"cbu":null,"buyer_cuit":null,"buyer_name":null,"buyer_bank_code":null,"buyer_cbu":null,"buyer_alias":null,"buyer_bank_description":null,"status":null},"TransactionCustomerInformation":{"FirstName":null,"LastName":null,"Email":null,"Address":null,"BirthDate":null,"Country":null,"City":null,"Annotation":null},"TransactionSubMerchantDetail":{"SubMerchantIdentification":"Airbnb"}}]}'
+--SET @TransactionMechanism = 0
+
+		
+BEGIN
+
+			BEGIN TRY
+
+					IF OBJECT_ID('tempdb..#LotTrans') IS NOT NULL DROP TABLE #LotTrans
+
+					DECLARE
+						@idTransactionMechanism		[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+						, @qtyAccount				[LP_Common].[LP_F_INT]
+						, @idEntityAccount			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+						, @idEntityUser				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+						, @Message					[LP_Common].[LP_F_DESCRIPTION]
+						, @Status					[LP_Common].[LP_F_BOOL]
+						, @idCountry				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+						, @idTransactionLot			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+						, @idTransaction			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+
+					SET @idCountry = ( SELECT [idCountry] FROM [LP_Location].[Country] WHERE [ISO3166_1_ALFA003] = 'COL' )
+
+					CREATE TABLE #LotTrans
+					(
+						[idTransIntTemp]				BIGINT IDENTITY(1,1)
+						, [idTransactionLot]			VARCHAR(100)
+						, [idTransaction]				VARCHAR(100)
+						, [value]						VARCHAR(100)
+						, [TransactionDate]				VARCHAR(100)
+						, [Recipient]					VARCHAR(100)
+						, [RecipientIdType]				VARCHAR(100)
+						, [RecipientId]					VARCHAR(100)
+						, [BankCode]					VARCHAR(100)
+						, [BankAccountType]				VARCHAR(100)
+						, [RecipientAccountNumber]		VARCHAR(100)
+						, [TransactionAcreditationDate]	VARCHAR(100)
+						, [Description]					VARCHAR(100)
+						, [InternalDescription]			VARCHAR(100)
+						, [ConceptCode]					VARCHAR(100)
+						, [EntityIdentificationType]	VARCHAR(100)
+						, [CurrencyType]				VARCHAR(100)
+						, [PaymentType]					VARCHAR(100)
+						, [StatusObservation]			VARCHAR(100)
+						, [Email]						VARCHAR(100)
+						, [Address]						VARCHAR(150)
+						, [BirthDate]					VARCHAR(100)
+						, [SenderName]					VARCHAR(100)
+						, [SenderAddress]				VARCHAR(100)
+						, [SenderState]					VARCHAR(100)
+						, [SenderCountry]               VARCHAR(100)
+						, [SenderTAXID]					VARCHAR(100)
+						, [SenderBirthDate]				VARCHAR(100)
+						, [SenderEmail]			   		VARCHAR(100)
+						, [Country]						VARCHAR(100)
+						, [City]						VARCHAR(100)
+						, [Annotation]					VARCHAR(100)
+						, [SubMerchant]					VARCHAR(60)
+					)
+
+					IF(@TransactionMechanism = 1)
+					BEGIN
+						SET @idTransactionMechanism = (SELECT [idTransactionMechanism] FROM [LP_Configuration].[TransactionMechanism] WHERE [Code] = 'MEC_MANUAL')
+						
+						SELECT
+							@idEntityUser		= [EU].[idEntityUser]
+							, @idEntityAccount	= [EA].[idEntityAccount]
+						FROM
+						
+								[LP_Security].[EntityAccount]					[EA]	
+								INNER JOIN [LP_Security].[EntityAccountUser]	[EAU]	ON [EAU].[idEntityAccount] = [EA].[idEntityAccount]
+								INNER JOIN 	[LP_Entity].[EntityUser]			[EU]	ON [EU].[idEntityUser] = [EAU].[idEntityUser]
+						WHERE
+							[EU].[Active] = 1
+							AND [EA].[Active] = 1
+							AND [EA].[UserSiteIdentification] = @Customer
+							AND [EU].[idCountry] = @idCountry
+
+						SET @qtyAccount = ( SELECT COUNT([idEntityAccount]) FROM [LP_Security].[EntityAccount] WHERE [UserSiteIdentification] = @Customer  AND [Active] = 1 )
+
+					END	
+					ELSE
+					BEGIN
+						SET @idTransactionMechanism = (SELECT [idTransactionMechanism] FROM [LP_Configuration].[TransactionMechanism] WHERE [Code] = 'MEC_AUTO')
+						
+						SELECT
+							@idEntityUser		= [EU].[idEntityUser]
+							, @idEntityAccount	= [EA].[idEntityAccount]
+						FROM
+							[LP_Security].[EntityAccount]						[EA]	
+								INNER JOIN [LP_Security].[EntityAccountUser]	[EAU]	ON [EAU].[idEntityAccount] = [EA].[idEntityAccount]
+								INNER JOIN 	[LP_Entity].[EntityUser]			[EU]	ON [EU].[idEntityUser] = [EAU].[idEntityUser]
+								INNER JOIN [LP_Security].[EntityApiCredential]	[EAC]	ON [EAC].[idEntityUser]	= [EU].[idEntityUser]
+						WHERE
+							[EU].[Active] = 1
+							AND [EAC].[Active] = 1
+							AND [EA].[IsAdmin] = 1
+							AND [EAC].[Identification] = @Customer				
+							AND [EU].[idCountry] = @idCountry
+
+						SET @qtyAccount = ( SELECT COUNT([idEntityApiCredential]) FROM [LP_Security].[EntityApiCredential] WHERE [Identification] = @Customer AND [Active] = 1 )
+
+						IF @qtyAccount >= 2 SET @qtyAccount = 1 
+
+					END
+
+					INSERT  INTO #LotTrans ( [idTransaction], [idTransactionLot], [Value], [TransactionDate], [Recipient], [RecipientIdType], [RecipientId], [BankCode], [BankAccountType],
+					 [RecipientAccountNumber], [TransactionAcreditationDate],[Description], [InternalDescription], 
+					 [ConceptCode], [EntityIdentificationType], [CurrencyType], [PaymentType], [Email] ,[Address] , [BirthDate] , [Country], [City] , [Annotation], 
+					  [SenderName],[SenderAddress],[SenderState],[SenderCountry],[SenderTAXID],[SenderBirthDate],[SenderEmail],
+					 [SubMerchant] )
+					SELECT
+						[idTransaction]
+						, [idTransactionLot]
+						, [Value]
+						, [TransactionDate]
+						, [Recipient]
+						, [RecipientIdType]
+						, [RecipientId]
+						, [BankCode]
+						, [BankAccountType]
+						, [RecipientAccountNumber]
+						, [TransactionAcreditationDate]
+						, [[Description]
+						, [InternalDescription]
+						, [ConceptCode]
+						, [EntityIdentificationType]
+						, [CurrencyType]
+						, [PaymentType]
+						, [Email]
+						, [Address]
+						, [BirthDate]
+						, [Country]
+						, [City]
+						, [Annotation]
+						, [SenderName]
+						, [SenderAddress]
+						, [SenderState]
+						, [SenderCountry]
+						, [SenderTAXID]
+						, [SenderBirthDate]
+						, [SenderEmail]
+						, [SubMerchant]
+					FROM OPENJSON(@JSON)
+					WITH
+					(		
+						[Transactions]					NVARCHAR(MAX) AS JSON
+					)
+					AS [Lot]
+					CROSS APPLY OPENJSON ([Lot].[Transactions])
+					WITH
+					(
+						[idTransaction]						[LP_Common].[LP_F_C100] '$.idTransaction',
+						[idTransactionLot]					[LP_Common].[LP_F_C100] '$.idTransactionLot',
+						[Value]								[LP_Common].[LP_F_C100] '$.Value',
+						[TransactionDate]					[LP_Common].[LP_F_C100] '$.TransactionDate',
+						[TransactionRecipientDetail]		NVARCHAR(MAX) AS JSON,
+						[TransactionCustomerInformation]	NVARCHAR(MAX) AS JSON,
+						[TransactionSubMerchantDetail]		NVARCHAR(MAX) AS JSON
+					)AS [Transactions]
+					CROSS APPLY OPENJSON ([Transactions].[TransactionRecipientDetail])
+					WITH
+					(
+						[Recipient]							[LP_Common].[LP_F_C100] '$.Recipient',
+						[RecipientIdType]					[LP_Common].[LP_F_C100] '$.IdType',
+						[RecipientId]						[LP_Common].[LP_F_C100] '$.Id',
+						[BankCode]							[LP_Common].[LP_F_C100] '$.BankCode',
+						[BankAccountType]					[LP_Common].[LP_F_C100] '$.BankAccountType',
+						[RecipientAccountNumber]			[LP_Common].[LP_F_C100] '$.RecipientAccountNumber',
+						[TransactionAcreditationDate]		[LP_Common].[LP_F_C100] '$.TransactionAcreditationDate',
+						[[Description]						[LP_Common].[LP_F_C100] '$.Description',
+						[InternalDescription]				[LP_Common].[LP_F_C100] '$.InternalDescription',
+						[ConceptCode]						[LP_Common].[LP_F_C100] '$.ConceptCode',
+						[EntityIdentificationType]			[LP_Common].[LP_F_C100] '$.EntityIdentificationType',
+						[CurrencyType]						[LP_Common].[LP_F_C100] '$.CurrencyType',
+						[PaymentType]						[LP_Common].[LP_F_C100] '$.PaymentType'
+					) AS [Recipient]
+					CROSS APPLY OPENJSON ([Transactions].[TransactionCustomerInformation])
+					WITH
+					(
+						[Email]								[LP_Common].[LP_F_C100] '$.Email',
+						[Address]							[LP_Common].[LP_F_C150] '$.Address',
+						[BirthDate]							[LP_Common].[LP_F_C100] '$.BirthDate',
+						[Country]							[LP_Common].[LP_F_C100] '$.Country',
+						[City]								[LP_Common].[LP_F_C100] '$.City',
+						[Annotation]						[LP_Common].[LP_F_C100] '$.Annotation',
+						[SenderName]					[LP_Common].[LP_F_DESCRIPTION] '$.SenderName',
+						[SenderAddress]					[LP_Common].[LP_F_C150] '$.SenderAddress',
+						[SenderState]					[LP_Common].[LP_F_C20] '$.SenderState',
+						[SenderCountry]					[LP_Common].[LP_F_C20] '$.SenderCountry',
+						[SenderTAXID]					[LP_Common].[LP_F_C20] '$.SenderTaxid',
+						[SenderBirthDate]				[LP_Common].[LP_F_C100] '$.SenderBirthDate',
+						[SenderEmail]					[LP_Common].[LP_F_C100] '$.SenderEmail'
+					) AS [CustomerInformation]
+					CROSS APPLY OPENJSON ([Transactions].[TransactionSubMerchantDetail])
+					WITH
+					(
+						[SubMerchant]					[LP_Common].[LP_F_DESCRIPTION] '$.SubMerchantIdentification'
+					) AS [SubMerchantDetail]
+
+					SET @idTransaction = (SELECT [idTransaction] FROM #LotTrans)
+
+
+					IF([LP_Security].[fnGetValidEntityUSerOperation](@idTransaction, @idEntityUser) = 1)
+					BEGIN		
+
+						IF(@qtyAccount = 1)
+						BEGIN	
+
+							BEGIN TRANSACTION
+							/* ------------------------------------------------------------------------------------------------------------------------------------ */
+							UPDATE #LotTrans
+								SET [StatusObservation] =
+														CASE
+															WHEN [s].[Code] IN('Received') AND ([T].[idTransaction] IS NOT NULL AND [TRD].[idTransactionRecipientDetail] IS NOT NULL) THEN 'OK'
+															ELSE 'ERROR::NOTMATCH'
+														END
+							FROM
+								#LotTrans													[LT]
+									LEFT JOIN [LP_Operation].[Transaction]					[T]		ON [LT].[idTransaction]		= [T].[idTransaction]
+									LEFT JOIN [LP_Common].[Status]							[S]		ON [T].[idStatus]			= [S].[idStatus]
+									LEFT JOIN [LP_Operation].[TransactionLot]				[TL]	ON [LT].[idTransactionLot]	= [TL].[idTransactionLot]
+									LEFT JOIN [LP_Operation].[TransactionRecipientDetail]	[TRD]	ON [TRD].[idTransaction]	= [LT].[idTransaction] AND [TRD].[InternalDescription] = [LT].[InternalDescription]
+
+							/* ------------------------------------------------------------------------------------------------------------------------------------ */
+
+							UPDATE #LotTrans
+								SET [StatusObservation] =
+														CASE
+															WHEN [s].[Code] IN('Received') THEN 'OK'
+															ELSE 'ERROR::STATUS'
+														END
+							FROM
+								#LotTrans										[LT]
+									INNER JOIN [LP_Operation].[Transaction]		[T]		ON [LT].[idTransaction]		= [T].[idTransaction]
+									INNER JOIN [LP_Common].[Status]				[S]		ON [T].[idStatus]			= [S].[idStatus]
+									INNER JOIN [LP_Operation].[TransactionLot]	[TL]	ON [LT].[idTransactionLot]	= [TL].[idTransactionLot]
+							WHERE
+								[LT].[StatusObservation] IS NULL
+
+
+							UPDATE #LotTrans SET [StatusObservation] = 'ERROR::NF' WHERE [StatusObservation] IS NULL					
+
+							MERGE [LP_Operation].[Transaction] [TARGET]
+							USING #LotTrans [SOURCE]
+							ON ([TARGET].[idTransaction] = [SOURCE].[idTransaction] AND [SOURCE].[StatusObservation] = 'OK')
+							WHEN MATCHED
+							THEN 
+							UPDATE SET	[TARGET].[GrossValueClient]				= [LP_Common].[fnConvertIntToDecimalAmount]([SOURCE].[Value]),
+										[TARGET].[OP_UpdDateTime]				= GETDATE(),
+										[TARGET].[idTransactionMechanism]		= @idTransactionMechanism,
+										[TARGET].[GrossValueLP]					=
+																				CASE
+																					WHEN [CurrencyTypeClient] = [CurrencyTypeLP] THEN [LP_Common].[fnConvertIntToDecimalAmount]([SOURCE].[Value]) * 1
+																					ELSE [LP_Common].[fnConvertIntToDecimalAmount]([SOURCE].[Value]) * (SELECT [CE].[Value] FROM [LP_Configuration].[CurrencyExchange] [CE] WHERE [CE].[idCurrencyExchange] = [TARGET].[idCurrencyExchange]) * (SELECT [CB].[Base_Buy] FROM [LP_Configuration].[CurrencyBase] [CB] WHERE [CB].[idCurrencyBase] = [TARGET].[idCurrencyBase])
+																				END;
+
+							MERGE [LP_Operation].[TransactionRecipientDetail] [TARGET]
+							USING
+							(
+								SELECT
+									[LT].[idTransaction],
+									[LT].[Recipient],     
+									[LT].[RecipientId],
+								--	[LT].[CBU],
+									[LT].[RecipientAccountNumber],
+									[LT].[TransactionAcreditationDate],
+									[LT].[Description],
+									[LT].[InternalDescription],
+									[LT].[ConceptCode],
+									[BAT].[idBankAccountType],
+									[EIT].[idEntityIdentificationType],
+									[CT].[idCurrencyType] ,
+									[LT].[PaymentType]
+								FROM  #LotTrans											[LT]
+									LEFT JOIN [LP_Configuration].[BankAccountType]		[BAT]	ON [LT].[BankAccountType]			= [BAT].[Code]
+									LEFT JOIN [LP_Entity].[EntityIdentificationType]	[EIT]	ON [LT].[EntityIdentificationType]	= [EIT].[Code]
+									LEFT JOIN [LP_Configuration].[CurrencyType]			[CT]	ON [LT].[CurrencyType]				= [CT].[Code]
+								WHERE [LT].[StatusObservation] = 'OK'
+							) [SOURCE] 
+							ON ([TARGET].[idTransaction] = [SOURCE].[idTransaction]) 
+							WHEN MATCHED 
+							THEN 
+							UPDATE SET 
+								[TARGET].[Recipient]						= [SOURCE].[Recipient],
+								[TARGET].[RecipientCUIT]					= [SOURCE].[RecipientId],
+								--[TARGET].[CBU]								= null ,
+								[TARGET].[RecipientAccountNumber]			= [SOURCE].[RecipientAccountNumber],
+								[TARGET].[TransactionAcreditationDate]		= [SOURCE].[TransactionAcreditationDate],
+								[TARGET].[Description]						= [SOURCE].[Description],
+								[TARGET].[ConceptCode]						= [SOURCE].[ConceptCode],
+								[TARGET].[idBankAccountType]				= [SOURCE].[idBankAccountType],
+								[TARGET].[idCurrencyType]					= [SOURCE].[idCurrencyType],
+								[TARGET].[OP_UpdDateTime]					= GETDATE();
+
+							MERGE [LP_DataValidation].[ClientIdentificationOperation] AS [TARGET]
+							USING
+							(
+								SELECT
+									[LT].[idTransaction]
+									, [LT].[RecipientId]
+									, [LT].[Recipient]
+								FROM  #LotTrans [LT]
+								WHERE [LT].[StatusObservation] = 'OK'
+							) [SOURCE] 
+							ON ([TARGET].[idTransaction] = [SOURCE].[idTransaction]) 
+							WHEN MATCHED 
+							THEN 
+							UPDATE SET
+								[TARGET].[ClientName]						= [SOURCE].[Recipient],
+								[TARGET].[ClientIdentification]				= [SOURCE].[RecipientId],
+								[TARGET].[ClientMail]						= 'WITHOUT MAIL';
+							MERGE [LP_CustomerInformation].[TransactionCustomerInfomation] AS [TARGET]
+							USING
+							(
+								SELECT
+									[LT].[idTransaction],							
+									[LT].[Recipient],
+									[LT].[Email],
+									[LT].[Address],
+									[LT].[BirthDate],
+									[LT].[Country],
+									[LT].[City],
+									[LT].[Annotation],
+									[LT].[SenderName],
+									[LT].[SenderAddress],
+									[LT].[SenderState],
+									[LT].[SenderCountry],
+									[LT].[SenderTAXID],
+									[LT].[SenderBirthDate],
+									[LT].[SenderEmail]
+								FROM  #LotTrans [LT]
+								WHERE [LT].[StatusObservation] = 'OK'
+							) [SOURCE] 
+							ON ([TARGET].[idTransaction] = [SOURCE].[idTransaction]) 
+							WHEN MATCHED 
+							THEN 
+							UPDATE SET 
+								[TARGET].[FirstName]						= [SOURCE].[Recipient],
+								[TARGET].[Email]							= [SOURCE].[Email],
+								[TARGET].[Address]							= [SOURCE].[Address],
+								[TARGET].[BirthDate]						= [SOURCE].[BirthDate],
+								[TARGET].[Country]							= [SOURCE].[Country],
+								[TARGET].[City]								= [SOURCE].[City],
+								[TARGET].[Annotation]						= [SOURCE].[Annotation],
+								[TARGET].[SenderName]                       = [SOURCE].[SenderName],
+								[TARGET].[SenderAddress]                    = [SOURCE].[SenderAddress],
+								[TARGET].[SenderState]                      = [SOURCE].[SenderState],
+								[TARGET].[SenderCountry]                    = [SOURCE].[SenderCountry],
+								[TARGET].[SenderTAXID]                      = [SOURCE].[SenderTAXID],
+								[TARGET].[SenderBirthDate]                  = [SOURCE].[SenderBirthDate],
+								[TARGET].[SenderEmail]                      = [SOURCE].[SenderEmail];
+							MERGE [LP_Operation].[TransactionEntitySubMerchant] AS [TARGET]
+							USING
+							(
+								SELECT
+									[LT].[idTransaction],							
+									[idEntitySubMerchant] =
+															ISNULL
+															(
+																[ESM].[idEntitySubMerchant],
+																(
+																	SELECT
+																		[ESMI].[idEntitySubMerchant]
+																	FROM
+																		[LP_Entity].[EntitySubMerchant] [ESMI]
+																	WHERE
+																		[ESMI].[idEntityUser] = @idEntityUser AND [ESMI].[isDefault] = 1
+																)
+															)
+								FROM  #LotTrans [LT]
+									LEFT JOIN [LP_Entity].[EntitySubMerchant] [ESM] ON [ESM].[SubMerchantIdentification] = [LT].[SubMerchant] AND [ESM].[idEntityUser] = @idEntityUser AND [ESM].[isDefault] = 0
+								WHERE [LT].[StatusObservation] = 'OK'
+							) [SOURCE]
+							ON ([TARGET].[idTransaction] = [SOURCE].[idTransaction])
+							WHEN MATCHED 
+							THEN 
+							UPDATE SET
+								[TARGET].[idEntitySubMerchant] = [SOURCE].[idEntitySubMerchant];
+
+							/* KPI TransactionDetail/TransactionProvider :: UPD :: Lógica nueva */
+							SET @idTransactionLot = (SELECT [idTransactionLot] FROM #LotTrans)
+							EXEC [LP_KPI].[ARG_Payout_Generic_fx_Update] @idTransactionLot = @idTransactionLot
+
+							COMMIT TRAN
+
+							SELECT	
+								[idTransactionLot]	= ISNULL([TL].[idTransactionLot], [LT].[idTransactionLot])
+								, [LotNumber]		= ISNULL([TL].[LotNumber], 0)
+								, [LotCode]			= ISNULL([TL].[LotCode], 0)
+								, [Description]		= ISNULL([TL].[Description],'')
+								, [LotDate]			= ISNULL([TL].[LotDate],'')
+								, [GrossAmount]		= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[GrossAmount]) AS VARCHAR(18)), '.', '')
+								, [NetAmount]		= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[NetAmount]) AS VARCHAR(18)), '.', '')
+								, [TaxWithholdings_Afip]	= 0
+								, [TaxWithholdings_Agip]	= 0
+								, [TaxWithholdings_Arba]	= 0
+								, [Balance]			= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[AccountBalance]) AS VARCHAR(18)), '.', '')
+								, [idStatus]		= ISNULL([TL].[idStatus],0)
+								, [Status]			= ISNULL([STL].[Code],[LT].[StatusObservation])
+								, [Active]			= ISNULL([TL].[Active],0)
+								, [Transactions]	= 
+													ISNULL
+													(
+														(
+														SELECT
+															[idTransaction]												= [T].[idTransaction]
+															, [TransactionDate]											= CONVERT(VARCHAR(8), [T].[TransactionDate], 112)
+															, [Value]													= REPLACE(CAST(CONVERT(DECIMAL(18,2), [T].[GrossValueLP]) AS VARCHAR(18)), '.', '')
+															, [Version]													= [T].[Version]
+															, [idTransactionLot]										= [T].[idTransactionLot]
+															, [idTransactionType]										= NULL
+															, [idStatus]												= [T].[idStatus]
+															, [Status]													= [STAT].[Code]
+															, [idEntityAccount]											= [T].[idEntityAccount]
+															, [Active]													= [T].[Active]
+															, [StatusObservation]										= [LTI].[StatusObservation]
+															, [TransactionRecipientDetail.idTransactionRecipientDetail]	= [TRD].[idTransactionRecipientDetail]
+															, [TransactionRecipientDetail.Recipient]					= [TRD].[Recipient]
+															, [TransactionRecipientDetail.RecipientIdType]				= [EIT].[Code]
+															, [TransactionRecipientDetail.RecipientId]					= [TRD].[RecipientCUIT]
+															, [TransactionRecipientDetail.RecipientAccountNumber]		= [TRD].[RecipientAccountNumber]
+															, [TransactionRecipientDetail.TransactionAcreditationDate]	= CONVERT(VARCHAR(8), [TRD].[TransactionAcreditationDate], 112)
+															, [TransactionRecipientDetail.Description]					= [TRD].[Description]
+															, [TransactionRecipientDetail.InternalDescription]			= [TRD].[InternalDescription]
+															, [TransactionRecipientDetail.ConceptCode]					= [LTI].[ConceptCode]
+															, [TransactionRecipientDetail.BankCode]						= [LTI].[BankCode]
+															, [TransactionRecipientDetail.BankAccountType]				= [BAT].[Code]
+															, [TransactionRecipientDetail.EntityIdentificationType]		= [EIT].[Code]
+															, [TransactionRecipientDetail.CurrencyType]					= [CT].[Code]
+															, [TransactionRecipientDetail.PaymentType]					= [PT].[Code]
+															, [TransactionRecipientDetail.idTransaction]				= [TRD].[idTransaction]
+															, [TransactionRecipientDetail.idStatus]						= [TRD].[idStatus]
+															, [TransactionRecipientDetail.Status]						= [STATRD].[Code]
+															, [TransactionRecipientDetail.Active]						= [TRD].[Active]
+
+															, [TransactionCustomerInformation.FirstName]				= [TCI].[FirstName]
+															, [TransactionCustomerInformation.LastName]					= [TCI].[LastName]
+															, [TransactionCustomerInformation.Email]					= [TCI].[Email]
+															, [TransactionCustomerInformation.Address]					= [TCI].[Address]
+															, [TransactionCustomerInformation.BirthDate]				= [TCI].[BirthDate]
+															, [TransactionCustomerInformation.Country]					= [TCI].[Country]
+															, [TransactionCustomerInformation.City]						= [TCI].[City]
+															, [TransactionCustomerInformation.Annotation]				= [TCI].[Annotation]
+															, [TransactionCustomerInformation.SenderName]				= [TCI].[SenderName]
+															, [TransactionCustomerInformation.SenderAddress]			= [TCI].[SenderAddress]
+															, [TransactionCustomerInformation.SenderState]				= [TCI].[SenderState]
+															, [TransactionCustomerInformation.SenderCountry]			= [TCI].[SenderCountry]
+															, [TransactionCustomerInformation.SenderTAXID]				= [TCI].[SenderTAXID]
+															, [TransactionCustomerInformation.SenderBirthDate]			= [TCI].[SenderBirthDate]
+															, [TransactionCustomerInformation.SenderEmail]				= [TCI].[SenderEmail]
+															, [TransactionSubMerchantDetail.SubMerchantIdentification]	= [ESM].[SubMerchantIdentification]
+
+														FROM
+															[LP_Operation].[Transaction]											[T]
+																INNER JOIN [LP_Operation].[TransactionRecipientDetail]				[TRD]		ON [TRD].[idTransaction]				= [T].[idTransaction]
+																INNER JOIN [LP_Common].[Status]										[STAT]		ON [STAT].[idStatus]					= [T].[idStatus]
+																INNER JOIN [LP_Common].[Status]										[STATRD]	ON [STATRD].[idStatus]					= [TRD].[idStatus]
+																LEFT JOIN  [LP_Configuration].[BankAccountType]						[BAT]		ON [TRD].[idBankAccountType]			= [BAT].[idBankAccountType]
+																INNER JOIN [LP_Configuration].[PaymentType]							[PT]		ON [TRD].[idPaymentType]				= [PT].[idPaymentType]
+																INNER JOIN [LP_Entity].[EntityIdentificationType]					[EIT]		ON [TRD].[idEntityIdentificationType]	= [EIT].[idEntityIdentificationType]
+																INNER JOIN [LP_Configuration].[CurrencyType]						[CT]		ON [TRD].[idCurrencyType]				= [CT].[idCurrencyType]
+																INNER JOIN #LotTrans												[LTI]		ON [T].[idTransaction]					= [LTI].[idTransaction]
+																LEFT JOIN [LP_CustomerInformation].[TransactionCustomerInfomation]	[TCI]		ON [T].[idTransaction]					= [TCI].[idTransaction]
+																LEFT JOIN [LP_Operation].[TransactionEntitySubMerchant]				[TESM]		ON [TESM].[idTransaction]				= [T].[idTransaction]
+																LEFT JOIN [LP_Entity].[EntitySubMerchant]							[ESM]		ON [TESM].[idEntitySubMerchant]			= [ESM].[idEntitySubMerchant]
+														WHERE
+															[T].[idTransactionLot] = [TL].[idTransactionLot]
+														FOR JSON PATH
+													),
+													(
+														SELECT
+															[idTransaction]												= [LT].[idTransaction]
+															, [TransactionDate]											= ''
+															, [Value]													= LT.[value]
+															, [Version]													= 0
+															, [idTransactionLot]										= [LT].[idTransactionLot]
+															, [idTransactionType]										= 0
+															, [idStatus]												= 0
+															, [Status]													= [LT].[StatusObservation]
+															, [idEntityAccount]											= @idEntityAccount
+															, [Active]													= 0
+															, [StatusObservation]										= [LT].[StatusObservation]
+															, [TransactionRecipientDetail.idTransactionRecipientDetail]	= 0
+															, [TransactionRecipientDetail.Recipient]					= [LT].Recipient
+															, [TransactionRecipientDetail.RecipientIdType]				= [LT].RecipientIdType
+															, [TransactionRecipientDetail.RecipientId]					= [LT].RecipientId
+															--, [TransactionRecipientDetail.CBU]							= [LT].CBU
+															, [TransactionRecipientDetail.BankCode]						= [LT].BankCode
+															, [TransactionRecipientDetail.RecipientAccountNumber]		= [LT].RecipientAccountNumber
+															, [TransactionRecipientDetail.TransactionAcreditationDate]	= [LT].TransactionAcreditationDate
+															, [TransactionRecipientDetail.Description]					= [LT].[Description]
+															, [TransactionRecipientDetail.InternalDescription]			= [LT].InternalDescription
+															, [TransactionRecipientDetail.ConceptCode]					= [LT].ConceptCode
+															, [TransactionRecipientDetail.BankAccountType]				= [LT].BankAccountType
+															, [TransactionRecipientDetail.EntityIdentificationType]		= [LT].EntityIdentificationType
+															, [TransactionRecipientDetail.CurrencyType]					= [LT].CurrencyType
+															, [TransactionRecipientDetail.PaymentType]					= [LT].PaymentType
+															, [TransactionRecipientDetail.idTransaction]				= [LT].[idTransaction]
+															, [TransactionRecipientDetail.idStatus]						= 0
+															, [TransactionRecipientDetail.Status]						= [LT].[StatusObservation]
+															, [TransactionRecipientDetail.Active]						= 0
+															, [TransactionCustomerInformation.Email]					= [LT].[Email]
+															, [TransactionCustomerInformation.Address]					= [LT].[Address]
+															, [TransactionCustomerInformation.BirthDate]				= [LT].[BirthDate]
+															, [TransactionCustomerInformation.Country]					= [LT].[Country]
+															, [TransactionCustomerInformation.City]						= [LT].[City]
+															, [TransactionCustomerInformation.Annotation]				= [LT].[Annotation]
+															, [TransactionCustomerInformation.SenderName]				= [LT].[SenderName]
+															, [TransactionCustomerInformation.SenderAddress]			= [LT].[SenderAddress]
+															, [TransactionCustomerInformation.SenderState]				= [LT].[SenderState]
+															, [TransactionCustomerInformation.SenderCountry]			= [LT].[SenderCountry]
+															, [TransactionCustomerInformation.SenderTAXID]				= [LT].[SenderTAXID]
+															, [TransactionCustomerInformation.SenderBirthDate]			= [LT].[SenderBirthDate]
+															, [TransactionCustomerInformation.SenderEmail]				= [LT].[SenderEmail]
+															, [TransactionSubMerchantDetail.SubMerchantIdentification]	= [LT].[SubMerchant]
+														FOR JSON PATH
+													)
+												)
+							FROM
+								[#LotTrans]										[LT]
+									LEFT JOIN [LP_Operation].[TransactionLot]	[TL]		ON [LT].[idTransactionLot]	= [TL].[idTransactionLot]
+									LEFT JOIN [LP_Common].[Status]				[STL]		ON [TL].[idStatus]			= [STL].[idStatus]
+							FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+						END
+						ELSE
+						BEGIN
+							SET @Status = 0
+							SET @Message = 'CLIENTE INEXISTENTE. VERFIQUE SU CUSTOMER_ID'
+						END
+					END
+					ELSE
+					BEGIN
+						UPDATE #LotTrans SET [StatusObservation] = 'ERROR::STATUS' WHERE [StatusObservation] IS NULL
+
+						SELECT	
+								[idTransactionLot]	= ISNULL([TL].[idTransactionLot], [LT].[idTransactionLot])
+								, [LotNumber]		= ISNULL([TL].[LotNumber], 0)
+								, [LotCode]			= ISNULL([TL].[LotCode], 0)
+								, [Description]		= ISNULL([TL].[Description],'')
+								, [LotDate]			= ISNULL([TL].[LotDate],'')
+								, [GrossAmount]		= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[GrossAmount]) AS VARCHAR(18)), '.', '')
+								, [NetAmount]		= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[NetAmount]) AS VARCHAR(18)), '.', '')
+								, [TaxWithholdings_Afip]	= 0
+								, [TaxWithholdings_Agip]	= 0
+								, [TaxWithholdings_Arba]	= 0
+								, [Balance]			= REPLACE(CAST(CONVERT(DECIMAL(18,2), [TL].[AccountBalance]) AS VARCHAR(18)), '.', '')
+								, [idStatus]		= ISNULL([TL].[idStatus],0)
+								, [Status]			= ISNULL([STL].[Code],[LT].[StatusObservation])
+								, [Active]			= ISNULL([TL].[Active],0)
+								, [Transactions]	= 
+													ISNULL
+													(
+														(
+														SELECT
+															[idTransaction]												= [T].[idTransaction]
+															, [TransactionDate]											= CONVERT(VARCHAR(8), [T].[TransactionDate], 112)
+															, [Value]													= REPLACE(CAST(CONVERT(DECIMAL(18,2), [T].[GrossValueLP]) AS VARCHAR(18)), '.', '')
+															, [Version]													= [T].[Version]
+															, [idTransactionLot]										= [T].[idTransactionLot]
+															, [idTransactionType]										= NULL
+															, [idStatus]												= [T].[idStatus]
+															, [Status]													= [STAT].[Code]
+															, [idEntityAccount]											= [T].[idEntityAccount]
+															, [Active]													= [T].[Active]
+															, [StatusObservation]										= [LTI].[StatusObservation]
+															, [TransactionRecipientDetail.idTransactionRecipientDetail]	= [TRD].[idTransactionRecipientDetail]
+															, [TransactionRecipientDetail.Recipient]					= [TRD].[Recipient]
+															, [TransactionRecipientDetail.RecipientIdType]				= [EIT].[Code]
+															, [TransactionRecipientDetail.RecipientId]					= [TRD].[RecipientCUIT]
+															, [TransactionRecipientDetail.RecipientAccountNumber]		= [TRD].[RecipientAccountNumber]
+															, [TransactionRecipientDetail.TransactionAcreditationDate]	= CONVERT(VARCHAR(8), [TRD].[TransactionAcreditationDate], 112)
+															, [TransactionRecipientDetail.Description]					= [TRD].[Description]
+															, [TransactionRecipientDetail.InternalDescription]			= [TRD].[InternalDescription]
+															, [TransactionRecipientDetail.ConceptCode]					= [LTI].[ConceptCode]
+															, [TransactionRecipientDetail.BankCode]						= [LTI].[BankCode]
+															, [TransactionRecipientDetail.BankAccountType]				= [BAT].[Code]
+															, [TransactionRecipientDetail.EntityIdentificationType]		= [EIT].[Code]
+															, [TransactionRecipientDetail.CurrencyType]					= [CT].[Code]
+															, [TransactionRecipientDetail.PaymentType]					= [PT].[Code]
+															, [TransactionRecipientDetail.idTransaction]				= [TRD].[idTransaction]
+															, [TransactionRecipientDetail.idStatus]						= [TRD].[idStatus]
+															, [TransactionRecipientDetail.Status]						= [STATRD].[Code]
+															, [TransactionRecipientDetail.Active]						= [TRD].[Active]
+
+															, [TransactionCustomerInformation.FirstName]				= [TCI].[FirstName]
+															, [TransactionCustomerInformation.LastName]					= [TCI].[LastName]
+															, [TransactionCustomerInformation.Email]					= [TCI].[Email]
+															, [TransactionCustomerInformation.Address]					= [TCI].[Address]
+															, [TransactionCustomerInformation.BirthDate]				= [TCI].[BirthDate]
+															, [TransactionCustomerInformation.Country]					= [TCI].[Country]
+															, [TransactionCustomerInformation.City]						= [TCI].[City]
+															, [TransactionCustomerInformation.Annotation]				= [TCI].[Annotation]
+															, [TransactionCustomerInformation.SenderName]				= [TCI].[SenderName]
+															, [TransactionCustomerInformation.SenderAddress]			= [TCI].[SenderAddress]
+															, [TransactionCustomerInformation.SenderState]				= [TCI].[SenderState]
+															, [TransactionCustomerInformation.SenderCountry]			= [TCI].[SenderCountry]
+															, [TransactionCustomerInformation.SenderTAXID]				= [TCI].[SenderTAXID]
+															, [TransactionCustomerInformation.SenderBirthDate]			= [TCI].[SenderBirthDate]
+															, [TransactionCustomerInformation.SenderEmail]				= [TCI].[SenderEmail]
+															, [TransactionSubMerchantDetail.SubMerchantIdentification]	= [ESM].[SubMerchantIdentification]
+
+														FROM
+															[LP_Operation].[Transaction]											[T]
+																INNER JOIN [LP_Operation].[TransactionRecipientDetail]				[TRD]		ON [TRD].[idTransaction]				= [T].[idTransaction]
+																INNER JOIN [LP_Common].[Status]										[STAT]		ON [STAT].[idStatus]					= [T].[idStatus]
+																INNER JOIN [LP_Common].[Status]										[STATRD]	ON [STATRD].[idStatus]					= [TRD].[idStatus]
+																LEFT JOIN  [LP_Configuration].[BankAccountType]						[BAT]		ON [TRD].[idBankAccountType]			= [BAT].[idBankAccountType]
+																INNER JOIN [LP_Configuration].[PaymentType]							[PT]		ON [TRD].[idPaymentType]				= [PT].[idPaymentType]
+																INNER JOIN [LP_Entity].[EntityIdentificationType]					[EIT]		ON [TRD].[idEntityIdentificationType]	= [EIT].[idEntityIdentificationType]
+																INNER JOIN [LP_Configuration].[CurrencyType]						[CT]		ON [TRD].[idCurrencyType]				= [CT].[idCurrencyType]
+																INNER JOIN #LotTrans												[LTI]		ON [T].[idTransaction]					= [LTI].[idTransaction]
+																LEFT JOIN [LP_CustomerInformation].[TransactionCustomerInfomation]	[TCI]		ON [T].[idTransaction]					= [TCI].[idTransaction]
+																LEFT JOIN [LP_Operation].[TransactionEntitySubMerchant]				[TESM]		ON [TESM].[idTransaction]				= [T].[idTransaction]
+																LEFT JOIN [LP_Entity].[EntitySubMerchant]							[ESM]		ON [TESM].[idEntitySubMerchant]			= [ESM].[idEntitySubMerchant]
+														WHERE
+															[T].[idTransactionLot] = [TL].[idTransactionLot]
+														FOR JSON PATH
+													),
+													(
+														SELECT
+															[idTransaction]												= [LT].[idTransaction]
+															, [TransactionDate]											= ''
+															, [Value]													= LT.[value]
+															, [Version]													= 0
+															, [idTransactionLot]										= [LT].[idTransactionLot]
+															, [idTransactionType]										= 0
+															, [idStatus]												= 0
+															, [Status]													= [LT].[StatusObservation]
+															, [idEntityAccount]											= @idEntityAccount
+															, [Active]													= 0
+															, [StatusObservation]										= [LT].[StatusObservation]
+															, [TransactionRecipientDetail.idTransactionRecipientDetail]	= 0
+															, [TransactionRecipientDetail.Recipient]					= LT.Recipient
+															, [TransactionRecipientDetail.RecipientIdType]				= LT.RecipientIdType
+															, [TransactionRecipientDetail.RecipientId]					= LT.RecipientId
+															--, [TransactionRecipientDetail.CBU]							= LT.CBU
+															, [TransactionRecipientDetail.RecipientAccountNumber]		= LT.RecipientAccountNumber
+															, [TransactionRecipientDetail.TransactionAcreditationDate]	= LT.TransactionAcreditationDate
+															, [TransactionRecipientDetail.Description]					= LT.[Description]
+															, [TransactionRecipientDetail.InternalDescription]			= LT.InternalDescription
+															, [TransactionRecipientDetail.ConceptCode]					= LT.ConceptCode
+															, [TransactionRecipientDetail.BankCode]						= LT.BankCode
+															, [TransactionRecipientDetail.BankAccountType]				= LT.BankAccountType
+															, [TransactionRecipientDetail.EntityIdentificationType]		= LT.EntityIdentificationType
+															, [TransactionRecipientDetail.CurrencyType]					= LT.CurrencyType
+															, [TransactionRecipientDetail.PaymentType]					= LT.PaymentType
+															, [TransactionRecipientDetail.idTransaction]				= [LT].[idTransaction]
+															, [TransactionRecipientDetail.idStatus]						= 0
+															, [TransactionRecipientDetail.Status]						= [LT].[StatusObservation]
+															, [TransactionRecipientDetail.Active]						= 0
+															, [TransactionCustomerInformation.Email]					= [LT].[Email]
+															, [TransactionCustomerInformation.Address]					= [LT].[Address]
+															, [TransactionCustomerInformation.BirthDate]				= [LT].[BirthDate]
+															, [TransactionCustomerInformation.Country]					= [LT].[Country]
+															, [TransactionCustomerInformation.City]						= [LT].[City]
+															, [TransactionCustomerInformation.Annotation]				= [LT].[Annotation]
+															, [TransactionCustomerInformation.SenderName]				= [LT].[SenderName]
+															, [TransactionCustomerInformation.SenderAddress]			= [LT].[SenderAddress]
+															, [TransactionCustomerInformation.SenderState]				= [LT].[SenderState]
+															, [TransactionCustomerInformation.SenderCountry]			= [LT].[SenderCountry]
+															, [TransactionCustomerInformation.SenderTAXID]				= [LT].[SenderTAXID]
+															, [TransactionCustomerInformation.SenderBirthDate]			= [LT].[SenderBirthDate]
+															, [TransactionCustomerInformation.SenderEmail]				= [LT].[SenderEmail]
+															, [TransactionSubMerchantDetail.SubMerchantIdentification]	= [LT].[SubMerchant]
+														FOR JSON PATH
+													)
+												)
+							FROM
+								[#LotTrans]										[LT]
+									LEFT JOIN [LP_Operation].[TransactionLot]	[TL]		ON [LT].[idTransactionLot]	= [TL].[idTransactionLot]
+									LEFT JOIN [LP_Common].[Status]				[STL]		ON [TL].[idStatus]			= [STL].[idStatus]
+							FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+
+						SET @Status = 0
+						SET @Message = 'OPERATION INVALID. CLIENT HAS NOT EXECUTED THE UPDATE'
+					END
+
+					IF OBJECT_ID('tempdb..#LotTrans') IS NOT NULL DROP TABLE #LotTrans
+
+			END TRY
+			BEGIN CATCH
+				IF @@TRANCOUNT > 0
+					ROLLBACK TRAN
+
+
+				DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE()
+				DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+				DECLARE @ErrorState INT = ERROR_STATE()
+
+				RAISERROR
+						(
+							@ErrorMessage,
+							@ErrorSeverity,
+							@ErrorState
+						);
+			END CATCH
+
+
+
+		END
+		
+		

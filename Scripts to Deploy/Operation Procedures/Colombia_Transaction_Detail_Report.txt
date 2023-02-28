@@ -1,0 +1,56 @@
+/****** Object:  StoredProcedure [LP_Operation].[GetTransactionDetailGenericByUser]    Script Date: 2/14/2020 6:36:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [LP_Operation].[GetTransactionDetailGenericByUser]
+@idEntityUser int,
+@fromDate nvarchar(8),
+@toDate nvarchar(8)
+as
+declare @fromDateDt date, @toDateDt date;
+set @fromDateDt= parse(substring(@fromDate,0,5) +'-' + SUBSTRING(@fromDate,5,2) + '-' + SUBSTRING(@fromDate,7,2) as date using 'en-US')
+set @toDateDt= parse(substring(@toDate,0,5) +'-' + SUBSTRING(@toDate,5,2) + '-' + SUBSTRING(@toDate,7,2) as date using 'en-US')
+
+SELECT 
+	[TypeOfID] = [EIT].[Code]
+	, [ID] = [TRD].[RecipientCUIT]
+	, [Name] = [TRD].[Recipient]
+	, [TypeOfAccount] = [BAT].[Code]
+	, [BankCode] = [BC].[Code]
+	, [BEN_BankAccountStructure] = [TRD].[RecipientAccountNumber]
+	, [BeneficiaryEmail] = ISNULL([TCI].[Email], '')
+	, [IDMerchant] = [TRD].[InternalDescription]
+	, [Amount] = [T].[GrossValueClient]
+	, [PaymentDate] = [T].[TransactionDate]
+	, [CurrencyType] = [CT].[Code]
+	, [Adress] = [TCI].[Address]
+	, [Country] = [TCI].[Country]
+	, [City] = [TCI].[City]
+	, [SubClientCode] = [ESM].[Description]
+
+	, [IDTransaction] = [T].[idTransaction]
+	, [Ticket] = [TCK].[Ticket]
+	--, [AmountUSD] = [T].[GrossValueClient] / ( [CE].[Value] * (1 - [CB].[Base_Buy] / 100))
+	--, [CurrencyTypeUSD] = [CURCLIENT].[Code]
+	--, [T].[idStatus]
+FROM
+	[LP_Operation].[Transaction] [T]
+		INNER JOIN [LP_Operation].[TransactionDetail] [TD] ON [TD].[idTransaction] = [T].[idTransaction]
+		INNER JOIN [LP_Operation].[TransactionProvider] [TP] ON [TP].[idTransaction] = [T].[idTransaction]
+		INNER JOIN [LP_Operation].[TransactionRecipientDetail] [TRD] ON [TRD].[idTransaction] = [T].[idTransaction]
+		LEFT JOIN [LP_Operation].[Wallet] [W] ON [W].[idTransaction] = [T].[idTransaction]
+		LEFT JOIN [LP_CustomerInformation].[TransactionCustomerInfomation] [TCI] ON [TCI].[idTransaction] = [T].[idTransaction]
+		LEFT JOIN [LP_Operation].[TransactionEntitySubMerchant] [TESM] ON [TESM].[idTransaction] = [T].[idTransaction]
+		LEFT JOIN [LP_Entity].[EntitySubMerchant] [ESM] ON [ESM].[idEntitySubMerchant] = [TESM].[idEntitySubMerchant]
+		LEFT JOIN [LP_Entity].[EntityIdentificationType]	[EIT]	ON	[EIT].[idEntityIdentificationType] = [TRD].[idEntityIdentificationType]
+		LEFT JOIN [LP_Configuration].[BankAccountType] [BAT]	ON [BAT].[idBankAccountType] = [TRD].[idBankAccountType]
+		LEFT JOIN [LP_Configuration].[BankCode] [BC] ON [BC].[idBankCode] = [TRD].[idBankCode]
+		LEFT JOIN [LP_Configuration].[CurrencyType] [CT] ON [CT].[idCurrencyType] = [T].[CurrencyTypeClient]
+		LEFT JOIN [LP_Operation].[Ticket] [TCK]	ON [T].[idTransaction] = [TCK].[idTransaction]
+		INNER JOIN [LP_Configuration].[CurrencyBase] [CB] ON [CB].[idCurrencyType] = 2493 AND [CB].[idEntityUser] = [T].[idEntityUser]
+		INNER JOIN [LP_Configuration].[CurrencyExchange] [CE] ON [CE].[idCurrencyExchange] = [T].[idCurrencyExchange]
+		LEFT JOIN [LP_Configuration].[CurrencyType] [CURCLIENT] ON [CURCLIENT].[idCurrencyType] = [CB].[idCurrencyType]
+WHERE
+	[T].[idEntityUser] = @idEntityUser
+	AND cast([T].[TransactionDate] as date) between @fromDateDt and @toDateDt

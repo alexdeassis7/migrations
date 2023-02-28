@@ -1,0 +1,35 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal">Select Country </h5>
+        <button type="button" *ngIf="currentCountry != null" class="close" (click)="bsModalRef.hide()" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+
+        <ng-select [items]="ListCountries" bindLabel="name" [clearable]="false" [searchable]="false"   placeholder="Select country"
+            [(ngModel)]="selectedCountry">
+     
+            <ng-template ng-label-tmp let-item="item">
+                <div>
+                <img height="30" width="30" [class]="item.FlagIcon" />
+                <label class="lblCountries" for=""> {{item.Name}} </label>
+            </div>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item" let-index="index">
+                 <div>
+                <img height="30" width="30" [class]="item.FlagIcon" />
+                <label  class="lblCountries" for="">     {{item.Name}}</label>
+            </div>
+            </ng-template>
+       
+        </ng-select>
+    </div>
+
+    <div class="modal-footer" style="padding-bottom: 0">
+        <div class="btn-footercontainer ">
+            <button type="button" class="btn btn-dark c-pointer" (click)="onConfirm()"  >Ok</button>
+        </div>
+    </div>
+</div>

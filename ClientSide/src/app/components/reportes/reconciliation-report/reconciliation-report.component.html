@@ -1,0 +1,142 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+
+    <div class="card-body" id="filterPanel" class="collapse">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <!-- <div class="form-group col-3">
+                <label>Date From</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-3">
+                <label>Date To</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+            </div> -->
+            <div class="form-group col-3" id="dateFromInput">
+                <label>Date</label>
+                <input type="text" [(ngModel)]="date" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+            </div>
+
+            <div class="form-group col-3" *ngIf="userPermission == 'ADMIN'">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" bindValue="idEntityUser"
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect"
+                     >
+                </ng-select>
+            </div>
+
+            <div class="form-group col-4" >
+            </div>
+
+            <div class="form-group col-2" style="padding-right: 10px;" >
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+
+        </div>
+    </div>
+        <!-- <div class="row" style="margin: -8px 10px 10px 10px">
+            <div class="col-10"></div>
+            <div class="col-2" style="padding-right: 10px;" >
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+ 
+    <div *ngIf="ListReconciliationReport.length > 0"> <button type="button" (click)="exportReport('xlsx')"
+            class="btn btn-success float-right" style="margin-top: -10px;font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-excel" *ngIf="!statusExport_Excel"></i> Export to Excel
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport_Excel" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport_Excel">Loading...</span>
+        </button>
+
+        <button type="button" (click)="exportReport('csv')"
+            class="btn btn-info float-right" style="margin-top: -10px; margin-right: 10px; font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-alt" *ngIf="!statusExport_Csv"></i> Export to CSV
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport_Csv" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport_Csv">Loading...</span>
+        </button>
+
+        <button type="button" (click)="exportReport('pdf')"
+            class="btn btn-danger float-right" style="margin-top: -10px; margin-right: 10px; font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-pdf" *ngIf="!statusExport_Pdf"></i> Export to PDF
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport_Pdf" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport_Csv">Loading...</span>
+        </button>
+
+    </div>
+
+    <div class="alert alert-secondary noDataAlert" *ngIf="ListReconciliationReport.length == 0" role="alert">
+        <strong> No hay datos para mostrar. </strong>
+    </div>
+
+    <div *ngIf="ListReconciliationReport.length > 0">
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            
+            <table class="table table-hover text-nowrap">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+
+
+                    <tr>
+                        <th *ngFor="let nombreCol of ListColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <!-- Recorro lista de transactions -->
+                    <ng-container *ngFor="let rec of ListReconciliationReport">
+
+                        <tr class="borderComplete">
+
+                            <td>{{rec.providerName}}</td>
+                            <td>{{rec.ccy}}</td>
+                            <!-- <td>{{dct.TransactionDate == null ? '' : (dct.TransactionDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                            </td> -->
+                            <td>{{rec.date == null ? '' : (rec.date | amDateFormat:'DD/MM/YYYY') }}</td>
+                            <td>{{rec.accountNumber}}</td>
+                            <td>{{rec.bic}}</td>    
+                            <td>{{rec.trxType}}</td>
+                            <td>{{rec.description}}</td>
+                            <td>{{rec.payoneerId}}</td>
+                            <td>{{rec.internalId}}</td>
+                            <td>{{rec.debit | fixedDecimal: 2}}</td>
+                            <td>{{rec.credit | fixedDecimal: 2}}</td>
+                            <td>{{rec.availableBalance | fixedDecimal: 2}}</td>
+
+                        </tr>
+                    </ng-container>
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+    </div>
+</div>

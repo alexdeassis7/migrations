@@ -1,0 +1,127 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter" ></i>       
+        <span id="lblFilter"  class="fw-400"  >Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+
+    <div class="card-body" id="filterPanel" class="collapse">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <div class="form-group col-3" id="dateFromInput" >
+                <label>Date From</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-3" id="dateToInput">
+                <label>Date To</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-3" *ngIf="userPermission == 'ADMIN'"  >
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" bindValue="idEntityUser"
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect">
+                </ng-select>
+            </div>
+      
+            <!-- <div class="form-group col-2">
+
+                <label>Currency</label>
+
+                <ng-select [items]="listCurrency" bindLabel="NameCode" bindValue="Code" placeholder="Select Currency"
+                    style=" text-align: left;  " autofocus [(ngModel)]="currencySelect">
+                </ng-select>
+            </div>
+            <div class="form-group col-2">
+                <label>Lot From</label>
+
+                <input type="text" [(ngModel)]="lotFrom" class="form-control" (keypress)="inputOnlyNumber($event)">
+
+            </div>
+            <div class="form-group col-2">
+                <label>Lot To</label>
+
+                <input type="text" [(ngModel)]="lotTo" class="form-control" (keypress)="inputOnlyNumber($event)">
+
+            </div> -->
+
+        </div>
+        <div class="row" style="margin: -8px 10px 10px 10px">
+        
+            <div class="col-10"></div>
+            <div class="col-2" style="padding-right: 10px;">
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+    
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+    
+    <div> <button type="button" (click)="exportToExcel()" class="btn btn-success float-right"  [disabled]="statusExport" style="margin-top: -10px;font-size: 14px;margin-bottom: 10px;">
+        <i  class="fa fa-file-excel" *ngIf="!statusExport"></i> Export
+        <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport"  style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+        <span class="sr-only"  *ngIf="!statusExport">Loading...</span> 
+       
+        </button>
+            
+    </div>
+
+    <div>
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)" style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'"
+            [fromRoot]="true" (scrolled)="onScrollReport()">
+            <table class="table table-hover   ">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP" >
+
+                  
+                    <tr>
+                        <th>Date Time</th>
+                        <th>Merchant</th>
+                        <th>Buy</th>    
+                        <th>Base Buy</th>                      
+                        <th>Spot</th>
+                        <th>Base Sell</th>
+                        <th>Sell</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Recorro lista de payouts -->
+                    <ng-container *ngFor="let histFx of ListHistoricalFx">
+
+                        <tr style="font-size: 15px">
+                            <!--Datos -->
+                            <td class="nowRap">{{histFx.ProcessDate == null ? '' : (histFx.ProcessDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }} </td>   
+                            <td class="nowRap">{{histFx.Merchant}}</td>
+                            <td class="nowRap">{{histFx.Buy}}</td>                         
+                            <td class="nowRap">{{histFx.Base_Buy + ' %'}}</td>                            
+                            <td class="nowRap">{{histFx.Spot}}</td>                            
+                            <td class="nowRap">{{histFx.Base_Sell + ' %'}}</td>
+                            <td class="nowRap">{{histFx.Sell}}</td>                               
+                        </tr>            
+
+                    </ng-container>
+
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+    </div>
+</div>
+ 

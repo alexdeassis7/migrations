@@ -1,0 +1,186 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+
+    <div class="card-body" id="filterPanel" class="collapse">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From</label>
+                <div class="input-group">
+
+                    <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker
+                        [bsConfig]="bsConfig" style="cursor:pointer">
+                    <div class="input-group-text  c-pointer prependRight" title="Clear Date" (click)="clearDateFilter('DATEFROM')"> <span
+                            class="fa fa-window-close"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group col-2" id="dateToInput">
+
+                <label>Date To</label>
+                <div class="input-group">
+
+                    <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker
+                        [bsConfig]="bsConfig" style="cursor:pointer">
+                    <div class="input-group-text c-pointer prependRight" title="Clear Date"  (click)="clearDateFilter('DATETO')"> <span
+                            class="fa fa-window-close"></span>
+                    </div>
+                </div>
+
+
+                <!-- <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer"> -->
+
+            </div>
+            <div class="form-group col-2">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" bindValue="idEntityUser"
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect"
+                    (ngModelChange)="loadSubmerchantFilter($event)" [disabled]="userPermission == 'COMMON'">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+
+                <label>SubMerchant</label>
+
+                <ng-select [items]="ListSubmerchantFilter" [disabled]="ListSubmerchantFilter.length == 0"
+                    bindLabel="SubMerchantIdentification" bindValue="idEntitySubMerchant"
+                    placeholder="Select SubMerchant" style=" text-align: left;  " autofocus
+                    [(ngModel)]="subMerchantSelect">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Withholding</label>
+
+                <ng-select [items]="ListRetentionReg" bindLabel="idDescription" bindValue="idReg"
+                    placeholder="Select Reg" [(ngModel)]="regSelect">
+
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Cuit</label>
+
+                <input type="text" [(ngModel)]="cuit" class="form-control">
+
+            </div>
+            <div class="form-group col-2">
+                <label>Ticket</label>
+
+                <input type="text" [(ngModel)]="ticketSearch" class="form-control">
+
+            </div>
+
+            <div class="form-group col-2">
+                <label>Merchant ID</label>
+
+                <input type="text" [(ngModel)]="merchantIdSearch" class="form-control">
+
+            </div>
+            <div class="col-6"> </div>
+            <div class="col-2" style="padding-right: 10px;">
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+
+        </div>
+        <!-- <div class="row" style="margin: -8px 10px 10px 10px">
+
+            <div class="col-10"></div>
+            <div class="col-2" style="padding-right: 10px;" >
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+        </div> -->
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+
+    <div *ngIf="ListOperationRetention.length > 0"> <button type="button" (click)="exportToExcel()"
+            [disabled]="statusExport" class="btn btn-success float-right"
+            style="margin-top: -10px;font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-excel" *ngIf="!statusExport"></i> Export
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport">Loading...</span>
+
+        </button>
+
+    </div>
+
+    <div class="alert alert-secondary noDataAlert" *ngIf="ListOperationRetention.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+
+    <div *ngIf="ListOperationRetention.length > 0">
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            <table class="table table-hover text-nowrap">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+
+
+                    <tr>
+                        <th *ngFor="let nombreCol of ListColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <!-- Recorro lista de payouts -->
+                    <ng-container *ngFor="let operRet of ListOperationRetention">
+
+                        <tr class="borderComplete">
+
+                            <td>{{operRet.idTransaction}}</td>
+                            <td>{{operRet.TransactionDate == null ? '' : (operRet.TransactionDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                            </td>
+                            <td>{{operRet.ProcessedDate == null ? '' : (operRet.ProcessedDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                            </td>
+
+                            <td>{{operRet.Ticket}}</td>
+                            <td>{{operRet.MerchantId}}</td>
+                            <td>{{operRet.FileName}}</td>
+                            <td>{{operRet.CertificateNumber}}</td>
+                            <td>{{operRet.Retention  }}</td>
+                            <td>{{operRet.GrossAmount | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                            <td>{{operRet.TaxWithholdings | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                            <td>{{operRet.NetAmount | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                            <td>{{operRet.RecipientCUIT}}</td>
+                            <td>{{operRet.Recipient}}</td>
+                            <!-- <td class="nowRap">{{operRet.Merchant}}</td>    -->
+
+
+
+                            <td>{{operRet.CBU}}</td>
+                            <td>{{operRet.NroRegimen}}</td>
+
+                        </tr>
+
+
+                    </ng-container>
+
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+    </div>
+</div>

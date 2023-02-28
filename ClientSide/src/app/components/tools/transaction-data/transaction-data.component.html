@@ -1,0 +1,94 @@
+<div class="card">
+
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="card-body" id="filterPanel" class="collapse show">
+        <form [formGroup]="myForm" (ngSubmit)="search()">
+            <div class="row" style="margin: 10px 10px 0px 10px">
+                <div class="form-group col-2" id="dateFromInput">
+                    <label>Date From</label>
+                    <input type="text"  [minDate]="minDate" [maxDate]="maxDate" formControlName="dateFrom"  class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                        style="cursor:pointer">
+                </div>
+                <div class="form-group col-2" id="dateToInput">
+                    <label>Date To</label>
+                    <input type="text" [minDate]="minDate2" [maxDate]="maxDate2" formControlName="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                        style="cursor:pointer">
+                </div>
+                
+                <div class="form-group col-2">
+                    <label>Quantity</label>
+                    <input type="number" min="10" max="20" formControlName="quantity"  class="form-control" placeholder="10 to 20 Rows">
+                    <div *ngIf="myForm.controls['quantity'].invalid && (myForm.controls['quantity'].dirty || myForm.controls['quantity'].touched)">
+                    <div class="text-danger" *ngIf="myForm.controls['quantity'].errors.required">Required</div>
+                    <div class="text-danger" *ngIf="myForm.controls['quantity'].errors.pattern">Only Allow numbers between 10 and 20</div>
+                    </div>
+                </div>
+                <div class="form-group col-6">
+                    <label>Data</label>
+                    <input type="text" formControlName="dataToSearch"  class="form-control" placeholder="3 to 100 Characteres">
+                    <div *ngIf="myForm.controls['dataToSearch'].invalid && (myForm.controls['dataToSearch'].dirty || myForm.controls['dataToSearch'].touched)">
+                        <div class="text-danger" *ngIf="myForm.controls['dataToSearch'].errors.required">Required</div>
+                        <div class="text-danger" *ngIf="myForm.controls['dataToSearch'].errors.minlength">Only allow min 3 characteres</div>
+                        <div class="text-danger" *ngIf="myForm.controls['dataToSearch'].errors.maxlength">Only allow max 100 characteres</div>
+                        </div>
+                </div>
+                <div class="col-12" style="padding: 10px;">
+                    <button type="submit" class="btn blueBtnLp" [disabled]="myForm.invalid" style="float: right;font-size: 14px"> <i class="fa fa-filter"></i> Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+    <div class="alert alert-secondary noDataAlert" *ngIf="responseData.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+    <div *ngIf="responseData.length > 0 && selectedAuditLog == null">
+        <div class="table-responsive" id="divContainerTable" style="max-height: calc(100vh - 275px);">
+            <table class="table table-hover text-nowrap">
+                <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+                    <tr>
+                        <th>Id</th>
+                        <th>Message</th>
+                        <th>Message Template</th>
+                        <th>Level</th>
+                        <th>Time Stamp</th>
+                        <th>Exception</th>
+                        <th>Properties</th>
+                        <th>Log Event</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <ng-container *ngFor="let data of responseData">
+
+                        <tr class="borderComplete" (click)="selectAuditLog(data.Message)">
+                          <td>{{ data.Id }}</td>
+                          <td>{{ (data.Message.length>30)? (data.Message | slice:0:30)+'..':(data.Message) }}</td>
+                          <td>{{ (data.MessageTemplate.length>6)? (data.MessageTemplate | slice:0:30)+'..':(data.MessageTemplate) }}</td>
+                          <td>{{ data.Level }}</td>
+                          <td>{{ data.TimeStamp }}</td>
+                          <td>{{ data.Exception }}</td>
+                          <td>{{ data.Properties }}</td>
+                          <td>{{ data.LogEvent }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div *ngIf="selectedAuditLog != null">
+        <div class="col-12">
+            <textarea class="form-control" rows="15" [(ngModel)]="selectedAuditLog"></textarea>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn blueBtnLp" (click)="selectAuditLog(null)"  style="margin:10px;font-size: 14px"> <i class="fa fa-arrow-left"></i> Back</button>
+            </div>
+        </div>
+    </div>
+</div>

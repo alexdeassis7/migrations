@@ -1,0 +1,52 @@
+CREATE TABLE [LP_Entity].[Payout_Concepts] (
+    Code varchar(4) not null,
+	Description varchar(100) not null,
+	Active [LP_Common].[LP_A_ACTIVE] NOT NULL,
+ CONSTRAINT [PK__Code__Payout_Concepts] PRIMARY KEY CLUSTERED 
+(
+	[Code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+go
+
+Insert into [LP_Entity].[Payout_Concepts] values ('0001','Payroll',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0002','Extras labor hours',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0003','Expenses reimbursement',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0004','Annual extra salary (SAC)',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0005','Vacation fee',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0006','Representation expenses',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0007','Professional services',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0008','Hired personnel',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0009','Trainees/scholarships',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0010','Productivity or quality prizes',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0011','Expenses reimbursement',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0012','Lay-off payment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0013','Family support',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0014','Education',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0015','Gift and other donations',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0016','Medical treatment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0017','Maintenance or other expenses',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0018','Small value remittance',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0019','Liberalized remittance',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0020','Hotel accommodation',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0021','Advertising and/or public relations related expenses',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0022','Fees for advisory or consulting service',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0023','Business related insurance payment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0024','Insurance claims payment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0025','Delivery fees',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0026','Payments for exported goods',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0027','Payment of loans',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0028','Residential property purchase',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0029','Property rental payment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0030','Royalty, trademark, patent and copyright fees',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0031','Investment in shares',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0032','Fund investment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0033','Tax payment',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0034','Transportation fees',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0035','Utility bills',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0036','Personal transfer',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0037','Payment of salary',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0038','Other purposes',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0039','Remittances',1)
+Insert into [LP_Entity].[Payout_Concepts] values ('0040','Corporate Payments',1)

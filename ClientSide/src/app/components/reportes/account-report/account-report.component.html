@@ -1,0 +1,249 @@
+<div class="card" *ngIf="!fromDashboard">
+
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="card-body" id="filterPanel" class="collapse show">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" id="dateToInput">
+                <label>Date To</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" *ngIf="userPermission == 'ADMIN'">
+                <label>Merchant (*)</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" 
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect" >
+                </ng-select>
+            </div>
+            <!-- <div class="form-group col-2">
+                <label>Status</label>
+                <ng-select [items]="ListEstados" bindLabel="NameCode" bindValue="idStatus" placeholder="Select Status"
+                    [(ngModel)]="statusSelect" [disabled]="true">
+                </ng-select>
+
+            </div> -->
+            <div class="form-group col-2">
+                <label>Pay Method</label>
+                <ng-select [items]="ListMetodos" bindLabel="TT_Desc" bindValue="TT_Code" placeholder="Select Method"
+                    style=" text-align: left;  " autofocus [(ngModel)]="methodSelect">
+                </ng-select>
+
+            </div>
+            <div class="form-group col-2" style="padding-right: 10px;">
+
+                <label>Currency</label>
+
+                <ng-select [items]="listCurrency" bindLabel="NameCode" bindValue="Code" placeholder="Select Currency"
+                    style=" text-align: left;  " autofocus [(ngModel)]="currencySelect">
+                </ng-select>
+            </div>
+
+        </div>
+        <div class="row" style="margin: -8px 10px 0px 10px">
+            <div class="form-group col-2">
+                <label>Lot From</label>
+
+                <input type="text" [(ngModel)]="lotFrom" class="form-control" (keypress)="inputOnlyNumber($event)">
+
+            </div>
+            <div class="form-group col-2">
+                <label>Lot To</label>
+
+                <input type="text" [(ngModel)]="lotTo" class="form-control" (keypress)="inputOnlyNumber($event)">
+
+            </div>
+
+            <div class="form-group col-2">
+                <label>Lot Id</label>
+                <input type="text" [(ngModel)]="lotId" class="form-control" (keypress)="inputOnlyNumber($event)">
+            </div>
+
+            <div class="form-group col-2">
+                <label>Ticket</label>
+                <input type="text" [(ngModel)]="ticketId" class="form-control" (keypress)="inputOnlyNumber($event)">
+            </div>
+
+            <div class="form-group col-2">
+                <label>Merchant Id</label>
+                <input type="text" [(ngModel)]="merchantId" class="form-control" (keypress)="inputOnlyNumber($event)">
+            </div>
+
+            <div class="form-group col-2">
+                <label for="titulo">Gross Amount </label>
+                <!-- <ng-select [items]="ListSignos" bindLabel="symbol" bindValue="id" placeholder="Select Status" [(ngModel)]="grossSign">
+            </ng-select> -->
+                <div class="row">
+                    <div class="col-3" style="padding-right:0px">
+                        <select [(ngModel)]="grossSign" class="form-control" style="padding:0">
+                            <option *ngFor="let signo of ListSignos" [ngValue]="signo.id">{{signo.symbol}}</option>
+                        </select>
+                    </div>
+                    <div class="col-9" style="padding-left:3px">
+                        <input type="text" [(ngModel)]="grossAmount" (keypress)="inputOnlyNumber($event)"
+                            class="form-control" id="">
+                    </div>
+                </div>
+
+
+            </div>
+          </div>
+          <div class="row" style="margin: -8px 10px 0px 10px">
+
+            <div class="form-group col-2">
+                <label for="titulo">Net Amount </label>
+                <div class="row">
+                    <div class="col-3" style="padding-right:0px">
+                        <select [(ngModel)]="netSign" class="form-control" style="padding:0">
+                            <option *ngFor="let signo of ListSignos" [ngValue]="signo.id">{{signo.symbol}}</option>
+                        </select>
+                    </div>
+                    <div class="col-9" style="padding-left:3px">
+                        <input type="text" [(ngModel)]="netAmount" (keypress)="inputOnlyNumber($event)"
+                            class="form-control" id="">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="col-2"></div>
+            <div class="col-2"></div>
+            <div class="col-2"></div>
+            <div class="col-2"></div>
+            <div class="col-2" style="padding-right: 10px;">
+                <label style=" padding-top: 45px;  font-size: 15px; padding-left: 25px; ">* Required Fields</label>
+                <button 
+                  type="button" 
+                  *ngIf="merchantSelect && userPermission == 'ADMIN'" 
+                  class="btn blueBtnLp"
+                  (click)="exportAgrouped()" 
+                  style="float: right; margin-top: 35px;font-size: 14px">
+                  <i class="fa fa-file-excel"></i> Export Agrouped
+                </button>
+                <button type="button" class="btn blueBtnLp" [disabled]="merchantSelect == null && userPermission == 'ADMIN'"  (click)="filterReport()"  
+                    style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+    <h6 class="fw-600" *ngIf="fromDashboard">REPORT CYCLE RECEIVED PROVIDER - {{titleReport}} </h6>
+    <div *ngIf="ListPayIns.length > 0"> <button type="button" *ngIf="ListPayIns.length > 0" [disabled]="statusExport"
+            (click)="exportToExcel()" class="btn btn-success float-right btnExport">
+            <i class="fa fa-file-excel" *ngIf="!statusExport"></i> Export
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport"
+                style="margin-top: 3px;margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport">Loading...</span>
+
+        </button>
+    </div>
+    <div class="float-right" *ngIf="fromDashboard" title="Back to dashboard" (click)="backDashboard()"> <i
+            class="fa fa-arrow-alt-circle-left c-pointer" style="font-size: 25px;color:#6c757d"></i></div>
+    <div class="alert alert-secondary noDataAlert" *ngIf="ListPayIns.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+    <div *ngIf="ListPayIns.length > 0">
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 275px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            <table class="table table-hover text-nowrap">
+
+                <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+                    <tr>
+                        <th colspan="11" class="titleReportDatos">General Data </th>
+                        <th colspan="14" class="titleReportMerchant">Merchant</th>
+
+
+                    </tr>
+                    <tr>
+                        <th *ngFor="let nombreCol of listColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <ng-container *ngFor="let pay of ListPayIns">
+
+                        <tr class="borderComplete">
+                            <td> {{pay.ProcessedDate == null ? '' : (pay.ProcessedDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                            </td>                     
+                            <td>{{pay.Ticket}}</td>                     
+                            <td>{{pay.PayMethod}}</td>
+                            <td><input type="checkbox" [checked]="pay.Mechanism =='MEC_AUTO' " id="checkLot" readonly>
+                            </td>
+                            <td>{{pay.LotNumber}} </td>
+                            <td>{{pay.Merchant}}</td>
+                            <td>{{pay.SubMerchantIdentification}}</td>
+                            <td>{{pay.InternalClient_id }} </td>
+
+                            <td>{{pay.Status }} </td>
+                            <td>{{pay.DetailStatus}}</td>
+
+                            <!-- Merchant  -->
+
+                            <td [ngClass]="{'text-right': pay.Amount != null}">
+                                {{pay.Amount | fixedDecimal: 2 : '' : pay.CurrencyAmount }} </td>
+                            <td [ngClass]="{'text-right': pay.Withholding != null}">
+                                {{ pay.Withholding | fixedDecimal: 2 : '' : pay.CurrencyLocal }}</td>
+                            <!-- falta modificar moneda -->
+
+                            <td [ngClass]="{'text-right': pay.WithholdingArba != null}">
+                                {{ pay.WithholdingArba | fixedDecimal: 2 : '' : pay.CurrencyLocal }}</td>
+
+                            <td [ngClass]="{'text-right': pay.Payable != null}">
+                                {{ pay.Payable | fixedDecimal: 2 : '' : pay.CurrencyLocal }}</td>
+                            <td [ngClass]="{'text-right': pay.FxMerchant != null}">
+                                {{ pay.FxMerchant | fixedDecimal:2 : 'YES' : pay.CurrencyFxMER }}</td>
+                            <td [ngClass]="{'text-right': pay.Pending != null}">
+                                {{ pay.Pending | fixedDecimal:2 : '' : pay.CurrencyPending }}</td>
+                            <td [ngClass]="{'text-right': pay.Confirmed != null}">
+                                {{ pay.Confirmed | fixedDecimal:2 : '' : pay.CurrencyConfirmed }} </td>
+                            <td [ngClass]="{'text-right': pay.TaxCountry != null}">
+                                {{ pay.TaxCountry | fixedDecimal:2 : '' : pay.CurrencyConfirmed }} </td>
+                            <td [ngClass]="{'text-right fw-700': pay.AccountWhitoutCommission != null}">
+                                    {{ pay.AccountWhitoutCommission | fixedDecimal: 2 : '': 'USD'}} </td>
+                            <td [ngClass]="{'text-right': pay.NetCom != null}">
+                                {{ pay.NetCom | fixedDecimal: 2 : '' : pay.CurrencyCom }}</td>
+                            <td [ngClass]="{'text-right': pay.Com != null}">
+                                {{ pay.Com | fixedDecimal: 2 : '' : pay.CurrencyCom }}</td>
+                            <td [ngClass]="{'text-right': pay.TotCom != null}">
+                                {{ pay.TotCom | fixedDecimal: 2 : '' : pay.CurrencyCom }}</td>
+
+                      
+                            <td [ngClass]="{'text-right fw-700': pay.AccountArs != null}">
+                                {{ pay.AccountArs | fixedDecimal: 2 : '': pay.CurrencyLocal}} </td>
+                            <td [ngClass]="{'text-right fw-700': pay.AccountUsd != null}">
+                                {{pay.AccountUsd | fixedDecimal:2 : '': 'USD'}} </td>
+
+
+                        </tr>
+
+                    </ng-container>
+
+                </tbody>
+
+        
+
+            </table>
+
+        </div>
+
+    </div>
+</div>

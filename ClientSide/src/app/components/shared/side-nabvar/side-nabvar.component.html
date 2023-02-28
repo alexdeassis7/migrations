@@ -1,0 +1,175 @@
+<!--MENU LATERAL-->
+<nav class="bkgLg h-100" [className]="isOpen?'navbar-primary bkgLg h-100':'navbar-primary collapsed bkgLg h-100 '">
+    <ul class='navbar-primary-menu lateralMenu'>
+
+        <li routerLinkActive="active" *ngIf="userPermission == 'COMMON'">
+            <a [routerLink]="['ClientDashboard']" [ngClass]="{'itemSelect': optionSelect == 1}" (click)="subItem = ''" class="d-flex">
+                <i class="material-icons md-24">dashboard</i>
+                <span class="nav-label">Dashboard</span>
+                <span class="arrow"></span>
+            </a>
+        </li>
+
+        <li routerLinkActive="active" *ngIf="userPermission == 'ADMIN'">
+            <a [routerLink]="['Dashboard']" [ngClass]="{'itemSelect': optionSelect == 1}" (click)="subItem = ''" class="d-flex">
+                <i class="material-icons md-24">dashboard</i>
+                <span class="nav-label">Dashboard</span>
+                <span class="arrow"></span>
+            </a>
+        </li>
+
+        <li routerLinkActive="active">
+          <a (click)="openCloseSubmenuNewReport()" [ngClass]="{'itemSelect': optionSelect == 5}" (click)="subItem = ''" class="d-flex dropdown-toggle c-pointer ">
+              <i class="material-icons md-24">assessment</i>
+              <span class="nav-label">Reports</span>
+              <span class="arrow"></span>
+          </a>
+
+          <ul class="list-unstyled" id="" [@displayState]="submenuToggleNewReport ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleNewReport">
+            <li (click)="subItem = 'MerchantAccountBalanceReport'" [ngClass]="{'subItemSelect': subItem == 'MerchantAccountBalanceReport'} " class="marginItems">
+                <a [routerLink]="['Reports/MerchantAccountBalance']"><i class="fa fa-angle-right paddingSubItems"></i>Account Balance</a>
+            </li>
+            <li (click)="subItem = 'MerchantProyectedAccountBalanceReport'" [ngClass]="{'subItemSelect': subItem == 'MerchantProyectedAccountBalanceReport'} " class="marginItems">
+              <a [routerLink]="['Reports/MerchantProyectedAccountBalance']"><i class="fa fa-angle-right paddingSubItems"></i>Proyected Account Balance</a>
+            </li>
+            <li (click)="subItem = 'ActivityReport'" [ngClass]="{'subItemSelect': subItem == 'ActivityReport'} " class="marginItems">
+              <a [routerLink]="['Reports/ActivityReport']"><i class="fa fa-angle-right paddingSubItems"></i>Activity Report</a>
+            </li>
+            <li (click)="subItem = 'NewClientDetails'" class="marginItems" [ngClass]="{'subItemSelect': subItem == 'NewClientDetails'} ">
+              <a class="c-pointer" [routerLink]="['Reports/DetailClientTransaction']"><i class="fa fa-angle-right paddingSubItems"></i>Details Transaction</a>
+            </li>
+            <li (click)="subItem = 'OperationRetention'" class="marginItems" [ngClass]="{'subItemSelect': subItem == 'OperationRetention'} ">
+              <a class="c-pointer" [routerLink]="['Reports/OperationRetention']"><i class="fa fa-angle-right paddingSubItems"></i>Merchant <br>  &nbsp; Withholding</a>
+            </li>
+            <li (click)="subItem = 'TrRejected'" class="marginItems" [ngClass]="{'subItemSelect': subItem == 'TrRejected'} ">
+              <a class="c-pointer" [routerLink]="['Reports/RejectedTransactions']"><i class="fa fa-angle-right paddingSubItems"></i>Rejected  <br>  &nbsp; Transactions</a>
+            </li>
+          </ul>
+        </li>
+        <li routerLinkActive="active">
+
+            <a (click)="openCloseSubmenuGestor()" [ngClass]="{'itemSelect': optionSelect ==3}" aria-expanded="false" class="dropdown-toggle c-pointer d-flex"> <i class="material-icons md-24">cloud_upload</i>
+
+                <span class="nav-label">Files Manager </span>
+
+                <span class="arrow"></span>
+            </a>
+            <ul class="list-unstyled" id="gestorSubmenu" [@displayState]="submenuToggleGestor ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleGestor">
+                <li (click)="subItem = 'Payin'" class="marginItems" *ngIf="userPermission == 'ADMIN'">
+                    <a [ngClass]="{'subItemSelect': subItem == 'Payin'} " class="c-pointer" (click)="openCloseSubmenuGestorPayin()"><i class="fa fa-angle-right paddingSubItems" ></i>PayIn
+                </a>
+               
+                    <ul class="list-unstyled" id="gestorSubmenu" style="margin-right: 60px;" [@displayState]="submenuToggleGestorPayIn ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleGestorPayIn">
+                        <li (click)="subSubItem = 'PayinCashPayment'"  class="marginItems">
+                            <a [routerLink]="['PayIn/Cash']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayinCashPayment'} "><i class="fa fa-angle-right paddingSubItems" ></i>Cashpayment
+                    </a>
+
+                        </li>
+                        <li (click)="subSubItem = 'PayinSolBancarias'" class="marginItems">
+                            <a [routerLink]="['PayIn/SolBancarias']"  [ngClass]="{'subSubItemSelect': subSubItem == 'PayinSolBancarias'} "><i class="fa fa-angle-right paddingSubItems"  ></i>Bank Solutions</a>
+                        </li>
+                        <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayinTxsManagement'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayinTxsManagement'} " class="marginItems">
+                            <a [routerLink]="['PayIn/TxsManagement']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayinTxsManagement'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>Edit Manual TXS InProgress</a>
+                        </li>
+
+                    </ul>
+                
+                </li>
+                <li (click)="subItem = 'PayOut'" class="marginItems">
+                    <a [ngClass]="{'subItemSelect': subItem == 'PayOut'} " class="c-pointer" (click)="openCloseSubmenuGestorPayOut()"><i class="fa fa-angle-right paddingSubItems" >
+                        </i>PayOut
+                    </a>
+               
+                    <ul class="list-unstyled" id="gestorSubmenu"  style="margin-right: 60px;" [@displayState]="submenuToggleGestorPayOut ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleGestorPayOut">
+                        <li (click)="subSubItem = 'PayOutGestMerchant'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutGestMerchant'} " class="marginItems">
+                            <a [routerLink]="['PayOut/Gestion']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutGestMerchant'} " ><i class="fa fa-angle-right paddingSubItems" ></i>Merchant Management</a>
+                        </li>
+                        <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutSolBancarias'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutSolBancarias'} " class="marginItems">
+                            <a [routerLink]="['PayOut/SolBancarias']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutSolBancarias'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>Bank Solutions</a>
+                        </li>
+                        <li (click)="subItem = 'ManualEdit'" class="marginItems" *ngIf="userPermission == 'ADMIN'">
+                            <a [ngClass]="{'subItemSelect': subItem == 'ManualEdit'} " class="c-pointer" (click)="openCloseSubmenuManualEdit()"><i class="fa fa-angle-right paddingSubItems" >
+                                </i>   Manual Edit  </a>
+                                <ul class="list-unstyled" id="gestorSubmenu"  style="margin-right: 60px;" [@displayState]="submenuToggleManualEdit ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleManualEdit">
+                                    <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutTxsManagement'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutTxsManagement'} " class="marginItems">
+                                        <a [routerLink]="['PayOut/TxsManagement']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutTxsManagement'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>InProgress to Approved/Rejected</a>
+                                    </li>
+                                    <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutManualRecieved'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualRecieved'} " class="marginItems">
+                                        <a [routerLink]="['PayOut/ManualRecieved']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualRecieved'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>InProgress to Received</a>
+                                    </li>
+                                    <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutManualCancel'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualCancel'} " class="marginItems">
+                                        <a [routerLink]="['PayOut/ManualCancel']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualCancel'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>Received to OnHold/Canceled</a>
+                                    </li>
+                                    <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutManualOnHold'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualOnHold'} " class="marginItems">
+                                        <a [routerLink]="['PayOut/ManualOnHold']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutManualOnHold'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>OnHold to Received/Canceled</a>
+                                    </li>
+                                    <li *ngIf="userPermission == 'ADMIN'" (click)="subSubItem = 'PayOutReturned'" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutReturned'} " class="marginItems">
+                                        <a [routerLink]="['PayOut/Returned']" [ngClass]="{'subSubItemSelect': subSubItem == 'PayOutReturned'}" ><i class="fa fa-angle-right paddingSubItems"  ></i>Returned / Recalled</a>
+                                    </li>
+                                </ul>
+                        </li>
+                    </ul>
+               
+                </li>
+
+            </ul>
+
+        </li>
+
+
+        <li routerLinkActive="active" *ngIf="userPermission == 'ADMIN'">
+            <a (click)="openCloseSubmenuHerramientas()" [ngClass]="{'itemSelect': optionSelect == 4}" aria-expanded="false" class="dropdown-toggle c-pointer d-flex">
+                <i class="material-icons md-24">build</i>
+                <span class="nav-label">Tools</span>
+                <span class="arrow"></span>
+            </a>
+
+            <ul class="list-unstyled" id="gestorSubmenu" [@displayState]="submenuToggleHerramientas ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleHerramientas">
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'trCreate'" [ngClass]="{'subItemSelect': subItem == 'trCreate'} " class="marginItems">
+                    <a [routerLink]="['Tools/create-transaction']"><i class="fa fa-angle-right paddingSubItems"></i>Create Transaction</a>
+                </li>
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'trEdit'" [ngClass]="{'subItemSelect': subItem == 'trEdit'} " class="marginItems">
+                    <a><i class="fa fa-angle-right paddingSubItems"></i>Transaction Edit</a>
+                </li>
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'fxEdit'" [ngClass]="{'subItemSelect': subItem == 'fxEdit'} ">
+                    <a><i class="fa fa-angle-right paddingSubItems"></i>Edit Fx</a>
+                </li>
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'manageProvider'" [ngClass]="{'subItemSelect': subItem == 'manageProvider'} ">
+                    <a><i class="fa fa-angle-right paddingSubItems"></i>Manage Providers</a>
+                </li>
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'userManager'" [ngClass]="{'subItemSelect': subItem == 'userManager'} ">
+                    <!-- <a [routerLink]="['UserManager']"><i class="fa fa-angle-right paddingSubItems"></i>Manage Users</a> -->
+                    <a [ngClass]="{'subItemSelect': subItem == 'userManager'} " class="c-pointer" (click)="openCloseSubmenuManageUsers()"><i class="fa fa-angle-right paddingSubItems" >
+                        </i>Manage Users
+                    </a>
+
+                    <ul class="list-unstyled" id="gestorSubmenu"  style="margin-right: 60px;" [@displayState]="submenuToggleManageUsers ? 'inactive' : 'active'" [collapse]="isOpen == false  && !submenuToggleManageUsers">
+                        <li (click)="subSubItem = 'userManager'" [ngClass]="{'subSubItemSelect': subSubItem == 'userManager'} " class="marginItems">
+                            <a [routerLink]="['ListAccount']" [ngClass]="{'subSubItemSelect': subSubItem == 'userManager'} " ><i class="fa fa-angle-right paddingSubItems" ></i>List Accounts</a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'checkOut'" [ngClass]="{'subItemSelect': subItem == 'checkOut'} ">
+                    <a [routerLink]="['Tools/CreateCheckOut']"><i class="fa fa-angle-right paddingSubItems"></i>Create CheckOut</a>
+                </li>
+                <li class="marginItems" *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'AML'" [ngClass]="{'subItemSelect': subItem == 'AML'} ">
+                    <a><i class="fa fa-angle-right paddingSubItems"></i>AML</a>
+                </li>
+                <li class="marginItems"  *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'withholdings'" [ngClass]="{'subItemSelect': subItem == 'withholdings'} " class="marginItems">
+                    <a [routerLink]="['Tools/Withholdings']"><i class="fa fa-angle-right paddingSubItems"></i>Withholdings</a>
+                </li>
+                <li class="marginItems"  *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'certificates'" [ngClass]="{'subItemSelect': subItem == 'certificates'} " class="marginItems">
+                    <a [routerLink]="['Tools/Certificates']"><i class="fa fa-angle-right paddingSubItems"></i>Certificates</a>
+                </li>
+                <li class="marginItems"  *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'signature'" [ngClass]="{'subItemSelect': subItem == 'signature'} " class="marginItems">
+                    <a [routerLink]="['Tools/Signature']"><i class="fa fa-angle-right paddingSubItems"></i>Signature</a>
+                </li>
+                <li class="marginItems"  *ngIf="userPermission == 'ADMIN'" (click)="subItem = 'transactionData'" [ngClass]="{'subItemSelect': subItem == 'transactionData'} " class="marginItems">
+                    <a [routerLink]="['Tools/TransactionData']"><i class="fa fa-angle-right paddingSubItems"></i>Transaction Data</a>
+                </li>
+            </ul>
+        </li>
+
+    </ul>
+</nav>

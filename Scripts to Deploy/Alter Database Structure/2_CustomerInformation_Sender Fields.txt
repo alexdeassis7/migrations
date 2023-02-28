@@ -1,0 +1,7 @@
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderName] [LP_Common].[LP_F_DESCRIPTION] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderAddress] [LP_Common].[LP_F_C150] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderState]  [LP_Common].[LP_F_C20] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderCountry]  [LP_Common].[LP_F_C20] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderTAXID] [LP_Common].[LP_F_C20] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderBirthDate] [LP_Common].[LP_F_C8] null
+alter table [LP_CustomerInformation].[TransactionCustomerInfomation] add [SenderEmail] [LP_Common].[LP_F_DESCRIPTION] null

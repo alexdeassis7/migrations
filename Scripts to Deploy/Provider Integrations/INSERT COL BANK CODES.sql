@@ -1,0 +1,17 @@
+BEGIN TRAN
+DECLARE @idCountry			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+
+set @idCountry = (SELECT idCountry FROM LP_Location.Country Where ISO3166_1_ALFA003 = 'COL')
+
+INSERT INTO [LP_Configuration].[BankCode] ([Code], [Name], [Description], [idCountry], [Active], [SubCode])
+VALUES
+('1151', 'RAPPIPAY','RAPPIPAY', @idCountry,1,'1151')
+,('1303', 'GIROS Y FINANZAS CF','GIROS Y FINANZAS CF', @idCountry,1,'1303')
+,('1551', 'DAVIPLATA','DAVIPLATA', @idCountry,1,'1551')
+,('1069', 'BANCO SERFINANZA S.A.','BANCO SERFINANZA S.A.', @idCountry,1,'1069')
+,('1059', 'BANCO DE LAS MICROFINANZAS BANCAMIA S.A.','BANCO DE LAS MICROFINANZAS BANCAMIA S.A.', @idCountry,1,'1059')
+,('1053', 'BANCO W S.A.','BANCO W S.A.', @idCountry,1,'1053')
+,('1047', 'BANCO MUNDO MUJER S.A.','BANCO MUNDO MUJER S.A.', @idCountry,1,'1047')
+,('1031', 'BANCO DE COMERCIO EXTERIOR - BANCOLDEX','BANCO DE COMERCIO EXTERIOR - BANCOLDEX', @idCountry,1,'1031')
+
+ROLLBACK

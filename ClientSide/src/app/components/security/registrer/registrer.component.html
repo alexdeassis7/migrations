@@ -1,0 +1,163 @@
+<app-nabvar [noHome]="home"></app-nabvar>
+<div class="row" style="margin-top: 64px">
+  <div class="col-md-12">
+    <div class="row">
+      <div class="col-md-6" style="">
+        <div class="py-1 text-center">
+          <img class="py-1 text-center logoLPRegister" alt="">
+          <h2 style="padding-bottom: 10px;      font-weight: 500;    line-height: 1em;">Nuevo Cliente</h2>
+          <h5 style="padding-bottom: 10px;    color: #999!important;    font-weight: 100;    line-height: 1em;">Abrí tu
+            cuenta y empezá a recibir pagos por internet.</h5>
+        </div>
+        <div class="py-1 text-center">
+          <img class=" img-fluid imgLPWorld" alt="">
+
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <form class="needs-validation" novalidate="" style="box-shadow: 0 1px 3px rgba(0,0,0,.2); padding: 10px;background: white;     border-radius: 4px;">
+          <div class="">
+            <h4 class="mb-3">Tipo de cuenta  <a [routerLink]="['/Login']" style="float: right; font-size: 16px; font-weight: normal;">Volver</a></h4>
+           
+          </div>
+
+
+
+          <div class="row" style="padding-left: 15px;">
+
+            <div class="col-md-6 custom-control custom-radio">
+              <input id="credit" name="paymentMethod" type="radio" class="custom-control-input" checked="" required="">
+              <label class="custom-control-label" for="credit">Personal</label>
+            </div>
+            <div class="col-md-6 custom-control custom-radio">
+              <input id="debit" name="paymentMethod" type="radio" class="custom-control-input" required="">
+              <label class="custom-control-label" for="debit">Empresarial</label>
+            </div>
+
+          </div>
+          <hr class="mb-4">
+          <h4 class="mb-3">Datos personales</h4>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <!-- <label for="firstName">Nombres</label>-->
+              <input type="text" class="form-control" id="firstName" placeholder="Nombres" value="" required="">
+              <div class="invalid-feedback">
+                Nombre es requerido.
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+
+              <input type="text" class="form-control" id="lastName" placeholder="Apellidos" value="" required="">
+              <div class="invalid-feedback">
+                Apellido es requerido.
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-2 mb-3">
+
+              <select class="custom-select d-block w-100" id="typeDoc" required="">
+                <option>DNI</option>
+                <option>CUIL</option>
+                <option>CUIT</option>
+                <option>Pasaporte</option>
+              </select>
+              <div class="invalid-feedback">
+                Por favor seleccione su tipo de documento.
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+
+              <input type="text" class="form-control" id="dni" placeholder="Numero" required="">
+              <div class="invalid-feedback">
+                Tipo de documento requerido.
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+
+              <input type="text" class="form-control" id="phone" placeholder="Teléfono celular" required="">
+              <div class="invalid-feedback">
+                Numero documento requerido.
+              </div>
+            </div>
+            <div class="col-md-5 mb-3">
+              <select class="custom-select d-block w-100" id="country" required="">
+                <option value="">Argentina</option>
+                <option>Brasil</option>
+              </select>
+              <div class="invalid-feedback">
+                Pais requerido.
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <select class="custom-select d-block w-100" id="state" required="">
+                <option value="">Buenos Aires</option>
+                <option>Santa Fe</option>
+              </select>
+              <div class="invalid-feedback">
+                Provincia requerida.
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <input type="text" class="form-control" id="zip" placeholder="Código postal" required="">
+              <div class="invalid-feedback">
+                Código postal requerido..
+              </div>
+            </div>
+
+          </div>
+          <hr class="mb-4">
+          <h4 class="mb-3">Datos de ingreso</h4>
+          <div class="row">
+            <div class="col-md-6  mb-3">
+              <input type="email" class="form-control" id="email" placeholder="Correo" required="">
+              <div class="invalid-feedback">
+                Correo requerido.
+              </div>
+            </div>
+            <div class="col-md-6  mb-3">
+              <input type="email" class="form-control" id="email2" placeholder="Repita su correo" required="">
+              <div class="invalid-feedback">
+                Correo requerido.
+              </div>
+            </div>
+            <div class="col-md-6  mb-3">
+              <input type="password" class="form-control" id="password" placeholder="Clave" required="">
+              <div class="invalid-feedback">
+                Password requerido.
+              </div>
+            </div>
+            <div class="col-md-6  mb-3">
+              <input type="password" class="form-control" id="password2" placeholder="Repita su clave" required="">
+              <div class="invalid-feedback">
+                Password requerido.
+              </div>
+            </div>
+          </div>
+
+          <hr class="mb-4">
+          <div class="row">
+            <div class="col-md-6  mb-3">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Abrir cuenta</button>
+            </div>
+            <div class="col-md-6  mb-3">
+              <div class="tyc" style="    color: #999;    font-size: 11px;    vertical-align: middle;    text-align: center;    margin: 0 auto;    width: 100%;">
+                Al crear una cuenta, declaro que soy mayor de edad y acepto los
+                <a target="_blank" href="" title="Leer términos y condiciones">
+                  Términos y condiciones
+                </a> y las
+                <a target="_blank" href="" title="Leer políticas de privacidad">
+                  Políticas de privacidad
+                </a> de LocalPayment y
+                <a target="_blank" href="" title="Leer términos y condiciones de LocalPayment">LocalPayment
+                </a>.
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

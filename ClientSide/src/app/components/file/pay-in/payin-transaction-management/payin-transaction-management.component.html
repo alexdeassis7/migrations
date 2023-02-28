@@ -1,0 +1,139 @@
+<div class="components-container animated fadeIn" style="text-align: left;">
+    <div class="row container-fluid" style="    margin: 0">
+
+      <div class="col-2 text-left">
+
+        <label for="">Country</label>
+        <ng-select [items]="ListCountries" bindLabel="NameCode" bindValue="Code" [clearable]="false"
+          [searchable]="false" placeholder="Select Country" (ngModelChange)="loadProviderFilter($event)"
+          [(ngModel)]="countryCode">
+
+          <ng-template ng-label-tmp let-item="item">
+            <div>
+              <img height="30" width="30" [class]="item.FlagIcon" />
+              <label class="lblCountries" for=""> {{item.Name}} </label>
+            </div>
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item" let-index="index">
+            <div>
+              <img height="30" width="30" [class]="item.FlagIcon" />
+              <label class="lblCountries" for=""> {{item.Name}}</label>
+            </div>
+          </ng-template>
+
+        </ng-select>
+      </div>
+
+      <div class="form-group col-2">
+        <label>Provider</label>
+
+        <ng-select [items]="ListProviderFilter" [disabled]="countryCode == null" bindLabel="name" bindValue="code"
+          [searchable]="false" placeholder="Select Provider" [(ngModel)]="providerSelect">
+        </ng-select>
+      </div>
+
+
+      <div class="form-group col-2">
+        <label>Merchant</label>
+
+        <ng-select [items]="ListMerchantFilter" bindLabel="FirstName" bindValue="idEntityUser" [searchable]="false"
+          placeholder="Select Merchant" [(ngModel)]="merchantSelect" (ngModelChange)="loadSubmerchantFilter($event)" >
+        </ng-select>
+      </div>
+
+      <div class="form-group col-2">
+        <label>SubMerchant</label>
+
+        <ng-select [items]="ListSubMerchantFilter" bindLabel="SubMerchantIdentification" bindValue="idEntitySubMerchant" [searchable]="false"
+          placeholder="Select SubMerchant" [(ngModel)]="subMerchantSelect" >
+        </ng-select>
+      </div>
+
+    </div>
+    <div class="row ">
+      <div class="col-4">
+      </div>
+      <div class="col-4">
+        <div style="padding-top: 8px" class="text-center">
+          <i class="fa fa-check-circle statusOk" *ngIf="downloadStatus=='OK'"></i>
+          <i class="fa fa-times-circle statusError" *ngIf="downloadStatus == 'ERROR'"> </i>
+          <i class="fa fa-exclamation statusNotProcess" *ngIf="downloadStatus == 'NOTPROCESS'"> </i>
+  
+          <span *ngIf="downloadStatus == 'OK'" class="msgDownloadSuccess">Transactions processed successfully</span>
+          <span *ngIf="downloadStatus == 'ERROR'" class="msgDownloadError">Errors occurred in the process</span>
+          <span *ngIf="downloadStatus == 'NOTPROCESS'" class="msgDownloadNotProccess">There is no data to process</span>
+          <span *ngIf="downloadStatus == 'MIXED'" class="msgDownloadNotProccess">Some Transactions failed to be processed</span>
+        </div>
+       </div>
+      <div class="col-4">
+        <button style="float: right;margin-bottom: 5px;margin-top:8px " type="button" class="btn btn-success"
+        [disabled]="checkedPayins.length < 1" (click)="changeStatus()">Aprove</button>
+        <button style="float: left; margin-right: 30px;margin-top:8px " type="button" class="btn blueBtnLp"
+          [disabled]="!validationFilter" (click)="filter()">Filter</button>
+      </div>
+
+    </div>
+    <div class="components-container">
+      <div class="table-responsive "style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true">
+        <table class="table table-hover ">
+          <thead class="headerLP">
+            <tr style="white-space: nowrap">
+              <th><input type="checkbox" [disabled]="filteredPayins.length < 1" [(ngModel)]="rejectAll" (ngModelChange)="loadAllTransactions($event)"></th>
+              <th>Payin Id</th>
+              <th>Ticket Number</th>
+              <th>Payer Name</th>
+              <th>Payer Id</th>
+              <th>Payer Account Number</th>
+              <th>Transaction Date</th>
+              <th>Merchant Id</th>
+              <th>Merchant Name</th>
+              <th>SubMerchant</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody style="white-space: nowrap">
+           <tr *ngFor="let tr of filteredPayins">
+              <td> <input type="checkbox"  [(ngModel)]="tr.Reject" (ngModelChange)="loadCheckboxTransactions(tr, $event)"></td>
+              <td style="white-space: nowrap">{{tr.payin_id}}</td>
+              <td style="white-space: nowrap">{{tr.ticket}}</td>
+              <td style="white-space: nowrap">{{tr.payer_name}}</td>
+              <td style="white-space: nowrap">{{tr.payer_document_number}}</td>
+              <td style="white-space: nowrap">{{tr.payer_account_number}}</td>
+              <td style="white-space: nowrap">
+              {{tr.TransactionDate == "" ? "" : (tr.transaction_date |  amDateFormat:'DD/MM/YYYY HH:mm A')}}</td>
+              <td style="white-space: nowrap">{{tr.merchant_id}}</td>
+              <td style="white-space: nowrap">{{tr.merchant_name}}</td>
+              <td style="white-space: nowrap">{{tr.submerchant_code}}</td>
+              <td style="white-space: nowrap">{{tr.amount | fixedDecimal: 2}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="filteredPayins.length > 0" class="components-container">
+      <div class="table-responsive">
+        <table class="table table-hover ">
+          <thead>
+            <tr style="white-space: nowrap">
+                <th></th> 
+              <th>Transactions</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody style="white-space: nowrap">
+           <tr>
+               <td>Total</td>
+              <td style="white-space: nowrap">{{filteredPayins.length}} </td>
+              <td style="white-space: nowrap">{{filteredPayinsTotal.Amount | fixedDecimal: 2}}</td>
+            </tr>
+            <tr>
+                <td>Checked</td>
+               <td style="white-space: nowrap">{{checkedPayins.length}} </td>
+               <td style="white-space: nowrap">{{checkedPayinsTotal.Amount | fixedDecimal: 2}}</td>
+             </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

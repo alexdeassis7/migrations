@@ -1,0 +1,48 @@
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
+}
+
+.form-signin .checkbox {
+    font-weight: 400;
+}
+
+.form-signin .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+
+
+
+.loginFrm{
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    background: #fff;
+    border-radius: 4px;
+    margin-top:10%;
+
+}
+
+.input-group-text i.fa-user{
+
+    margin-left: 2px;
+    color: dimgray !important;
+} 
+.input-group-text i.fa-key{
+
+   
+    color: dimgray !important;
+} 
+.pepito{
+
+    background-color:red;
+    color: red;
+}

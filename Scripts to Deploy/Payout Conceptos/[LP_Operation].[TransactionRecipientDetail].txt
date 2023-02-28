@@ -1,0 +1,3 @@
+alter table lp_operation.TransactionRecipientDetail alter column ConceptCode varchar(4) null
+
+update lp_operation.TransactionRecipientDetail set conceptcode = null where conceptcode = '0'

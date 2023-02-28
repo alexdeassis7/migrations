@@ -1,0 +1,4 @@
+.fa-download:hover{
+    transition: transform .2s;
+    transform: scale(1.5);
+}

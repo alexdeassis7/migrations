@@ -1,0 +1,13 @@
+.btn-footercontainer {
+  float: right;
+  margin-bottom: 17px
+}
+
+.btn-create {
+  color: white;
+  float: right;
+}
+
+#fields-required {
+  float: left;
+}

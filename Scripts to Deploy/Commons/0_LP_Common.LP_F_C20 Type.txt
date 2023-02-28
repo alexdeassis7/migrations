@@ -1,0 +1,2 @@
+CREATE TYPE [LP_Common].[LP_F_C20] FROM [varchar](200) NOT NULL
+GO

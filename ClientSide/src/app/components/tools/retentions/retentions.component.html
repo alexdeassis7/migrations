@@ -1,0 +1,181 @@
+<div class="card cardRetention">
+  <div class="card-header blueBtnLp">
+    <h6 class="mb-0 fw-400">Withholdings</h6>
+  </div>
+
+  <ul class="nav nav-tabs" >
+    <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'WITHHOLDINGS'">
+      <a class="nav-link " style="color:#909294"
+        [ngClass]="{'active itemNavActive': itemSelect == 'WITHHOLDINGS' } ">Certificates</a>
+    </li>
+
+    <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'FILES'">
+      <a class="nav-link" style="color:#909294" [ngClass]="{'active itemNavActive': itemSelect == 'FILES' }">Monthly Files</a>
+    </li>
+    <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'WHITELIST'">
+      <a class="nav-link" style="color:#909294"
+        [ngClass]="{'active itemNavActive': itemSelect == 'WHITELIST' }">Whitelist</a>
+    </li>
+    <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'REFUND'">
+      <a class="nav-link" style="color:#909294"
+        [ngClass]="{'active itemNavActive': itemSelect == 'REFUND' }">Withholding Refunds</a>
+    </li>
+  </ul>
+
+  <div class="card-body pl-0 pr-0 tabsBody" [ngSwitch]="itemSelect">
+
+    <ng-container *ngSwitchCase="'WITHHOLDINGS'">
+      <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+          (click)="toggleFitro = !toggleFitro">
+          <i class="fas fa-filter"></i>
+          <span id="lblFilter" class="fw-400">Filters</span>
+          <i class="fa float-right" style="margin-top: 5px"
+              [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      </div>
+      <div class="card-body" id="filterPanel" class="collapse show">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <div class="form-group col-2">
+                <label>File Type</label>
+                <ng-select [items]="listRetentions" bindLabel="name" 
+                    placeholder="Select Certified Type" [(ngModel)]="certifiedTypeSelect" >
+                </ng-select>
+            </div>
+            <div class="form-group col-2">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" 
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect" >
+                </ng-select>
+            </div>
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From</label>
+                <input type="text"  readonly [(ngModel)]="dateFrom"  class="form-control c-pointer"  bsDatepicker
+                [bsConfig]="bsConfigByDay" (bsValueChange)="onValueChange($event)" [maxDate]="dateTo">
+
+            </div>
+            <div class="form-group col-2" id="dateToInput">
+                <label>Date To</label>
+                <input type="text"  readonly [(ngModel)]="dateTo"  class="form-control c-pointer" bsDatepicker
+                [bsConfig]="bsConfigByDay" [minDate]="dateFrom">
+
+            </div>
+            <div class="col-2" style="padding-right: 10px;"> 
+              <button type="button" class="btn blueBtnLp"
+                    (click)="filterList()" style="float: right; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+        </div>
+      </div>
+      <div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+          <h6 class="fw-600">Retentions List </h6>
+              <div class="alert alert-secondary noDataAlert" *ngIf="TransAgroupedByDayList.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+    <div *ngIf="TransAgroupedByDayList.length > 0">
+        <div class="table-responsive" id="divContainerTable">
+            <table class="table table-hover text-nowrap">
+                <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+                    <tr>
+                        <th>Merchant</th>
+                        <th>Organism</th>
+                        <th>Date</th>
+                        <th>Certificates Created</th>
+                        <th>Retentions Amount</th>
+                        <th>Certificates Pending</th>
+                        <th>Trx Pending</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <ng-container *ngFor="let transAgrouped of TransAgroupedByDayList">
+                        <tr class="borderComplete">
+                          <td>
+                            {{transAgrouped.Merchant.Name}}
+                          </td>
+                          <td>
+                            {{getRetentionTypeByCode(transAgrouped.OrganismoCode).name}}
+                          </td>
+                          <td>
+                            {{transAgrouped.Fecha | amDateFormat:'DD/MM/YYYY' }}
+                          </td>
+                          <td>
+                            {{transAgrouped.Certificates_Created}}
+                          </td>
+                          <td>
+                            {{transAgrouped.Importe_Retenciones| fixedDecimal:2 : '' : 'ARS'}}
+                          </td>
+                          <td>
+                            {{transAgrouped.Certificates_Pending}}
+                          </td>
+                          <td>
+                            {{transAgrouped.Trx_Pending}}
+                          </td>
+                          <td>
+                            <button type="button" class="btn" [disabled]="transAgrouped.Certificates_Pending > 0 || transAgrouped.Trx_Pending > 0" (click)="downloadTransactionsAgrouped(transAgrouped)"> <i class="fa fa-chevron-down"></i> Download</button>
+                          </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+      </div>
+
+    </ng-container>
+    <ng-container *ngSwitchCase="'FILES'">
+
+      <div class="card" style="margin:30px" >
+        <div class="card-header c-pointer " style="border-bottom: 1px solid #0c71c3" data-toggle="collapse" href="#collapseDataAdmin" role="button" aria-expanded="false" aria-controls="collapseDataAdmin">
+            <h6 class="mb-0 fw-500 blue-font" > Download</h6>
+        </div>
+        <div class=" collapse show" id="collapseDataAdmin">
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-3">
+                        <label class="lblForm">Withholding </label>
+                        <ng-select [items]="listRetentions" bindLabel="name" bindValue="id"
+                        placeholder="Select Withholding" [(ngModel)]="WithholdingSelect">
+                    </ng-select>
+                    </div>
+                    <div class="form-group col-3" id="periodDate">
+                        <label class="lblForm">Period</label>
+                        <input type="text" placeholder="Select Period" readonly [(ngModel)]="monthSelect"  (ngModelChange)="validateMonth($event)"  class="form-control" bsDatepicker  [bsConfig]="bsConfigByMonth" 
+                        style="cursor:pointer">
+                        <label *ngIf="errorMonthValidation" style="color: indianred; margin: 7px;" >The month selected must be less than current month </label>
+                    </div>
+                    <div class="form-group col-3">
+                        <label class="lblForm">File Type</label>
+                        <ng-select [items]="listFileTypes" bindLabel="name" bindValue="code"
+                        placeholder="Select File Type" [(ngModel)]="fileTypeSelect">
+                      </ng-select>
+                        
+                    </div>
+                    <div class="form-group col-3">
+                      <button  type="button" class="btn blueBtnLp" style="margin-top: 30px;"
+                      [disabled]="!validationDownload" (click)="downloadMonthlyFiles()">Download</button>
+                  </div>
+            
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+      
+    </ng-container>
+    <ng-container *ngSwitchCase="'WHITELIST'">
+      <div class="container-fluid justify-content-center " style="padding-top:30px;height:100%;overflow: hidden">
+        <div class="col-12" style="padding-right: 10px; padding-left:10px;height: 100%;padding-bottom: 50px" >
+        
+          <app-whitelist-manager></app-whitelist-manager>
+        
+        </div>
+      </div>      
+    </ng-container>
+    <ng-container *ngSwitchCase="'REFUND'">
+      <withholding-refund></withholding-refund>    
+    </ng-container>
+  </div>
+</div>

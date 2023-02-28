@@ -1,0 +1,64 @@
+
+
+    <div class="modal-content" #modalAddNewUser>
+        <form [formGroup]="myForm" (ngSubmit)="save()">
+        <!-- Modal Header -->
+        <div class="modal-header  modalSizeHeader modal-header-Lp ">
+            <h5 class="modal-title h5Modal">Add new user </h5>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+    
+        <!-- Modal body -->
+        <div class="modal-body">
+    
+            <div class="card">
+                <div class="card-header c-pointer" data-toggle="collapse" href="#collapseDataAdmin" role="button"
+                    aria-expanded="false" aria-controls="collapseDataAdmin">
+                    <h6 class="mb-0 fw-500"> Data User </h6>
+                </div>
+                <div class=" collapse show" id="collapseDataAdmin">
+    
+                    <div class="card-body">
+                        <div>
+                            <div class="row">
+                                <div class="form-group col-12">
+                                    <label class="lblForm">Mail</label>
+                                    <input type="text" class="form-control" formControlName="Mail">
+                                    <div *ngIf="myForm.controls['Mail'].invalid && (myForm.controls['Mail'].dirty || myForm.controls['Mail'].touched)">
+                                        <div class="text-danger" *ngIf="myForm.controls['Mail'].errors.required">Required</div>    
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-12">
+                                    <label class="lblForm">Web Password</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" formControlName="WebPassword">
+                                    <span class="input-group-text" id="basic-addon3" (click)="passwordGenerator()" style="cursor: pointer">
+                                        <i class="fa fa-sync"></i>
+                                    </span>
+                                    </div>
+                                    <div *ngIf="myForm.controls['WebPassword'].invalid && (myForm.controls['WebPassword'].dirty || myForm.controls['WebPassword'].touched)">
+                                        <div class="text-danger" *ngIf="myForm.controls['WebPassword'].errors.required">Required</div>    
+                                    </div>
+                                </div>
+                                <input type="hidden" class="form-control" formControlName="idEntityUser" readonly>
+                                <input type="hidden" class="form-control" formControlName="idEntityAccount" readonly>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+    
+        </div>
+    
+        <div class="modal-footer">
+            <button type="button" (click)="bsModalRef.hide()" class="btn btn-danger" style="color:white;">Close</button>
+            <button type="submit" class="btn btn-dark" [disabled]="loading || myForm.invalid" style="color:white;">Add User</button>
+            <div class="btn-footercontainer">
+                
+            </div>
+        </div>
+        </form>
+    </div>
+

@@ -1,0 +1,141 @@
+/****** Object:  StoredProcedure [LP_Operation].[ListMerchantWithHoldReport]    Script Date: 2/4/2020 2:42:32 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--000001400007
+-- EXEC [LP_Operation].[MerchantWithHoldReport] '000000000001','{"idEntityAccount":NULL,"dateFrom":null,"dateTo":null,"lotFrom":null,"lotTo":null,"pageSize":100,"offset":0}'
+ALTER PROCEDURE [LP_Operation].[ListMerchantWithHoldReport]
+															(
+																@customer		[LP_Common].[LP_F_C50]
+																, @json			[LP_Common].[LP_F_VMAX]
+															)
+AS											
+BEGIN
+
+	/*
+	ID SIGNO
+	1	<
+	2	<=
+	3	>
+	4	>=
+	5	=
+	*/
+
+	DECLARE
+		@qtyAccount				[LP_Common].[LP_F_INT]
+		, @idEntityAccount		[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+		, @Message				[LP_Common].[LP_F_C50]
+		, @Status				[LP_Common].[LP_F_BOOL]
+		, @transLot				[LP_Common].[LP_F_INT]
+
+		, @idEntityAcc			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+
+	SELECT
+		@qtyAccount = COUNT([idEntityAccount])
+		, @idEntityAccount = MAX([idEntityAccount])
+	FROM
+		[LP_Security].[EntityAccount]
+	WHERE
+		[UserSiteIdentification] = @customer
+		AND [Active] = 1
+
+	IF(@qtyAccount = 1)
+	BEGIN	
+
+		DECLARE
+			@idEntityUser		[LP_Common].[LP_F_INT],
+			@dateFrom			[LP_Common].[LP_F_C8],
+			@dateTo				[LP_Common].[LP_F_C8],
+			@lotFrom			[LP_Common].[LP_F_C10],
+			@lotTo				[LP_Common].[LP_F_C10],
+			@pageSize			[LP_Common].[LP_F_INT],
+			@offset				[LP_Common].[LP_F_INT],
+			@RESP				XML
+
+		SELECT
+			@idEntityUser		= CAST(JSON_VALUE(@JSON, '$.idEntityAccount') AS INT)
+			,@dateFrom			= CAST(JSON_VALUE(@JSON, '$.dateFrom') AS VARCHAR(8))
+			,@dateTo			= CAST(JSON_VALUE(@JSON, '$.dateTo') AS VARCHAR(8))
+			,@lotFrom			= CAST(JSON_VALUE(@JSON, '$.lotFrom') AS VARCHAR(20))
+			,@lotTo				= CAST(JSON_VALUE(@JSON, '$.lotTo') AS VARCHAR(20))
+
+
+
+
+
+
+		SET @RESP =
+					(
+						SELECT
+							CAST
+							(
+								(
+
+									SELECT
+										[TransactionDate]		= [T].[TransactionDate]
+										, [FirstName]			= [EU].[FirstName]
+										, [Description]			= [EM].[Description]
+										, [IdTransaction]		= [T].[idTransaction]
+										, [Ticket]				= [Ticket]
+										, [MerchantId]			= [TRD].[InternalDescription]
+										, [FileName]			= [FileName]
+										, [CertificateNumber]	= SUBSTRING([FileName], 0, 15)
+										, [GrossAmount]			= [TD].[GrossAmount]
+										, [TaxWithholdings_Afip]= [TD].[TaxWithholdings]
+										, [TaxWithholdings_Arba]= [TD].[TaxWithholdingsARBA]
+										, [TaxWithholdings_Agip]= [TD].[TaxWithholdingsAgip]
+										, [NetAmount]			= [TD].[NetAmount]
+
+									FROM
+										[LP_Operation].[Transaction]									[T]
+											INNER JOIN [LP_Operation].[TransactionLot]					[TL]	ON [T].[idTransactionLot]	= [TL].[idTransactionLot]
+											LEFT JOIN [LP_Retentions_ARG].[TransactionCertificate]		[TC]	ON [T].[idTransaction]		= [TC].[idTransaction]
+											LEFT JOIN [LP_Operation].[Ticket]							[TCK]	ON [T].[idTransaction]		= [TCK].[idTransaction]
+											LEFT JOIN [LP_Operation].[TransactionDetail]				[TD]	ON [T].[idTransaction]		= [TD].[idTransaction]
+											LEFT JOIN [LP_Operation].[Wallet]							[W]		ON [T].[idTransaction]		= [W].[idTransaction]
+											LEFT JOIN [LP_Operation].[TransactionRecipientDetail]		[TRD]	ON [T].[idTransaction]		= [TRD].[idTransaction]
+											LEFT JOIN [LP_Entity].[EntityUser]							[EU]	ON [T].[idEntityUser]		= [EU].[idEntityUser]
+											LEFT JOIN [LP_Entity].[EntityMerchant]						[EM]	ON [EU].[idEntityMerchant]	= [EM].[idEntityMerchant]
+
+									WHERE
+									(
+										( ( [T].[TransactionDate] >= @dateFrom ) OR ( @dateFrom IS NULL ) ) AND ( ( [T].[TransactionDate] <= @dateTo ) OR ( @dateTo IS NULL ) )
+									)
+									AND 
+									(
+										( [TL].[LotNumber] >= @lotFrom ) OR ( @lotFrom IS NULL )
+									)
+									AND 
+									(
+										( [TL].[LotNumber] <= @lotTo ) OR ( @lotTo IS NULL )
+									)
+									AND 
+									(
+										( [T].[idEntityUser] = @idEntityUser ) OR ( @idEntityUser IS NULL )
+									)
+
+
+									ORDER BY
+										ISNULL([T].[ProcessedDate], [T].[TransactionDate]) ASC
+										, [T].[TransactionDate] ASC
+									OFFSET ISNULL(@offset, 0) ROWS  
+									FETCH NEXT ISNULL(@pageSize, 100) ROWS ONLY
+
+									FOR JSON PATH
+
+								) AS XML
+							)
+					)
+
+
+		SELECT @RESP
+
+	END
+	ELSE
+	BEGIN
+		SET @Status = 0
+		SET @Message = 'CLIENTE INEXISTENTE. VERFIQUE SU CUSTOMER_ID'
+	END
+
+END

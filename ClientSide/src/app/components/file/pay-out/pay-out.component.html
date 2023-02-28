@@ -1,0 +1,152 @@
+<div class="btn-group" style="margin-top:-9px">
+  <label class="btn btn-secondary" style="font-size:14px" [ngClass]="action == 'download' ? 'inactiveOption' : '' "
+    [(ngModel)]="action" btnRadio="upload" tabindex="0" role="button">Upload</label>
+  <label class="btn btn-secondary" style="font-size:14px" [ngClass]="action == 'upload' ? 'inactiveOption': '' "
+    [(ngModel)]="action" *ngIf="userPermission == 'ADMIN'" btnRadio="download" tabindex="0"
+    role="button">Download</label>
+
+</div>
+<ng-template [ngIf]="action == 'download'" [ngIfElse]="uploadTemp">
+
+  <div class="components-container">
+    <div class="row">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-4">
+        <div class="input-group">
+          <div style="display: flex" lang="es">
+            <ng-select [items]="ListTransactions" bindLabel="name" bindValue="val" [clearable]="false"
+              style=" width: 380px; text-align: left;" placeholder="Seleccionar Transaccion" autofocus
+              [(ngModel)]="trSelect">
+            </ng-select>
+            <button style="margin-left: 4px" type="button" class="btn blueBtnLp" [disabled]="trSelect == null"
+              (click)="getFileTxt()">Download</button>
+            <i class="fa fa-check-circle" *ngIf="downloadStatus=='OK'"
+              style="font-size: 23px; color: green; margin: 7px;"></i>
+            <i class="fa fa-times-circle" *ngIf="downloadStatus == 'ERROR'"
+              style="font-size: 23px; color: indianred; margin: 7px;"> </i>
+            <i class="fa fa-exclamation" *ngIf="downloadStatus == 'NOTPROCESS'"
+              style="font-size: 23px; color: orange; margin: 7px;"> </i>
+
+            <span *ngIf="downloadStatus == 'OK'"
+              style="font-size: 13px;color:green;white-space: nowrap;    margin-top: 8px">File  downloaded successfully</span>
+            <span *ngIf="downloadStatus == 'ERROR'"
+              style="font-size: 13px;color:indianred;white-space: nowrap;    margin-top: 8px">Errors occurred in the process</span>
+            <span *ngIf="downloadStatus == 'NOTPROCESS'"
+              style="font-size: 13px;color:orange;white-space: nowrap;    margin-top: 8px">There is no data to process</span>
+
+
+          </div>
+
+        </div>
+      </div>
+      <div class="col-sm-4">
+
+      </div>
+
+    </div>
+
+  </div>
+</ng-template>
+<ng-template #uploadTemp>
+  <div class="components-container animated fadeIn">
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="input-group" >
+          <label class="col-sm-4"> Cotización Dolar </label>
+          <div class="col-sm-8">    <input type="text" [(ngModel)]="dollarPrice" class="form-control" #pop="bs-popover" triggers=""
+            [ngClass]="validateNumber(dollarPrice) == false  ? 'is-invalid inputError' : ''"
+            containerClass="customPopover" [isOpen]="validateNumber(dollarPrice) == false " [(ngModel)]="dollarPrice"
+            popover="El importe debe de ser un número "></div>
+      
+        </div>
+      </div>
+      <!-- <div class="col-sm-4"> </div> -->
+      <div class="col-sm-4">
+        <div class="input-group">
+          <div class="custom-file " lang="es">
+            <input type="file" class="custom-file-input " (change)="onFileChange($event)" id="inputGroupFile04">
+            <label class="custom-file-label" for="inputGroupFile04">{{filesUpload.length == 0 ? 'Select file' :
+              filesUpload[0].name }}</label>
+          </div>
+
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="input-group-append">
+          <!-- <button class="btn btn-outline-primary" (click)="cargarArchivo()" *ngIf="!stateLoad"  [disabled]="filesUpload.length == 0" type="button">Cargar</button> -->
+          <!-- <button class="btn btn-primary" *ngIf="filesUpload.length > 0 && !stateValidation" (click)="validarArchivo()"
+            type="button">Validate</button>
+          <button class="btn btn-success" *ngIf="stateValidation" type="button">Upload</button>
+          <button class="btn btn-secondary" *ngIf="filesUpload.length > 0" (click)="clearFiles()" style="margin-left:3px"
+            type="button">Cancek</button> -->
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <p></p>
+    </div>
+    <div class="row" *ngIf="stateValidation">
+      <div class="col-sm-4">
+        <p style="font-size: .875em">Total records read</p>
+        <span class="">
+          <i class="material-icons md-24">arrow_upward</i>
+          <span
+            style="font-size: 34px;  left: auto;  line-height: 30px; font-weight: 700; padding-top: 0px; right: 35%;vertical-align: text-top;"
+            class="nav-label">
+            50
+          </span>
+        </span>
+      </div>
+      <div class="col-sm-4">
+        <p style="font-size: .875em">Total correct records</p>
+        <span class="text-success">
+          <i class="material-icons md-24">check_circle_outline</i>
+          <span
+            style="font-size: 34px;  left: auto;  line-height: 30px; font-weight: 700;  padding-top: 0px; right: 35%;vertical-align: text-top;"
+            class="nav-label">
+            45
+          </span>
+        </span>
+      </div>
+      <div class="col-sm-4">
+        <p style="font-size: .875em">Total wrong records</p>
+        <span class="text-danger">
+          <i class="material-icons md-24">error_outline</i>
+          <span
+            style="font-size: 34px;  left: auto;  line-height: 30px; font-weight: 700;  padding-top: 0px; right: 35%;vertical-align: text-top;"
+            class="nav-label">
+            5
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <h2></h2>
+
+  <div class="components-container">
+    <div class="table-responsive ">
+      <table class="table table-hover ">
+        <thead class="headerLP">
+          <tr style="white-space: nowrap">
+
+
+            <th>Ticket</th>
+            <th> Beneficiary Cuit</th>
+            <th>Acreditation Date</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody style="white-space: nowrap">
+          <tr *ngFor="let tr of listTransactionsUpload">
+
+            <td style="white-space: nowrap">{{tr.Ticket}}</td>
+            <td style="white-space: nowrap">{{tr.RecipientCUIT}}</td>
+            <td style="white-space: nowrap">{{tr.AcreditationDate}}</td>
+            <td style="white-space: nowrap">{{tr.Amount}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ng-template>

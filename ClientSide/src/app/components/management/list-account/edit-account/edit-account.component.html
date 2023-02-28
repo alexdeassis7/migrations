@@ -1,0 +1,100 @@
+<div class="modal-content" #modalAddNewUser>
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal">Edit client</h5>
+        <button type="button" class="close" (click)="closeModa()" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+
+        <ul class="nav nav-tabs" >
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'INFORMATION'">
+              <a class="nav-link" style="color:#909294"
+                [ngClass]="{'active itemNavActive': itemSelect == 'INFORMATION' } ">Information</a>
+            </li>
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'EXTERNALUSERS'">
+              <a class="nav-link" style="color:#909294" [ngClass]="{'active itemNavActive': itemSelect == 'EXTERNALUSERS' }">External Users</a>
+            </li>
+            <li class="nav-item c-pointer" style="margin-bottom: -2px" (click)="itemSelect = 'APIUSERS'">
+                <a class="nav-link" style="color:#909294" [ngClass]="{'active itemNavActive': itemSelect == 'APIUSERS' }">Api Users</a>
+              </li>
+          </ul>
+
+        <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+            <div class="card-body pl-0 pr-0" [ngSwitch]="itemSelect">
+
+                <ng-container *ngSwitchCase="'INFORMATION'">
+                    <div class="container px-4">
+                        <div class="row">
+                            Information Here...
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'EXTERNALUSERS'">
+                    <div class="container px-4">
+                        <div class="row mb-3">
+                            <div class="col-lg-12 text-right">
+                                <button type="button" (click)="openModalAddUser()" class="btn btn-info">Add User</button>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-lg-12">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>First Name</th>
+                                            <th>User Site Identification</th>
+                                            <th>Password Site</th>
+                                            <th>Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of accountData.ExternalUsers; let i = index" >
+                                            <td>{{item.FirstName}}</td>
+                                            <td>{{item.UserSiteIdentification}}</td>
+                                            <td>{{item.WebPassword}}</td>
+                                            <td>{{item.Active ?"Yes" : "No" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'APIUSERS'">
+                    <div class="container p-4">
+                        <div class="row">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>First Name</th>
+                                        <th>Identification</th>
+                                        <th>Api Key</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of accountData.ApiUsers; let i = index" >
+                                        <td>{{item.FirstName}}</td>
+                                        <td>{{item.Identification}}</td>
+                                        <td>{{item.Key}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </ng-container>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" (click)="closeModa()" class="btn btn-danger" style="color:white;">Close</button>
+    </div>
+    
+</div>

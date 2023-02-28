@@ -1,0 +1,78 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+    </div>
+    <div class="card-body" class="collapse show">
+        <div class="row" style="margin: 8px">
+            <div class="form-group col-2">
+                <label for="ticket">Ticket</label>
+                <input type="text" class="form-control" [(ngModel)]="ticketNumber">
+            </div>
+
+            <div class="form-group col-2">
+                <label>Merchant</label>
+                <ng-select [items]="listMerchants" bindLabel="FirstName" 
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect" >
+                </ng-select>
+            </div>
+        
+      
+            <div class="col-2" style="padding-right: 10px;"> 
+                <button type="button" class="btn blueBtnLp"
+                      (click)="filter()" style="float: right; margin-top: 35px;font-size: 14px">
+                      <i class="fa fa-filter"></i> Filter</button>
+            </div>
+        </div>
+    </div>
+    <div class="components-container  table-height" style="margin-top: 10px;">
+        <div class="alert alert-secondary noDataAlert" *ngIf="ListOperationRetention.length == 0" role="alert">
+            <strong> No data to display </strong>
+        </div>
+    
+        <div *ngIf="ListOperationRetention.length > 0">
+            <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+                <table class="table table-hover text-nowrap">
+                    <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+                        <tr>
+                            <th *ngFor="let nombreCol of ListColumns">{{nombreCol}}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fontSizeData">
+                        <ng-container *ngFor="let operRet of ListOperationRetention">
+    
+                            <tr class="borderComplete">
+    
+                                <td>{{operRet.idTransaction}}</td>
+                                <td>{{operRet.TransactionDate == null ? '' : (operRet.TransactionDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                                </td>
+                                <td>{{operRet.ProcessedDate == null ? '' : (operRet.ProcessedDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}
+                                </td>
+                                <td>{{operRet.Ticket}}</td>
+                                <td>{{operRet.MerchantId}}</td>
+                                <td>{{operRet.FileName}}</td>
+                                <td>{{operRet.CertificateNumber}}</td>
+                                <td>{{operRet.Retention  }}</td>
+                                <td>{{operRet.GrossAmount | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                                <td>{{operRet.TaxWithholdings | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                                <td>{{operRet.NetAmount | fixedDecimal: 2 : '' : operRet.CurrencyType }}</td>
+                                <td>{{operRet.RecipientCUIT}}</td>
+                                <td>{{operRet.Recipient}}</td>
+                                <td>{{operRet.CBU}}</td>
+                                <td>{{operRet.NroRegimen}}</td>
+                                <td> <input type="checkbox"  [(ngModel)]="operRet.IsRefunded" [disabled]="isRefundAvailable(operRet)"> </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+            <div> 
+                <button type="button" class="btn blueBtnLp"
+                      (click)="refund()" style="float: right; margin-top: 35px;font-size: 14px" [disabled]="refundableTransactions()">Generar Devolución</button>
+            </div>
+        </div>
+    </div>
+</div>

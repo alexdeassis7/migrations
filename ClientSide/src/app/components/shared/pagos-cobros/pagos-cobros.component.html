@@ -1,0 +1,135 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp  ">
+        <h5 class="modal-title h5Modal">Pagos/Cobros</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <div class="card">
+            <div class="card-header blueBtnLp ">
+                <h6 class="mb-0 fw-400">
+
+                    Datos
+
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="container col-12">
+                    <div class="row">
+
+                        <div class="col-4">
+                            <label>Tipo Transacción</label>
+                            <ng-select [items]="ListTransactions" bindLabel="name" [(ngModel)]="transactionSelect">
+                            </ng-select>
+                        </div>
+                        <div class="col-4">
+                            <label>Ciclo Semanal</label>
+                            <ng-select [items]="ListSemanas" bindLabel="name">
+                            </ng-select>
+                        </div>
+
+                        <div class="col-4">
+                            <label>Ciclo Mensual</label>
+                            <ng-select [items]="ListMeses" bindLabel="name">
+                            </ng-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 ml-0">
+
+                    <div class="col-6 pl-0" style="margin-top:10px">
+                        <div class="form-group row" style="margin-bottom: 7px;">
+                            <div class="col-sm-4">ID Lote</div>
+                            <div class="col-sm-5">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="byRangeLot" id="checkLot">
+                                    <label class="form-check-label" for="checkLot">
+                    Por Rango
+                  </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="byRangeLot == false">
+                            <input type="text" class="form-control">
+                        </div>
+                        <div *ngIf="byRangeLot" class="col-12 row p-0 mr-0">
+                            <div class="col-6">
+                                <input type="text" class="form-control" placeholder="Desde">
+                            </div>
+
+                            <div class="col-6">
+
+                                <input type="text" class="form-control" placeholder="Hasta">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 pr-0" style="margin-top:10px">
+                        <div class="form-group row" style="margin-bottom: 7px;">
+                            <div class="col-sm-4">ID Transaccion</div>
+                            <div class="col-sm-5">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="byRangeTr" id="checkTR">
+                                    <label class="form-check-label" for="checkTR">
+                    Por Rango
+                  </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="byRangeTr == false">
+                            <input type="text" class="form-control">
+                        </div>
+                        <div *ngIf="byRangeTr" class="col-12 row p-0 mr-0">
+                            <div class="col-6">
+                                <input type="text" class="form-control" placeholder="Desde">
+                            </div>
+
+                            <div class="col-6">
+
+                                <input type="text" class="form-control" placeholder="Hasta">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- as -->
+        <div class="card">
+            <div class="card-header  blueBtnLp">
+                <h6 class="mb-0 fw-400">
+                    Operación
+                </h6>
+            </div>
+            <div class="card-body  container">
+                <div class="row" style="padding-left: 14px;   padding-right: 14px;">
+                    <div class="col-4"> <label>Acción</label>
+                        <select type="number" class="form-control">.
+                <option>Pago</option>
+                <option>Cobro</option>
+              </select>
+                    </div>
+                    <div class="col-4"> <label>Tipo Moneda</label>
+                        <select type="number" [(ngModel)]="monedaSelect" class="form-control">.
+              <option *ngFor="let moneda of listMonedas" [ngValue]="moneda">{{moneda.name + ' (' + moneda.symbol
+                    + ')'}}</option>
+            </select>
+                    </div>
+                    <div class="col-4"> <label>Monto</label> <input type="text" class="form-control"></div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="modal-footer">
+
+            <div class="btn-footercontainer">
+                <button type="button" class="btn blueBtnLp">Aceptar</button>
+
+            </div>
+        </div>
+    </div>

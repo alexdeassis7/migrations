@@ -1,0 +1,154 @@
+<!-- CARD DATA -->
+<div class="accordion">
+    <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+      <div class="card-header blueBtnLp">
+        <h6 class="mb-0 fw-400">Card Data</h6>
+      </div>
+  
+      <div class="collapse show col-12 p-0" aria-labelledby="headingOne">
+        <div class="card-body pl-0 pr-0">
+          <div class="row col-12 p-0 ml-0">
+
+            <div class="form-group col-3">
+              <label class="lblForm">Card (*)</label>
+              <ng-select [items]="ListCreditCards" bindLabel="Card" bindValue="idCard"
+                [(ngModel)]="selectCreditCard" ></ng-select>
+            </div>
+  
+            <div class="form-group col-3">
+              <label class="lblForm">Currency (*)</label>
+              <ng-select [items]="ListCurrenciesTypes" bindLabel="Name" bindValue="Name"
+                placeholder="Select Currency"
+                [(ngModel)]="selectCurrencyType">
+              </ng-select>
+            </div>
+
+            <div class="form-group col-3">
+              <label for="cardNumber">Card Number (*)</label>
+              <input type="text" [(ngModel)]="cardNumber" class="form-control" #pop="bs-popover" triggers=""
+                containerClass="customPopover"
+                [ngClass]="validateNumber(cardNumber) == false ? 'is-invalid inputError' : ''" 
+                [isOpen]="validateNumber(cardNumber) == false" popover="The card number must be a number">
+            </div>
+
+            
+            <div class="form-group col-3">
+              <label for="cardNumber">Security Code (*)</label>
+              <input type="text" [(ngModel)]="securityCode" class="form-control" #pop="bs-popover" triggers=""
+                containerClass="customPopover"
+                [ngClass]="validateNumber(securityCode) == false ? 'is-invalid inputError' : ''"
+                [isOpen]="validateNumber(securityCode) == false" popover="The security code number must be a number">
+            </div>
+ 
+            <div class="form-group col-3">
+              <label class="lblForm">Expiration Month (*)</label>
+              <ng-select [items]="itemsMonth"  placeholder="Select Expiration Month"
+                [(ngModel)]="selectExpirationMonth">
+              </ng-select>
+            </div>
+
+            <div class="form-group col-3">
+              <label class="lblForm">Expiration Year (*)</label>
+              <ng-select [items]="itemsYear"  placeholder="Select Expiration Year"
+                [(ngModel)]="selectExpirationYear">
+              </ng-select>
+            </div>
+
+            <div class="form-group col-3">
+              <label for="cardNumber">Card Holder Name (*)</label>
+              <input type="text" [(ngModel)]="cardHolderName" class="form-control">
+            </div>
+
+            <div class="form-group col-3">
+              <label>Birthday (optional)</label>
+              <input type="text" [(ngModel)]="birthday" class="form-control" bsDatepicker [bsConfig]="bsConfig"
+                  style="cursor:pointer">
+          </div>
+
+          <div class="form-group col-3">
+            <label for="doorNumber">Door Number (optional)</label>
+            <input type="text" [(ngModel)]="doorNumber" class="form-control" #pop="bs-popover" triggers=""
+              containerClass="customPopover"
+              [ngClass]="validateNumber(doorNumber) == false ? 'is-invalid inputError' : ''"
+              [isOpen]="validateNumber(doorNumber) == false" popover="The door number must be a number">
+          </div>
+
+          <div class="form-group col-3">
+            <label class="lblForm">Identification Type (*)</label>
+            <ng-select [items]="ListIdentificationTypes" bindLabel="Type" bindValue="idType"
+              [(ngModel)]="selectIdentificationType" ></ng-select>
+          </div>
+
+          <div class="form-group col-3">
+            <label for="cardNumber">Identification Number (*)</label>
+            <input type="text" [(ngModel)]="idNumber" class="form-control" #pop="bs-popover" triggers=""
+              containerClass="customPopover"
+              [ngClass]="validateNumber(idNumber) == false ? 'is-invalid inputError' : ''"
+              [isOpen]="validateNumber(idNumber) == false" popover="The ID number must be a number">
+          </div>
+
+
+<!-- PAYMENT DATA -->
+      </div>
+
+            <div class="card" style="border-bottom: 1px solid rgba(0,0,0,.125);">
+              <div class="card-header blueBtnLp">
+                <h6 class="mb-0 fw-400">Payment Data</h6>
+              </div>
+          
+            <div class="collapse show col-12 p-0" aria-labelledby="headingOne">
+              <div class="card-body pl-0 pr-0">
+                <div class="row col-12 p-0 ml-0">
+
+            <div class="form-group col-3">
+              <label for="amount">Amount (*)</label>
+              <input type="text" [(ngModel)]="amount" class="form-control" #pop="bs-popover" triggers=""
+                containerClass="customPopover"
+                [ngClass]="validateNumber(amount) == false ? 'is-invalid inputError' : ''"
+                [isOpen]="validateNumber(amount) == false" popover="The amount must be a number">
+            </div>
+
+            <div class="form-group col-3">
+              <label class="lblForm">Installments (*)</label>
+              <ng-select [items]="installments"  placeholder="Select Installments"
+                [(ngModel)]="selectInstallments">
+              </ng-select>
+            </div>
+
+            <div class="form-group col-3">
+                <label class="lblForm"> Partial amount: $ {{ amount }} </label>
+            <br>
+                <label class="lblForm"> Taxes: $ {{ CalculateTaxes }} </label>
+            <br>
+                <label class="lblForm"><strong> TOTAL: $ {{ CalculateTotal }} </strong></label>
+            <br>
+                <label class="lblForm"> {{ CalculateInstallments }} </label>
+
+            </div>
+
+            
+            <!-- <div class="form-group col-3" style="padding-top: 37px" *ngIf="showValueFx">
+                <label for="" style="font-weight: 500"> Total:  USD  {{'' + amount/valueFx }}</label>
+            </div> -->
+
+                 
+            <div class="form-group col-12">
+              <label class="lblForm">Description (*)</label>
+              <textarea [(ngModel)]="description" class="form-control"></textarea>
+            </div>
+          </div>
+  
+          <div>
+            <div class="form-group col-3" id="fields-required">
+              <span>* Required Fields</span>
+            </div>
+            <div class="form-group col-2 btn-footercontainer">
+              <button type="button" class="btn btn-dark btn-create" [disabled]="!validateForm"
+                (click)="confirmPayment()">Confirm Payment</button>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>

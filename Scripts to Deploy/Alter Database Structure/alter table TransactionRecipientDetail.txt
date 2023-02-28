@@ -1,0 +1,1 @@
+alter table lp_operation.TransactionRecipientDetail alter column [Description] varchar(60) null

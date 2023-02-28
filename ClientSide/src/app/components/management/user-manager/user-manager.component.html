@@ -1,0 +1,39 @@
+<div class="card-header blueBtnLp ">
+
+  <h6 class="mb-0 fw-400"> <i class="fa fa-users" style="font-size:20px"></i> Users  <i class="fa fa-user-plus float-right c-pointer"
+     style="font-size:20px" title="Agregar Usuario" (click)="openModalAddUser()" ></i> </h6>
+ 
+</div>
+<div class="components-container" style="margin-top:20px">
+  <div class="table-responsive ">
+    <table class="table table-hover  ">
+      <thead class="headerLP" style="white-space: nowrap;">
+        <tr style="    background-color: #e0dede;
+        color: black;">
+          <th class="headerTr">Last Name </th>
+          <th class="headerTr">First Name </th>
+          <th class="headerTr">User Site Identification</th>
+          <th class="headerTr">Type </th>
+          <th class="headerTr">Merchant </th>
+          <!-- <th>Importe Bruto</th> -->
+          <td class="headerTr">Action</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of ListUsers">
+
+
+          <td>{{user.LastName}}</td>
+          <td>{{user.Name}}</td>
+          <td>{{user.UserSiteIdentification}}</td>
+          <td>{{user.TypeUser}}</td>
+          <td> {{user.Merchant}} </td>
+        <td> <i class="fa fa-user-edit c-pointer  blue-font"  style="font-size: 20px" title="Editar Usuario"></i> 
+          <i class="fa fa-user-times c-pointer" style="font-size: 21px;margin-left:7px;color:#bd2130" title="Eliminar Usuario"></i> </td>
+        </tr>
+
+
+      </tbody>
+    </table>
+  </div>
+</div>

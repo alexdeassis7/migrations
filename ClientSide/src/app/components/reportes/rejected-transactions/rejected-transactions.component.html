@@ -1,0 +1,178 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+
+    <div class="card-body" id="filterPanel" class="collapse show">
+        <div class="row" style="margin: 10px 10px 10px 10px">
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From (*)</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker
+                    [bsConfig]="bsConfig" style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" id="dateToInput">
+                <label>Date To (*)</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2">
+                <label>Merchant (*)</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" 
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect" 
+                    (ngModelChange)="loadSubmerchantFilter($event)">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+
+                <label>SubMerchant</label>
+
+                <ng-select [items]="ListSubmerchantFilter" [disabled]="ListSubmerchantFilter.length == 0"
+                    bindLabel="SubMerchantIdentification" bindValue="idEntitySubMerchant"
+                    placeholder="Select SubMerchant" style=" text-align: left;" 
+                    [(ngModel)]="subMerchantSelect">
+                </ng-select>
+            </div>
+
+
+            <div class="form-group col-2">
+
+                <label>Pay Method</label>
+
+                <ng-select [items]="ListMetodos" bindLabel="TT_Desc" bindValue="TT_Code" placeholder="Select Method"
+                    style=" text-align: left;  "  [(ngModel)]="transactionType">
+                </ng-select>
+
+            </div>
+
+            <div class="form-group col-2" style="padding-right: 10px;">
+                <label>Amount</label>
+
+
+                <input type="text" [(ngModel)]="amount" class="form-control" #pop="bs-popover" triggers=""
+                    [ngClass]=" validateNumber(amount) == false  ? 'is-invalid inputError' : ''"
+                    containerClass="customPopover" [isOpen]="validateNumber(amount) == false "
+                    popover="El importe debe de ser un número " id="monto">
+
+            </div>
+            <div class="form-group col-2" style="padding-right: 10px;">
+                <label>Merchant ID</label>
+
+                <input type="text" [(ngModel)]="merchantIdSelect" class="form-control">
+
+            </div>
+            <div class="form-group col-2">
+
+                <label>Field Validation</label>
+
+                <ng-select [items]="ListFieldsValidationFilter" bindLabel="Name" bindValue="idField"
+                    placeholder="Select Field Validation" style=" text-align: left;  " [disabled]="merchantSelect == null"
+                    [(ngModel)]="fieldSelect">
+                </ng-select>
+            </div>
+            <div class="form-group col-2">
+
+                <label>Error Type</label>
+
+                <ng-select [items]="ListErrorTypes" bindLabel="Description" bindValue="idErrorType"
+                    placeholder="Select Error Type" style=" text-align: left; " 
+                    [(ngModel)]="errorTypeSelect">
+                </ng-select>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-2" style="padding-right: 10px;">
+                <label style=" padding-top: 45px;  font-size: 15px; padding-left: 25px; ">* Required Fields</label>
+
+                <button type="button" class="btn blueBtnLp filterBtn"  (click)="filterList()" [disabled]="!validateFilterBtn"
+                    style="float: right; margin-top: 35px;font-size: 14px;">
+                    <i class="fa fa-filter"></i> Filter</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+
+    <div *ngIf="ListRejectedTransactions.length > 0"> <button type="button" (click)="exportToExcel()"
+            [disabled]="statusExport" class="btn btn-success float-right"
+            style="margin-top: -10px;font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-excel" *ngIf="!statusExport"></i> Export
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport">Loading...</span>
+
+        </button>
+
+    </div>
+    <div class="alert alert-secondary noDataAlert" *ngIf="ListRejectedTransactions.length == 0" role="alert">
+        <strong> No hay datos para mostrar. </strong>
+    </div>
+    <div *ngIf="ListRejectedTransactions.length > 0">
+
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            <table class="table table-hover  text-nowrap ">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+
+
+                    <tr>
+                        <th *ngFor="let nombreCol of ListColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+
+                    <ng-container *ngFor="let transaction of ListRejectedTransactions">
+
+                        <tr class="borderComplete">
+
+                            <td>{{transaction.ProcessDate | amDateFormat:'DD/MM/YYYY HH:mm:ss'}}</td>
+                            <!-- <td>{{transaction.ListErrors}}</td> -->
+
+                            <td>{{transaction.TransactionType }} </td>
+
+                            <td>{{transaction.Merchant}}</td>
+                            <td>{{transaction.MerchantId}}</td>
+                            <td>{{transaction.SubMerchant}}</td>
+                            <td>{{transaction.BeneficiaryName}}</td>
+                            <td>{{transaction.Country}}</td>
+                            <td>{{transaction.City}}</td>
+                            <td>{{transaction.Address}}</td>
+                            <td>{{transaction.Email}}</td>
+                            <td>{{transaction.Birthdate == null ? '' : (transaction.Birthdate | amDateFormat:'DD/MM/YYYY') }}
+                            </td>
+                            <td>{{transaction.BeneficiaryID}}</td>
+                            <td>{{transaction.CBU}}</td>
+                            <td>{{transaction.Amount}} </td>
+                            <td [popover]="popTemplate" class="btn-link" placement="left"
+                                triggers="mouseenter:mouseleave" containerClass="customPopoverErrors"
+                                popoverTitle="Errors">
+                                <span class="c-pointer">More Details</span>
+                            </td>
+                            <ng-template #popTemplate>
+                                <div [innerHtml]="getHtmlPopover(transaction.ListErrors)"></div>
+                            </ng-template>
+                            <!-- <td>{{transaction.GrossValueClientUsd | fixedDecimal : 2 : '' : transaction.CurrencyTypeUsd : ''}} </td> -->
+                        </tr>
+
+                    </ng-container>
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+    </div>
+</div>

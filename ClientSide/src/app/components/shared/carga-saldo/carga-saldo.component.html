@@ -1,0 +1,72 @@
+<div class="modal-content">
+  
+  <!-- Modal Header -->
+  <div class="modal-header modal-header-Lp bg-dark">
+
+    <h5 class="modal-title h5Modal ">Carga Saldo</h5>
+    <button type="button" class="close" data-dismiss="modal" (click)="modalRef.hide()">&times;</button>
+  </div>
+
+  <!-- Modal body -->
+
+  <div class="modal-body">
+    <div class="row">
+      <div class="form-group col-6">
+        <label class="lblForm">Cliente</label>
+
+        <ng-select [items]="ListClients" bindLabel="FirstName" [clearable]="false" [(ngModel)]="clientSelectCarga">
+        </ng-select>
+      </div>
+      <div class="form-group col-6">
+        <label class="lblForm">Tipo Transacción</label>
+
+        <ng-select [items]="ListTransactions" bindLabel="name" bindValue="val" [clearable]="false" placeholder="Seleccionar Transaccion"
+          [(ngModel)]="accionSelect">
+        </ng-select>
+
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="form-group col-6">
+        <label class="lblForm">Tipo Moneda</label>
+        <select type="number" [(ngModel)]="monedaSelect" class="form-control">.
+          <option *ngFor="let moneda of listMonedas" [ngValue]="moneda">{{moneda.name + ' (' + moneda.symbol
+            + ')'}}</option>
+        </select>
+      </div>
+      <div class="form-group col-6 md-form">
+        <label class="lblForm">Monto (*)</label>
+        <input type="text" class="form-control"   #pop="bs-popover" triggers="" [ngClass]=" validateNumber(monto) == false  ? 'is-invalid inputError' : ''"
+          containerClass="customPopover" [isOpen]="validateNumber(monto) == false " [(ngModel)]="monto" popover="El importe debe de ser un número ">
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="form-group col-6">
+        <label class="lblForm">Fecha</label>
+        <input type="text" [(ngModel)]="fecha" class="form-control" bsDatepicker [bsConfig]="bsConfig" style="cursor:pointer">
+      </div>
+      <div class="form-group col-6 md-form">
+        <label class="lblForm">Impuesto al credito (*)</label>
+        <input type="text" class="form-control" [(ngModel)]="impuestoCredito">
+      </div>
+
+
+    </div>
+
+
+  </div>
+  <div class="footCarga modal-footer ">
+    <div class="container" style="float:left">
+      * Campos Obligatorios
+    </div>
+    <div class="container" style="display: flex; justify-content: flex-end">
+      <div class="btn-footercontainer">
+        <button type="button" class="btn btn-dark" style="color:white;" [disabled]="!valFormulario" (click)="guardarSaldo()">Guardar</button>
+        <button type="button" class="btn btn-default" (click)="modalRef.hide()">Cerrar</button>
+
+      </div>
+    </div>
+  </div>
+</div>

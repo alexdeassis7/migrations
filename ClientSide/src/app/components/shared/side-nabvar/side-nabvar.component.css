@@ -1,0 +1,116 @@
+.navbar-primary {
+    /*bottom: 0px;
+    left: 0px;*/
+    position: fixed;
+    /*top: 51px;*/
+    width: 250px;
+    z-index: 8;
+    overflow: hidden;  
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.navbar-primary.collapsed {
+    width: 3.75em;
+}
+
+
+
+.navbar-primary.collapsed .glyphicon {
+    font-size: 22px;
+}
+
+.navbar-primary.collapsed .nav-label {
+    display: none;
+}
+
+.navbar-primary-menu,
+.navbar-primary-menu li {
+    margin: 0;
+    /*margin-top: 35px;*/
+    padding: 0;
+    list-style: none;
+    width: 100%
+}
+
+.navbar-primary.collapsed .navbar-primary-menu li {
+    width: 60px;
+}
+
+.navbar-primary-menu li a {
+    display: block;
+    padding: 10px 18px;
+    text-align: left;
+    /*border-bottom:solid 1px  #ddd;*/
+    color: #0c71c3!important;
+}
+
+.navbar-primary-menu li a:not(.subItemSelect):hover {
+ 
+     text-decoration: none;
+     font-weight: 700;
+
+}
+
+.navbar-primary-menu li a .material-icons {
+    margin-right: 6px;
+}
+
+:host.is-open {
+    display: block;
+}
+
+.navbar-primary-menu li a.itemSelect {  
+    color: white !important;
+    background-color: #0c71c3!important;
+}
+
+.itemSelect {
+    
+    color: white !important;
+}
+.sizeIcon{
+
+    font-size:20px;
+    margin-right: 12px;
+}
+.dropdown-toggle::after {
+
+    margin-top:10px
+}
+.marginItems{
+    margin-left: 15% !important;
+}
+.paddingSubItems{
+
+    padding-right: 5px !important;
+}
+
+.subItemSelect{
+    font-weight: 700;
+    
+    
+}
+.subItemSelect:hover{
+
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+.subSubItemSelect{
+    font-weight: 700;
+    
+}
+
+.collapsed ul li .dropdown-toggle::after{
+    display: none;
+
+}
+
+li ul li a {
+    font-size: 15px
+}
+li ul{
+
+    margin-left:-10px;
+}

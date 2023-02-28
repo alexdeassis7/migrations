@@ -1,0 +1,95 @@
+.navbar-global {
+    background: white;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    height: 54px;
+}
+
+.btn-expand-collapse {
+    color: #0c71c3!important;
+}
+
+.btn-expand-collapse:hover,
+.btn-expand-collapse:focus {
+  
+    color: #0c71c3!important;
+}
+
+.btn-expand-collapse:active {
+    color: #0c71c3!important;
+    ;
+}
+
+/* a>.img-log {
+    content: url("/dist/assets/IMG/LPlogo.png");
+    width: 200px;
+
+    margin-top: 15px;
+} */
+
+@media (max-width:768px) {
+    a>.img-log {
+        width: 50px;
+        height: 50px;
+        margin-top: 0px;
+        content: url("/dist/assets/IMG/cropped-Flavicon-1-180x180.png");
+    }
+    .person-login {
+        display: none;
+    }
+}
+
+.client-img {
+    width: 100px;
+    height: 100px;
+    margin-top: 0px;
+    content: url("/dist/assets/IMG/MErchant/Treggo2.jpg");
+    margin-left: 25%;
+}
+/* .LP-img{
+    width: 100px;
+    height: 100px;
+    margin-top: 0px;
+    content: url("/dist/assets/IMG/cropped-Flavicon-1-180x180.png");
+    margin-left: 25%;
+} */
+
+.info-client-prev>h6 {
+    text-align: -webkit-right;
+}
+
+.info-client-menu>button:focus,
+.info-client-menu>button:active {
+    outline: 0px;
+}
+
+.btn-outline-blueLP{
+    color: #0c71c3;
+    background-color: transparent;
+    background-image: none;
+    border-color: #0c71c3;
+
+}
+.btn-outline-blueLP:active, .btn-outline-blueLP:focus{
+
+    color: #fff;
+    background-color: #0c71c3;
+    border-color: #0c71c3;
+    box-shadow: none;
+}
+.dropdown-toggle::after{
+
+    margin-top:10px;
+
+}
+.btn-menuUser{
+
+    display: flex;
+    max-height: 38px;
+    font-weight: 500
+}
+.dropdown-item:active{
+
+    color:#fff !important;
+
+}

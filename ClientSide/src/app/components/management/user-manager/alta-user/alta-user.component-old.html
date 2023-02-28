@@ -1,0 +1,180 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal">Add new user </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+        <div class="card">
+            <div class="card-header c-pointer" data-toggle="collapse" href="#collapseDataAdmin" role="button" aria-expanded="false" aria-controls="collapseDataAdmin">
+                <h6 class="mb-0 fw-500"> Data Admin </h6>
+            </div>
+            <div class=" collapse show" id="collapseDataAdmin">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-3">
+                            <label class="lblForm">Company Name</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Address</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Country</label>
+                            <ng-select [items]="listCountries" [virtualScroll]="true" bindLabel="NameCode" [clearable]="false">
+                            </ng-select>
+                        </div>
+                        <div class="form-group col-3">
+
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Admin Contact</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Email</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Technical Contact</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Email</label>
+                            <input type="text" class="form-control">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 4px;">
+            <div class="card-header c-pointer" data-toggle="collapse" href="#collapseComData">
+                <h6 class="mb-0 fw-500"> Commercial Data</h6>
+
+            </div>
+            <div class=" collapse show" id="collapseComData">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <label class="lblForm">Main Currency</label>
+                            <ng-select [items]="listCurrency" bindLabel="NameCode" [clearable]="false">
+                            </ng-select>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="lblForm">Payment Methods</label>
+                            <ng-select [items]="ListMetodos" bindLabel="name" bindValue="val" [closeOnSelect]="false" [multiple]="true" (add)="addMethod($event)" (remove)="removeMethod($event)" [clearable]="false" style=" text-align: left;  " [(ngModel)]="metodoSelect">
+                                <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                                    <div class="ng-value" *ngFor="let item of (items ? items.slice(0,2): [])">
+                                        <span class="ng-value-label"> {{item.name}}</span>
+                                        <span class="ng-value-icon right" (click)="clear(item)" aria-hidden="true">×</span>
+                                    </div>
+                                    <div class="ng-value" *ngIf="items.length > 2">
+                                        <span class="ng-value-label">{{items.length - 2}} more...</span>
+                                    </div>
+                                </ng-template>
+                            </ng-select>
+                        </div>
+                        <div class="form-group col-12" *ngIf="MethodSelect.length > 0">
+                            <table class="table table-sm table-bordered" style="margin-top: 24px; margin-bottom: 0">
+                                <thead class="headerLP">
+                                    <tr>
+                                        <th class="headerTr text-center" style="width: 200px">-</th>
+                                        <th class="headerTr text-center" style="width: 100px">Vat %</th>
+                                        <th class="headerTr text-center" style="width: 100px">Net %</th>
+                                        <th class="headerTr text-center">Cycle</th>
+                                        <th class="headerTr text-center"> Pay time after end cycle</th>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ng-container *ngFor="let met of MethodSelect">
+                                        <tr>
+                                            <td class="text-center">{{met.name}}</td>
+                                            <td class="text-center"> <input type="text" class="form-control form-control-sm" [(ngModel)]="met.vatValue"></td>
+                                            <td class="text-center"> <input type="text" class="form-control form-control-sm"></td>
+                                            <!-- <td class="text-center"></td> -->
+                                            <td class="text-center"> <input type="text" class="form-control form-control-sm"></td>
+                                            <td class="text-center"> <input type="text" class="form-control form-control-sm"></td>
+                                        </tr>
+
+                                    </ng-container>
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-top: 4px;">
+            <div class="card-header c-pointer" data-toggle="collapse" href="#collapseFinancialData">
+                <h6 class="mb-0 fw-500"> Financial Data</h6>
+            </div>
+
+            <div class=" collapse show" id="collapseFinancialData">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-3">
+                            <label class="lblForm">Beneficiary Account</label>
+                            <input type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group col-3">
+                            <label class="lblForm">Account Num</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Swift</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Iban</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Aba</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Beneficiary Bank</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Address Bank</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Country</label> listCountries
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Company Name</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-3">
+                            <label class="lblForm">Company Address</label>
+                            <input type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <div class="container float-left"> * Campos Obligatorios </div>
+        <div class="btn-footercontainer">
+            <button type="button" class="btn btn-dark" style="color:white;">Create</button>
+        </div>
+    </div>
+</div>

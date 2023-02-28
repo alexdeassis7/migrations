@@ -1,0 +1,350 @@
+<ng-template [ngIf]="action == 'download'" [ngIfElse]="uploadTemp">
+
+    <div class="components-container">
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <div style="display: flex" lang="es">
+                        <ng-select [items]="ListTransactions" bindLabel="name" bindValue="val" [clearable]="false"
+                            style=" width: 380px; text-align: left;" placeholder="Seleccionar Transaccion" autofocus
+                            [(ngModel)]="trSelect">
+                        </ng-select>
+                        <button style="margin-left: 4px" type="button" class="btn blueBtnLp"
+                            [disabled]="trSelect == null" (click)="getFileTxt()">Download</button>
+                        <i class="fa fa-check-circle statusOk" *ngIf="downloadStatus=='OK'"></i>
+                        <i class="fa fa-times-circle statusError" *ngIf="downloadStatus == 'ERROR'"> </i>
+                        <i class="fa fa-exclamation statusNotProcess" *ngIf="downloadStatus == 'NOTPROCESS'"> </i>
+
+                        <span *ngIf="downloadStatus == 'OK'" class="statusOk text-nowrap"
+                            style="   margin-top: 8px">File downloaded successfully</span>
+                        <span *ngIf="downloadStatus == 'ERROR'" class="statusError text-nowrap"
+                            style="   margin-top: 8px">Errors occurred in the process</span>
+                        <span *ngIf="downloadStatus == 'NOTPROCESS'" class="statusNotProcess text-nowrap"
+                            style=" margin-top: 8px">There is no data to process</span>
+
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-sm-4">
+
+            </div>
+
+        </div>
+
+    </div>
+</ng-template>
+<ng-template #uploadTemp>
+    <div>
+        <div class="components-container animated fadeIn">
+            <div class="row">
+
+                <div class="col-sm-4 text-left" >
+
+
+                    <ng-select *ngIf="userPermission == 'ADMIN'" [items]="ListMerchants" bindLabel="FirstName" 
+                        placeholder="Select Merchant (Required)" [(ngModel)]="merchantSelect">
+                    </ng-select>
+
+                </div>
+
+
+                <div class="col-sm-4">
+                    <form>
+                        <div class="input-group">
+
+                            <div class="custom-file " lang="es">
+                                
+                                <input type="file" class="custom-file-input"
+                                    accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                    #inputFileGM (change)="onFileChange($event)" id="inputGroupFile04">
+                                <label class="custom-file-label"
+                                    for="inputGroupFile04">{{filesUpload.length == 0 ? 'Select file' :  filesUpload[0].name }}</label>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group-append">
+
+                        <button class="btn btn-success" *ngIf="stateValidation && stateUpload == false" [disabled]="userPermission == 'ADMIN' && merchantSelect== null"
+                            (click)="uploadServer()" type="button">Upload</button>
+                        <button class="btn btn-secondary" *ngIf="stateValidation " style="margin-left:3px"
+                            (click)="clearFiles()" type="button">Process a new batch</button>
+
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="row">
+                <p></p>
+            </div> -->
+            <div class="row animated fadeIn" style="padding-top:16px" *ngIf="stateUpload">
+                <div class="col-sm-4">
+                    <p style="font-size: .875em">Total records read </p>
+                    <span class="">
+                        <i class="material-icons md-24">arrow_upward</i>
+                        <span class="nav-label resultRecordUpload">
+                            {{contError+contOk}}
+                        </span>
+                    </span>
+                </div>
+                <div class="col-sm-4">
+                    <p style="font-size: .875em">Total records correct </p>
+                    <span class="text-success">
+                        <i class="material-icons md-24">check_circle_outline</i>
+                        <span class="nav-label resultRecordUpload">
+                            {{contOk}}
+                        </span>
+                    </span>
+                </div>
+                <div class="col-sm-4">
+                    <p style="font-size: .875em">Total records wrong </p>
+                    <span class="text-danger">
+                        <i class="material-icons md-24">error_outline</i>
+                        <span class="nav-label resultRecordUpload">
+                            {{contError}}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <h2></h2>
+
+    <div class="components-container">
+        <div class="table-responsive " (scroll)="scrollFixedHead($event)" style="max-height: calc(100vh - 355px);">
+            <table class="table table-hover ">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+                    <tr *ngIf="CodeCountry == 'ARG'" class="text-nowrap">
+
+                        <th>Beneficiary Name</th>
+                        <th>Beneficiary Cuit</th>
+                        <th>Bank CBU</th>
+                        <th>Payment Date</th>
+                        <th>Amount</th>
+                        <th>Bank account type</th>
+                        <th>Merchant Id</th>
+                        <th>SubMerchant ID</th>
+                        <th>Address</th>
+                        <th>Country</th>
+                        <th>City</th>
+                        <th>Email</th>
+                        <th>Birthdate</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                    </tr>
+                    <tr *ngIf="CodeCountry == 'COL' || CodeCountry == 'URY' || CodeCountry == 'CHL' || CodeCountry == 'ECU'|| CodeCountry == 'PER'|| CodeCountry == 'PRY'|| CodeCountry == 'BOL'" class="text-nowrap">
+
+                        <th>Beneficiary Name</th>
+                        <th>Beneficiary ID</th>
+                        <th>ID Type</th>
+                        <th>Payment Date</th>
+                        <th>Amount</th>
+                        <th>Type Account</th>
+                        <th>Bank Code</th>
+                        <th>Beneficiary Bank Account</th>
+                        <th>Merchant Id</th>
+                        <th>SubMerchant ID</th>
+                        <th>Address</th>
+                        <th>Country</th>
+                        <th>City</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                    </tr>
+                    <tr *ngIf="CodeCountry == 'BRA'" class="text-nowrap">
+
+                        <th>Beneficiary Name</th>
+                        <th>Beneficiary ID</th>
+                        <th>Payment Date</th>
+                        <th>Amount</th>
+                        <th>Type Account</th>
+                        <th>Bank Code</th>
+                        <th>Bank Branch</th>
+                        <th>Beneficiary Bank Account</th>
+                        <th>Merchant Id</th>
+                        <th>SubMerchant ID</th>
+                        <th>Address</th>
+                        <th>Country</th>
+                        <th>City</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                    </tr>
+                    <tr *ngIf="CodeCountry == 'MEX'" class="text-nowrap">
+
+                      <th>Beneficiary Name</th>
+                      <th>Beneficiary ID</th>
+                      <th>Payment Date</th>
+                      <th>Amount</th>
+                      <th>Type Account</th>
+                      <th>Bank Code</th>
+                      <th>Beneficiary Bank Account</th>
+                      <th>Merchant Id</th>
+                      <th>SubMerchant ID</th>
+                      <th>Address</th>
+                      <th>Country</th>
+                      <th>City</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody class="text-nowrap">
+                    <ng-container *ngFor="let tr of listTransactionsUpload">
+                        <tr *ngIf="CodeCountry == 'ARG'" class="borderComplete">
+                            <td>{{tr.beneficiary_name}}</td>
+                            <td>{{tr.beneficiary_cuit}}</td>
+                            <td>{{tr.bank_cbu}}</td>
+                            <td>{{tr.payout_date}}</td>
+                            <td>{{tr.amount | fixedDecimal: 2 : '' : tr.currency : true }} </td>
+                            <td>{{tr.bank_account_type}}</td>
+                            <td>{{tr.merchant_id}}</td>
+                            <td>{{tr.submerchant_code}}</td>
+                            <td>{{tr.beneficiary_address}}</td>
+                            <td>{{tr.beneficiary_country }}</td>
+                            <td>{{tr.beneficiary_state}}</td>
+                            <td>{{tr.beneficiary_email  }}</td>
+                            <td>{{tr.beneficiary_birth_date == "" ? "" : (tr.beneficiary_birth_date |  amDateFormat:'DD/MM/YYYY')}}</td>
+
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" class="badge badge-danger">Error</span>
+                                <span *ngIf=" tr.error.HasError==false " class="badge badge-success">Success</span>
+                            </td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" [popover]="popTemplate" placement="left"
+                                    triggers="mouseenter:mouseleave" containerClass="customPopoverErrors"
+                                    popoverTitle="Errors" style="cursor: pointer;
+                            color: darkred;">Invalid Parameters</span>
+                                <span *ngIf="tr.error.HasError==false"> - </span>
+                            </td>
+                            <ng-template #popTemplate>
+                                <div [innerHtml]="getHtmlPopover(tr.error.Errors)"></div>
+                            </ng-template>
+                        </tr>
+                        <tr *ngIf="CodeCountry == 'COL'" class="borderComplete">
+                            <td>{{tr.beneficiary_name}}</td>
+                            <td>{{tr.id}}</td>
+                            <td>{{tr.type_of_id}}</td>
+                            <td>{{tr.payout_date}}</td>
+                            <td>{{tr.amount | fixedDecimal: 2 : '' : tr.currency : true }} </td>
+                            <td>{{tr.account_type}}</td>
+                            <td>{{tr.bank_code}}</td>
+                            <td>{{tr.beneficiary_account_number}}</td>
+                            <td>{{tr.merchant_id}}</td>
+                            <td>{{tr.submerchant_code}}</td>
+                            <td>{{tr.beneficiary_address}}</td>
+                            <td>{{tr.beneficiary_country }}</td>
+                            <td>{{tr.beneficiary_state}}</td>
+                            <td>{{tr.beneficiary_email  }}</td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" class="badge badge-danger">Error</span>
+                                <span *ngIf=" tr.error.HasError==false " class="badge badge-success">Success</span>
+                            </td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" [popover]="popTemplate" containerClass="customPopoverErrors" placement="left"
+                                    triggers="mouseenter:mouseleave" popoverTitle="Errors" style="cursor: pointer;
+                            color: darkred;">Invalid Parameters</span>
+                                <span *ngIf="tr.error.HasError==false"> - </span>
+                            </td>
+                            <ng-template #popTemplate>
+                                <div [innerHtml]="getHtmlPopover(tr.ListErrors)"></div>
+                            </ng-template>
+                        </tr>
+                        <tr *ngIf="CodeCountry == 'BRA'" class="borderComplete">
+                            <td>{{tr.beneficiary_name}}</td>
+                            <td>{{tr.beneficiary_document_id}}</td>
+                            <td>{{tr.payout_date}}</td>
+                            <td>{{tr.amount | fixedDecimal: 2 : '' : tr.currency : true }} </td>
+                            <td>{{tr.bank_account_type}}</td>
+                            <td>{{tr.bank_code}}</td>
+                            <td>{{tr.bank_branch}}</td>
+                            <td>{{tr.beneficiary_account_number}}</td>
+                            <td>{{tr.merchant_id}}</td>
+                            <td>{{tr.submerchant_code}}</td>
+                            <td>{{tr.beneficiary_address}}</td>
+                            <td>{{tr.beneficiary_country }}</td>
+                            <td>{{tr.beneficiary_state}}</td>
+                            <td>{{tr.beneficiary_email  }}</td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" class="badge badge-danger">Error</span>
+                                <span *ngIf=" tr.error.HasError==false " class="badge badge-success">Success</span>
+                            </td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" [popover]="popTemplate" containerClass="customPopoverErrors" placement="left"
+                                    triggers="mouseenter:mouseleave" popoverTitle="Errors" style="cursor: pointer;
+                            color: darkred;">Invalid Parameters</span>
+                                <span *ngIf="tr.error.HasError==false"> - </span>
+                            </td>
+                            <ng-template #popTemplate>
+                                <div [innerHtml]="getHtmlPopover(tr.ListErrors)"></div>
+                            </ng-template>
+                        </tr>
+                        <tr *ngIf="CodeCountry == 'MEX'" class="borderComplete">
+                          <td>{{tr.beneficiary_name}}</td>
+                          <td>{{tr.beneficiary_document_id}}</td>
+                          <td>{{tr.payout_date}}</td>
+                          <td>{{tr.amount | fixedDecimal: 2 : '' : tr.currency : true }} </td>
+                          <td>{{tr.bank_account_type}}</td>
+                          <td>{{tr.bank_code}}</td>
+                          <td>{{tr.beneficiary_account_number}}</td>
+                          <td>{{tr.merchant_id}}</td>
+                          <td>{{tr.submerchant_code}}</td>
+                          <td>{{tr.beneficiary_address}}</td>
+                          <td>{{tr.beneficiary_country }}</td>
+                          <td>{{tr.beneficiary_state}}</td>
+                          <td>{{tr.beneficiary_email  }}</td>
+                          <td>
+                              <span *ngIf="tr.error.HasError==true" class="badge badge-danger">Error</span>
+                              <span *ngIf=" tr.error.HasError==false " class="badge badge-success">Success</span>
+                          </td>
+                          <td>
+                              <span *ngIf="tr.error.HasError==true" [popover]="popTemplate" containerClass="customPopoverErrors" placement="left"
+                                  triggers="mouseenter:mouseleave" popoverTitle="Errors" style="cursor: pointer;
+                          color: darkred;">Invalid Parameters</span>
+                              <span *ngIf="tr.error.HasError==false"> - </span>
+                          </td>
+                          <ng-template #popTemplate>
+                              <div [innerHtml]="getHtmlPopover(tr.ListErrors)"></div>
+                          </ng-template>
+                      </tr>
+                        <tr *ngIf="CodeCountry == 'URY' || CodeCountry == 'CHL' || CodeCountry == 'ECU'|| CodeCountry == 'PER'|| CodeCountry == 'PRY'|| CodeCountry == 'BOL'" class="borderComplete">
+                            <td>{{tr.beneficiary_name}}</td>
+                            <td>{{tr.beneficiary_document_id}}</td>
+                            <td>{{tr.beneficiary_document_type}}</td>
+                            <td>{{tr.payout_date}}</td>
+                            <td>{{tr.amount | fixedDecimal: 2 : '' : tr.currency : true }} </td>
+                            <td>{{tr.bank_account_type}}</td>
+                            <td>{{tr.bank_code}}</td>
+                            <td>{{tr.beneficiary_account_number}}</td>
+                            <td>{{tr.merchant_id}}</td>
+                            <td>{{tr.submerchant_code}}</td>
+                            <td>{{tr.beneficiary_address}}</td>
+                            <td>{{tr.beneficiary_country }}</td>
+                            <td>{{tr.beneficiary_state}}</td>
+                            <td>{{tr.beneficiary_email  }}</td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" class="badge badge-danger">Error</span>
+                                <span *ngIf=" tr.error.HasError==false " class="badge badge-success">Success</span>
+                            </td>
+                            <td>
+                                <span *ngIf="tr.error.HasError==true" [popover]="popTemplate" containerClass="customPopoverErrors" placement="left"
+                                    triggers="mouseenter:mouseleave" popoverTitle="Errors" style="cursor: pointer;
+                            color: darkred;">Invalid Parameters</span>
+                                <span *ngIf="tr.error.HasError==false"> - </span>
+                            </td>
+                            <ng-template #popTemplate>
+                                <div [innerHtml]="getHtmlPopover(tr.ListErrors)"></div>
+                            </ng-template>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</ng-template>

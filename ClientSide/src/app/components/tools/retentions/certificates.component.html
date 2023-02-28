@@ -1,0 +1,88 @@
+<div class="card">
+
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="card-body" id="filterPanel" class="collapse show">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" id="dateToInput">
+                <label>Date To</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" *ngIf="userPermission == 'ADMIN'">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchants" bindLabel="FirstName" 
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect" >
+                </ng-select>
+            </div>
+            <div class="col-6" style="padding-right: 10px;">
+                <button type="button" class="btn blueBtnLp" [disabled]="userPermission != 'ADMIN'"  (click)="getListReport()"  
+                    style="float: left; margin-top: 35px;font-size: 14px">
+                    <i class="fa fa-filter"></i> Filter</button>
+                <button 
+                  type="button" 
+                  [disabled]="ListTransactionsToDownload.length < 1"
+                  *ngIf="userPermission == 'ADMIN'" 
+                  class="btn blueBtnLp"
+                  (click)="downloadZip()" 
+                  style="float: left; margin-top: 35px;font-size: 14px; margin-left: 15px;">
+                  <i class="fa fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+    <div class="alert alert-secondary noDataAlert" *ngIf="ListPayOuts.length == 0" role="alert">
+        <strong> No data to display </strong>
+    </div>
+    <div *ngIf="ListPayOuts.length > 0">
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 275px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            <table class="table table-hover text-nowrap">
+
+                <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+                    <tr>
+                        <th colspan="2" class="titleReportDatos">Settlement </th>
+                        <th colspan="5" class="titleReportMerchant">Beneficiary</th>
+                    </tr>
+                    <tr>
+                        <th *ngFor="let nombreCol of listColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+                    <ng-container *ngFor="let pay of ListPayOuts">
+
+                        <tr class="borderComplete">
+                            <td>{{pay.SettlementNumber}}</td>
+                            <td>{{pay.SettlementDate}}</td>
+                      
+                            <td>{{pay.Recipient}}</td>
+                            <td>{{pay.RecipientCUIT}}</td>
+                            <td>{{pay.SubMerchantAddress}}</td>
+                            <td>{{pay.RecipientAccountNumber}}</td>
+                            <td>{{pay.GrossAmount}}</td>
+                        </tr>
+                    </ng-container>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

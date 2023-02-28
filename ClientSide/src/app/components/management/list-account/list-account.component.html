@@ -1,0 +1,63 @@
+<div class="card-header blueBtnLp ">
+
+    <h6 class="mb-0 fw-400"> <i class="fa fa-users" style="font-size:20px"></i> Customers  <i class="fa fa-user-plus float-right c-pointer"
+       style="font-size:20px" title="Agregar Usuario" (click)="openModalAddAccount()"  ></i> </h6>
+   
+  </div>
+  <div class="components-container" style="margin-top:20px">
+    <div class="table-responsive ">
+      <table class="table table-hover  ">
+        <thead class="headerLP" style="white-space: nowrap;">
+          <tr style="    background-color: #e0dede;
+          color: black;">
+            <th class="headerTr"></th>
+            <th class="headerTr">First Name</th>
+            <th class="headerTr">Mail Account</th>
+            <th class="headerTr">Identification</th>
+            <th class="headerTr">Is Admin</th>
+            <td class="headerTr">Action</td>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let user of ListAccounts; index as i;" >
+            <!-- Parent Row -->
+            <tr data-toggle="collapse" [attr.data-target]="'#child' + i" role="button">
+              <td><i class="fa fa-plus"></i></td>
+              <td>{{user.FirstName}}</td>
+              <td>{{user.MailAccount}}</td>
+              <td>{{user.Identification}}</td>
+              <td>{{user.IsAdmin ? 'Yes' : 'No'}}</td>
+              <td>
+                <i class="fa fa-user-edit c-pointer  blue-font"  (click)="openModalEditAccount(user)"  style="font-size: 20px" title="Edit"></i>
+            </tr>
+            <!-- Child Row -->
+            <tr>
+              <td colspan="12" class="hiddenChildRow">
+                <div class="collapse" [id]="'child'+i">
+                    <table class="table table-hover">
+                      <thead class="headerLP" style="white-space: nowrap;">
+                        <tr style="    background-color: #e0dede;
+                        color: black;">
+                          <th class="headerTr">Id</th>
+                          <th class="headerTr">Code</th>
+                          <th class="headerTr">Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let country of user.Paises; index as i;" >
+                          <td>{{country.idCountry}}</td>
+                          <td>{{country.Code}}</td>
+                          <td>{{country.Name}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+  
+  
+        </tbody>
+      </table>
+    </div>
+  </div>

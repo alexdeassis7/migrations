@@ -1,0 +1,33 @@
+create PROCEDURE [LP_Entity].[GetSubmerchantByCustomerIdAndSubclientCode]
+@customerId bigint,
+@subclientCode nvarchar(50)
+AS
+BEGIN
+	DECLARE @JSON XML
+
+	SET @JSON	=
+				(
+					SELECT
+						CAST
+						( 
+							(
+								SELECT								
+									[ESM].[idEntityUser],
+									[ESM].[idEntitySubMerchant],
+									[ESM].[SubMerchantIdentification],
+									[ESM].IsCorporate 	
+
+								FROM 
+									[LP_Entity].[EntitySubMerchant] [ESM]			
+
+								WHERE 
+									[ESM].[Active] = 1 and [ESM].idEntityUser = @customerId and [ESM].[Description] = @subclientCode
+								ORDER BY [ESM].[SubMerchantIdentification] ASC
+								FOR JSON PATH
+							) AS XML
+						)
+				)
+
+	SELECT @JSON
+
+END

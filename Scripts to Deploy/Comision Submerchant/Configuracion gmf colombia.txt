@@ -1,0 +1,7 @@
+insert into  LP_Configuration.VariableValue
+	select idvariable,idcountry,idunit,active,op_insdatetime, op_upddatetime, db_insdatetime, db_upddatetime, idtransactiontype, idcurrencytype, 1.300000,204,0
+	from LP_Configuration.VariableValue where IdVariableValue = 328
+
+	insert into  LP_Configuration.VariableValue
+	select idvariable,idcountry,idunit,active,op_insdatetime, op_upddatetime, db_insdatetime, db_upddatetime, idtransactiontype, idcurrencytype, [value],204,0
+	from LP_Configuration.VariableValue where IdVariableValue in (329,330,358)

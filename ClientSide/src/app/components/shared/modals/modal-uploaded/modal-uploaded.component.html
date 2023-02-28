@@ -1,0 +1,16 @@
+
+        <!-- Modal Header -->
+        <div class="modal-header  modalSizeHeader" style="background-color: green;">
+          <h5 class="modal-title h5Modal" >{{title}}</h5>
+          <button type="button" class="close" data-dismiss="modal" (click)="bsModalRef.hide()">&times;</button>
+        </div>
+      
+        <!-- Modal body -->
+        <div class="modal-body">
+      <p >{{message}}</p>
+        </div>
+      
+        <div class="modal-footer" style="padding: 6px 15px 6px 10px">
+          <button type="button" class="btn " (click)="bsModalRef.hide()" style="color:white;background-color: green;">Ok</button>
+        </div>
+  

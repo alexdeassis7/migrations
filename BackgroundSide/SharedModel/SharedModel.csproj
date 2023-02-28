@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{50C5C7DD-3049-4C52-A8CF-FFBC4B5BBDCE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharedModel</RootNamespace>
+    <AssemblyName>SharedModel</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\SharedModel.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net20\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Models\Account\AccountRequest.cs" />
+    <Compile Include="Models\Account\AccountResponse.cs" />
+    <Compile Include="Models\Account\ListAccountsResponse.cs" />
+    <Compile Include="Models\Beneficiary\Beneficiary.cs" />
+    <Compile Include="Models\Beneficiary\Blacklist.cs" />
+    <Compile Include="Models\CrossCountry\CustomRequiredAttribute.cs" />
+    <Compile Include="Models\Services\Bolivia\Validation\BoliviaPayoutRequestValidator.cs" />
+    <Compile Include="Models\CrossCountry\IdentificationType.cs" />
+    <Compile Include="Models\CrossCountry\Definition.cs" />
+    <Compile Include="Models\Services\Paraguay\PayOutParaguay.cs" />
+    <Compile Include="Models\Shared\CountryModelRequest.cs" />
+    <Compile Include="Models\Shared\CountryModelResponse.cs" />
+    <Compile Include="Models\TransactionData\TransactionDataModel.cs" />
+    <Compile Include="Models\Services\Bolivia\PayOutBolivia.cs" />
+    <Compile Include="Models\Account\CheckAccount.cs" />
+    <Compile Include="Models\View\CustomerAccount.cs" />
+    <Compile Include="Models\Database\General\BankCodesModel.cs" />
+    <Compile Include="Models\Database\General\Result.cs" />
+    <Compile Include="Models\Database\Security\Authentication.cs" />
+    <Compile Include="Models\Export\Export.cs" />
+    <Compile Include="Models\Filters\Filter.cs" />
+    <Compile Include="Models\General\CountryEnum.cs" />
+    <Compile Include="Models\General\ErrorModel.cs" />
+    <Compile Include="Models\General\RegisteredEntityAfip.cs" />
+    <Compile Include="Models\General\RegisteredEntityArba.cs" />
+    <Compile Include="Models\Security\Token.cs" />
+    <Compile Include="Models\Security\TransactionError.cs" />
+    <Compile Include="Models\Services\Banks\Bind\Debin.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaBatchLotDetail.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaClientBalance.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaLotBatch.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutListRequest.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutListResponse.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaPayoutService.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaTransactionDetail.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaUploadRequest.cs" />
+    <Compile Include="Models\Services\Bolivia\BoliviaUploadResponse.cs" />
+    <Compile Include="Models\Services\Brasil\PayOutBrasil.cs" />
+    <Compile Include="Models\Services\CashPayments\CashPaymentModel.cs" />
+    <Compile Include="Models\Services\Chile\PayOutChile.cs" />
+    <Compile Include="Models\Services\Colombia\Banks\Bancolombia\PayOutColombia.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaBatchLotDetail.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaClientBalance.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaLotBatch.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutListRequest.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutListResponse.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaPayoutService.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaTransactionDetail.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaUploadRequest.cs" />
+    <Compile Include="Models\Services\CostaRica\CostaRicaUploadResponse.cs" />
+    <Compile Include="Models\Services\Decidir\Enums\PaymentMethod.cs" />
+    <Compile Include="Models\Services\Decidir\Enums\PaymentType.cs" />
+    <Compile Include="Models\Services\Decidir\Errors\ResponseError.cs" />
+    <Compile Include="Models\Services\Decidir\Payment.cs" />
+    <Compile Include="Models\Services\Decidir\Tokens.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorBatchLotDetail.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorClientBalance.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorLotBatch.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutListRequest.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutListResponse.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorPayoutService.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorTransactionDetail.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorUploadRequest.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorUploadResponse.cs" />
+    <Compile Include="Models\Services\Ecuador\EcuadorExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorBatchLotDetail.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorClientBalance.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorLotBatch.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutListRequest.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutListResponse.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorPayoutService.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorTransactionDetail.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorUploadRequest.cs" />
+    <Compile Include="Models\Services\ElSalvador\ElSalvadorUploadResponse.cs" />
+    <Compile Include="Models\Services\Mexico\PayoutMexico.cs" />
+    <Compile Include="Models\Services\Panama\PanamaBatchLotDetail.cs" />
+    <Compile Include="Models\Services\Panama\PanamaClientBalance.cs" />
+    <Compile Include="Models\Services\Panama\PanamaExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\Panama\PanamaLotBatch.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutListRequest.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutListResponse.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\Panama\PanamaPayoutService.cs" />
+    <Compile Include="Models\Services\Panama\PanamaTransactionDetail.cs" />
+    <Compile Include="Models\Services\Panama\PanamaUploadRequest.cs" />
+    <Compile Include="Models\Services\Panama\PanamaUploadResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayBatchLotDetail.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayClientBalance.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayExcelUploadResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayLotBatch.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutDownloadRequest.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutDownloadResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutListRequest.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutListResponse.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayPayoutService.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayTransactionDetail.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayUploadRequest.cs" />
+    <Compile Include="Models\Services\Paraguay\ParaguayUploadResponse.cs" />
+    <Compile Include="Models\Services\Payins\PayinModel.cs" />
+    <Compile Include="Models\Services\Payouts\Payouts.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutExcelBCPResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruDownloadPayOutBankTxt.cs" />
+    <Compile Include="Models\Services\Peru\PeryPayoutErrorsCreateLog.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutUpdateResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutUpdateRequest.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutDownloadLotBatchTransactionToBankResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutDownloadLotBatchTransactionToBankRequest.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutClientBalance.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutLotBatch.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutTransactionDetail.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutBatchLotDetail.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutUploadTxtFromBankRequest.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutUploadTxtFromBankResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutListRequest.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutListResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutDeleteResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutDeleteRequest.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutCreateResponse.cs" />
+    <Compile Include="Models\Services\Peru\PeruPayoutCreateRequest.cs" />
+    <Compile Include="Models\Services\Peru\PayoutPeru.cs" />
+    <Compile Include="Models\Services\Uruguay\PayOutUruguay.cs" />
+    <Compile Include="Models\Shared\GeographyModel.cs" />
+    <Compile Include="Models\Tools\RetentionModel.cs" />
+    <Compile Include="Models\User\User.cs" />
+    <Compile Include="Models\Services\Wallet\InternalWalletTransfer.cs" />
+    <Compile Include="Models\View\CurrencyExchange.cs" />
+    <Compile Include="Models\View\CustomerAccountBalanceResponse.cs" />
+    <Compile Include="Models\View\CycleModel.cs" />
+    <Compile Include="Models\View\Dashboard.cs" />
+    <Compile Include="Models\View\Report.cs" />
+    <Compile Include="Models\View\TransactionModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\Security\AccountModel.cs" />
+    <Compile Include="Models\Services\Banks\Galicia\PayOut.cs" />
+    <Compile Include="Models\Services\Decidir\SimpleTransactionModel.cs" />
+    <Compile Include="Models\Shared\ValidationModel.cs" />
+    <Compile Include="ValidationsAttrs\BankCodeAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Brasil\BeneficiaryDocumentNumberAttribute.cs" />
+    <Compile Include="ValidationsAttrs\CBUAttribute.cs" />
+    <Compile Include="ValidationsAttrs\CUITAttribute.cs" />
+    <Compile Include="ValidationsAttrs\ExpiredDateAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Mexico\BankCodeAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Mexico\BeneficiaryAccountNumberAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Payin\AccountNumberAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Payin\PaymentMethodAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Payin\DocumentNumberAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Payin\PaymentMethodCodeAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Peru\BankAccountAttribute.cs" />
+    <Compile Include="ValidationsAttrs\RequiredIfBooleanAttribute.cs" />
+    <Compile Include="ValidationsAttrs\RequiredIfHasValueAttribute.cs" />
+    <Compile Include="ValidationsAttrs\RUCAttribute.cs" />
+    <Compile Include="ValidationsAttrs\RUTAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Uruguay\BankAccountAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\Services\Decidir\Errors\Enums\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

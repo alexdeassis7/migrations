@@ -1,0 +1,140 @@
+<div  id="accordionExample">
+    <div class="card">
+        <div class="card-header blueBtnLp " id="headingOne">
+            <h6 class="mb-0 fw-400">
+
+                Payment Information
+
+            </h6>
+        </div>
+
+        <div id="infoPago" class="collapse show col-12 p-0" aria-labelledby="headingOne">
+            <div class="card-body pl-0 pr-0">
+                <div class="row col-12 p-0 ml-0">
+                    <div class="form-group col-2" *ngIf="userPermission == 'ADMIN'">
+                        <label class="lblForm">Client</label>
+
+                        <ng-select [items]="ListClients" bindLabel="FirstName" [(ngModel)]="clientSelectCarga">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-2">
+                        <label >Title (*)</label>
+                        <input type="text" [(ngModel)]="titulo"  class="form-control" maxlength="30" id="titulo">
+                    </div>
+                    <!-- nuevos campos -->
+                    <div class="form-group col-2">
+                        <label >First Name (*)</label>
+                        <input type="text" [(ngModel)]="firstName" class="form-control">
+                    </div>
+                    <div class="form-group col-2">
+                        <label >Last Name (*)</label>
+                        <input type="text" [(ngModel)]="lastName" class="form-control">
+                    </div>
+                    <div class="form-group col-2">
+                        <label >Country</label>
+                        <ng-select [items]="listCountries" [virtualScroll]="true" bindLabel="Name" bindValue="Name" [(ngModel)]="countrySelect" >
+                        </ng-select>
+                    </div>
+                    <div class="form-group col-2">
+                        <label >City</label>
+                        <input type="text" [(ngModel)]="city" class="form-control">
+                    </div>
+                    <div class="form-group col-2">
+                        <label >Address</label>
+                        <input type="text" [(ngModel)]="address" class="form-control">
+                    </div>
+                    <div class="form-group col-2">
+                        <label >Birthdate</label>  <input type="checkbox" name="checkBirt"  (change)="clearBirthDate($event)" [(ngModel)]="birtEnabled" style="margin-left:14px"
+                       >
+                        <input type="text" [(ngModel)]="birthdate" [disabled] ="!birtEnabled" class="form-control" bsDatepicker [bsConfig]="bsConfig"
+                        style="cursor:pointer"> 
+                    </div>
+                    <div class="form-group col-2">
+                        <label>Annotation</label>
+                        <input type="text" [(ngModel)]="annotation" class="form-control">
+                    </div>
+                    <!-- nuevos campos -->
+                    <div class="form-group col-2">
+                        <label for="titulo">Cuil/Cuit (*)</label>
+                        <input type="text" [(ngModel)]="cuitCuil" class="form-control">
+                    </div>
+
+                    <div class="form-group col-2">
+                        <label class="lblForm">Email</label>
+                        <input type="text" [(ngModel)]="email" #pop="bs-popover" (input)="valEmail(email)" triggers=""
+                            [ngClass]="validateEmail ? 'is-invalid inputError' : ''" [isOpen]="validateEmail"
+                            containerClass="customPopover"
+                            popover="Escriba un mail con el formato correcto: 'example@gmail.com'" class="form-control">
+                    </div>
+                    <div class="form-group col-2">
+                        <label class="lblForm">Expiration Date</label>
+                        <input type="text" [(ngModel)]="fecha" class="form-control" bsDatepicker [bsConfig]="bsConfig"  [minDate]="minDate"
+                            style="cursor:pointer">
+                    </div>
+                    <div class="form-group col-2">
+                        <label for="monto">Amount (*)</label>
+                        <input type="text" [(ngModel)]="monto" class="form-control" #pop="bs-popover" triggers=""
+                            [ngClass]=" validateNumber(monto) == false  ? 'is-invalid inputError' : ''"
+                            containerClass="customPopover" [isOpen]="validateNumber(monto) == false "
+                            [(ngModel)]="monto" popover="El importe debe de ser un número " id="monto">
+                    </div>
+                    <div class="form-group col-8">  </div>
+                    <div class="form-group col-2"> <span style="float: right; padding-top: 15%">* Required Fields
+                            </span> </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div  id="accordionExample">
+    <div class="card">
+        <div class="card-header blueBtnLp" id="headingOne">
+            <h6 class="mb-0 fw-400">               
+                Payment Method
+            </h6>
+        </div>
+
+        <div id="medioPago" class="collapse show " aria-labelledby="headingOne">
+            <div class="card-body ">
+                <div class="row col-12 ">
+                    <!-- <div class="card-text"> -->
+                    <div class="col-4"></div>
+
+                    <div class="col-8">
+                        <label for="titulo"> <img class="rapipago" style="width: 80px;">
+                        </label>
+                        <input type="radio" name="optMethod" [(ngModel)]="methodSelect" style="margin-left:14px"
+                            value="RAPA" aria-label="Checkbox for following text input">
+
+                        <label for="titulo" style="margin-left:6px"><img class="pagofacil"
+                                style="width: 80px;margin-left: 10px"></label>
+                        <input type="radio" name="optMethod" value="PAFA" [(ngModel)]="methodSelect"
+                            aria-label="Checkbox for following text input">
+
+                        <label for="titulo" style="margin-left:6px"><img class="bapro"
+                                style="width: 80px;margin-left: 28px"></label>
+                        <input type="radio" name="optMethod" value="BAPR" [(ngModel)]="methodSelect"
+                            style="margin-left:14px" aria-label="Checkbox for following text input">
+
+
+                        <label for="titulo" style="margin-left:6px"><img class="cobroexpress"
+                                style="width: 80px; margin-left: 28px"></label>
+                        <input type="radio" name="optMethod" value="COEX" [(ngModel)]="methodSelect"
+                            style="margin-left:11px" aria-label="Checkbox for following text input">
+
+                    </div>
+                
+                </div>
+                <div class="btn-footercontainer">
+                    <button type="button" class="btn btn-dark" style="color:white;" [disabled]="!valFormulario"
+                        (click)="CreateCheckOut()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div _ngcontent-c10="" class="container" style="float:left"> * Campos Obligatorios </div> -->

@@ -1,0 +1,100 @@
+<div class="card">
+    <div class="card-header blueBtnLp filterWhitelist"  data-toggle="collapse" href="#filterPanelWhitelist">
+        <h6 class="mb-0 fw-400"> Filters
+            <i class="fa fa-plus-circle float-right c-pointer " (click)="createWhitelist($event)"
+                 title="Add CUIT"></i>
+        </h6>
+    </div>
+    <div class="card-body" id="filterPanelWhitelist" class="collapse">
+        <div class="row" style="margin: 8px">
+         
+       
+            <div class="colFilterWL" >
+
+                <input type="text" [(ngModel)]="cuitFilter" class="form-control form-control-sm inputIdNumber"
+                    placeholder="Identification Number">
+
+            </div>
+
+            <div  class="colFilterWL">
+
+                <ng-select [items]="ListCountries" class="ng-select-sm" bindLabel="Name" bindValue="idCountry"
+                    placeholder="Select Country" [(ngModel)]="idCountrySelect">
+                </ng-select>
+
+            </div>
+            <div  class="colFilterWL">
+
+                <ng-select [items]="listRetentions" class="ng-select-sm" bindLabel="name" bindValue="id"
+                    placeholder="Select Withholding" [(ngModel)]="idRetentionTypeSelect">
+                </ng-select>
+
+            </div>
+
+            <div class="colFilterWL" >
+
+                <ng-select [items]="ListMerchants" class="ng-select-sm" bindLabel="FirstName" bindValue="idEntityUser"
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect"
+                    (ngModelChange)="loadSubmerchantFilter($event)">
+                </ng-select>
+
+            </div>
+            <div class="colFilterWL" >
+
+                <ng-select [items]="ListSubmerchantFilter" class="ng-select-sm text-left" [disabled]="ListSubmerchantFilter.length == 0" bindLabel="SubMerchantIdentification"
+                    bindValue="idEntitySubMerchant" placeholder="Select SubMerchant" 
+                    autofocus [(ngModel)]="subMerchantSelect">
+                </ng-select>
+
+            </div>
+        
+      
+            <div class="col-1" style="padding-right: 4px;" >
+            <button type="button" class="btn blueBtnLp btn-sm float-right" (click)="filterWhitelist()"   >
+                <i class="fa fa-filter"></i> Filter</button>
+        </div>
+
+
+
+        </div>
+    </div>
+</div>
+<div class="table-responsive" id="divContainerTableWhitelist" infiniteScroll [infiniteScrollDistance]="2"
+    [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" (scroll)="scrollFixedHead($event)"
+    [fromRoot]="true" (scrolled)="onScrollReport()">
+    <table class="table table-sm table-bordered text-center">
+        <thead class="headerLP" [ngStyle]="{'transform':positionTop}">
+            <tr class="fw-400">
+                <th>Identification Type</th>
+                <th>Identification Number</th>
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>Detail</th>
+                <th style="width: 100px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngFor="let white of ListWhitelist">
+                <tr>
+                    <td>{{ white.Code }}</td>
+                    <td>{{ white.IdentificationNumber }}</td>
+                    <td>{{ white.FirstName }}</td>
+                    <td>{{ white.LastName }}</td>
+                    <td><i (click)="showDetails(white)" class="fas fa-search c-pointer"></i></td>
+
+                    <td style="padding:1px">
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm" title="Edit"
+                            style="width: 30.25px; height: 29px;" (click)="editWhitelist(white)"><i
+                                class="fas fa-edit"></i></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
+                            style="margin-left:3px;height: 29px;" (click)="deleteWhitelist(white)"> <i
+                                class="fas fa-trash-alt"></i> </button>
+                    </td>
+                </tr>
+            </ng-container>
+        </tbody>
+
+    </table>
+
+</div>

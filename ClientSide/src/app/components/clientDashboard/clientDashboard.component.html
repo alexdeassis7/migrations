@@ -1,0 +1,63 @@
+<div class="container-fluid" style="margin-top:9px">
+  <div class="row">
+
+    <div class="components-container col-12" id="compMainReport"  style="padding-bottom: 4px">
+      <div class="row">
+        <div class="col-12">
+          <h6 class="fw-600">MAIN REPORT</h6>
+        </div>
+        <div class="col-2"></div>
+      </div>
+      <div>
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th colspan="3">Payouts</th>
+              <th>Payins</th>
+              <th></th>
+            </tr>
+            <tr>
+              <th></th>
+              <th>Balance</th>
+              <th>In Progress</th>
+              <th>Received</th>
+              <th>On Hold</th>
+              <th>In Progress</th>
+              <th>Projected Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let report of ListClientReport">
+              <tr >
+                <td>{{ report.LastName }}</td>
+                <td>{{ report.SaldoActual | fixedDecimal: 2:'':report.CurrencyCode }}</td>
+                <td>{{ report.AmtInProgressPO | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntInProgressPO }})</td>
+                <td>{{ report.AmtReceived | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntReceived }})</td>
+                <td>{{ report.AmtOnHoldPO | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntOnHoldPO }})</td>
+                <td>{{ report.AmtInProgressPI | fixedDecimal: 2:'':report.CurrencyCode }} <br/> ({{ report.cntInProgressPI }})</td>
+                <td>{{ (report.SaldoActual - report.AmtInProgressPO - report.AmtReceived - report.AmtOnHoldPO + report.AmtInProgressPI - report.CommTaxesInProgressPI - report.CommTaxesInProgressPO) ? ((report.SaldoActual - report.AmtInProgressPO - report.AmtReceived - report.AmtOnHoldPO + report.AmtInProgressPI - report.CommTaxesInProgressPI - report.CommTaxesInProgressPO) | fixedDecimal: 2:'':report.CurrencyCode) : '-'}}</td>
+              </tr>
+            </ng-container>
+          </tbody>
+          <tfoot class="bkgLg">
+            <ng-container *ngFor="let ClientReportTotal of ClientReportTotals; let i = index">
+            <tr>
+              <td *ngIf="i == 0" class="fw-600">TOTALS:</td>
+              <td *ngIf="i > 0"></td>
+              <td>{{ ClientReportTotal.SaldoActual | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }}</td>
+              <td>{{ ClientReportTotal.AmtInProgressPO | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }} <br/> ({{ ClientReportTotal.cntInProgressPO }})</td>
+              <td>{{ ClientReportTotal.AmtReceived | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }} <br/> ({{ ClientReportTotal.cntReceived }})</td>
+              <td>{{ ClientReportTotal.AmtOnHoldPO | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }} <br/> ({{ ClientReportTotal.cntOnHoldPO }})</td>
+              <td>{{ ClientReportTotal.AmtInProgressPI | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }} <br/> ({{ ClientReportTotal.cntInProgressPI }})</td>
+              <td>{{ (ClientReportTotal.SaldoActual - ClientReportTotal.AmtInProgressPO - ClientReportTotal.AmtReceived - ClientReportTotal.AmtOnHoldPO + ClientReportTotal.AmtInProgressPI - ClientReportTotal.CommTaxesInProgressPI - ClientReportTotal.CommTaxesInProgressPO) | fixedDecimal: 2:'':ClientReportTotal.CurrencyCode }}</td>
+            </tr>
+          </ng-container>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

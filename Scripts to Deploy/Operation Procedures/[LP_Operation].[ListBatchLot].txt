@@ -1,0 +1,234 @@
+/****** Object:  StoredProcedure [LP_Operation].[ListBatchLot]    Script Date: 2/4/2020 2:38:19 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+--EXEC [LP_Operation].[ListBatchLot] '000000000001','{"idEntityAccount":6,"cycle":1,"id_status":null,"id_transactioType":null,"pageSize":"10","offset":"0"}'
+ALTER PROCEDURE [LP_Operation].[ListBatchLot]
+											@customer                                       VARCHAR(12),
+											@json											NVARCHAR(MAX)
+AS											
+BEGIN
+
+
+	DECLARE @qtyAccount INT
+	DECLARE @idEntityAccount LP_Common.LP_I_UNIQUE_IDENTIFIER_INT
+	DECLARE @Message VARCHAR(50)
+	DECLARE @Status BIT
+	DECLARE @transLot INT
+	DECLARE @idEntityAcc LP_Common.LP_I_UNIQUE_IDENTIFIER_INT
+
+
+		SELECT  @qtyAccount = COUNT([idEntityAccount]), @idEntityAccount = MAX([idEntityAccount]) FROM [LP_Security].[EntityAccount] WHERE [Identification] = @customer AND [Active] = 1
+
+	
+	IF(@qtyAccount = 1)
+	BEGIN	
+
+DECLARE
+		@idEntityUser [LP_Common].[LP_F_INT],
+		@cycle [LP_Common].[LP_F_INT],
+		@id_status	[LP_Common].[LP_F_INT],
+		@id_transactioType [LP_Common].[LP_F_INT],
+		@pageSize [LP_Common].[LP_F_INT],
+		@offset [LP_Common].[LP_F_INT]
+
+
+	SELECT
+		@idEntityUser = CAST(JSON_VALUE(@JSON, '$.idEntityAccount') AS INT)
+		 , @cycle = CAST(JSON_VALUE(@JSON, '$.cycle') AS INT)
+		 , @id_status = CAST(JSON_VALUE(@JSON, '$.id_status') AS INT)
+		 , @id_transactioType = CAST(JSON_VALUE(@JSON, '$.id_transactioType ') AS INT)
+		 , @pageSize = CAST(JSON_VALUE(@JSON, '$.pageSize') AS INT)
+		 , @offset = CAST(JSON_VALUE(@JSON, '$.offset') AS INT)
+
+		 PRINT		@idEntityAcc
+		 PRINT		@cycle 
+		 PRINT 		@id_status
+		 PRINT 		@id_transactioType
+		 PRINT 		@pageSize 
+		 PRINT 		@offset 
+
+
+	SELECT @idEntityAcc = idEntityAccount FROM LP_Security.EntityAccount ea WHERE ea.idEntityAccount = @idEntityUser
+
+	 DECLARE @RESP xml
+
+	IF(@idEntityAccount=1) --Admin
+	BEGIN
+
+		SET @RESP = (
+		SELECT   CAST(
+			(
+		SELECT DISTINCT(T.idTransactionLot)
+			,TL.LotNumber
+			,T.idEntityAccount
+			,[CustomerName] = EM.[Description]
+
+			--,[CustomerName] = 
+			--					CASE
+			--						WHEN EM.[Description] IS NOT NULL THEN EM.[Description]
+			--						ELSE (SELECT EUI.[LastName] + '-' + EUI.[FirstName] FROM [LP_Entity].[EntityUser] EUI WHERE EUI.[idEntityAccount] = T.[idEntityAccount])
+			--					END
+
+			,[Transaction_count] = COUNT(T.idTransaction)
+			,[Commissions] = SUM(TD.Commission)
+			--,SUM(TD.IVACommission)	AS 'Vat'
+			,[GrossAmount] = SUM(TD.GrossAmount)
+			,[NetAmount] = SUM(TD.NetAmount)
+			,[TaxWithholdings_Afip] = SUM(TD.TaxWithHoldings)
+			,[TaxWithholdings_Agip] = SUM(TD.TaxWithHoldingsAgip)
+			,[TaxWithholdings_Arba] = SUM(TD.TaxWithHoldingsArba)
+			,[Balance] = NULL--SUM(TD.Balance)
+			--,SUM(TD.BankCost)		AS 'BankCost'
+			--,SUM(TD.IVABankCost)	AS 'BankCostVat'
+			,[TaxDebit] = NULL--SUM(TD.DebitTax)
+			,[TaxCredit] = NULL--SUM(TD.CreditTax)
+			,[Rounding] = NULL--SUM(TD.TotalCostRdo)
+			--,SUM(TD.IVATotal)		AS 'PayVat'
+			,TL.LotDate		
+			,[MONTH] = MONTH(TL.LotDate)
+			--,(SELECT top 1 [TO].Name +' - '+TT.Name  FROM [LP_Configuration].[TransactionType] AS TT
+			--	LEFT JOIN [LP_Configuration].[TransactionGroup] AS TG ON TG.idTransactionGroup=TT.idTransactionGroup
+			--	LEFT JOIN [LP_Configuration].[TransactionOperation] AS [TO] ON [TO].idTransactionOperation=TG.idTransactionOperation where TT.idTransactionType= T.idTransactionType) AS 'TransactionType'
+
+			, [TransactionType] = [TO].[Name] + ' - ' + TT.[Name]
+
+
+			,[Status] = (SELECT S.[Name] FROM [LP_Common].[Status] AS S WHERE S.idStatus=TL.IdStatus)
+		  FROM 
+			[LP_Operation].[TransactionLot] AS TL
+				LEFT JOIN [LP_Operation].[Transaction] AS T ON TL.idTransactionLot=T.idTransactionLot
+				LEFT JOIN [LP_Operation].[TransactionDetail] AS TD ON TD.idTransaction=T.idTransaction
+				LEFT JOIN LP_Security.EntityAccount ea ON t.idEntityAccount = ea.idEntityAccount
+				LEFT JOIN [LP_Entity].[EntityUser] AS EU ON EU.idEntityUser = ea.idEntityUser
+				LEFT JOIN [LP_Entity].[EntityMerchant] AS EM ON EM.idEntityMerchant= EU.idEntityMerchant
+				
+				LEFT JOIN [LP_Configuration].TransactionTypeProvider TTP ON T.idTransactionTypeProvider = TTP.idTransactionTypeProvider
+				LEFT JOIN [LP_Configuration].TransactionType TT ON TTP.idTransactionType = TT.idTransactionType
+				LEFT JOIN [LP_Configuration].[TransactionGroup] TG ON TT.idTransactionGroup = TG.idTransactionGroup
+				LEFT JOIN [LP_Configuration].[TransactionOperation] [TO] ON TG.idTransactionOperation = [TO].[idTransactionOperation]
+						
+			WHERE	 
+				(DATEPART(month,Tl.LotDate) = @cycle OR( @cycle IS NULL)) AND--((DATEPART(month,TL.OP_InsDateTime)	  = @cycle ) OR (@cycle = '' )) AND
+				((TL.idStatus	=	@id_status) OR (@id_status  IS NULL )) AND
+				((TT.idTransactionType	=	@id_transactioType) OR (@id_transactioType  IS NULL )) AND
+				((T.idEntityAccount = @idEntityAcc) OR (@idEntityAcc  IS NULL ))
+			GROUP BY 
+				T.idTransactionLot
+				,T.idEntityAccount
+				,TL.DB_InsDateTime
+				,TL.LotNumber
+				,EM.[Description]	
+				,MONTH(TL.LotDate)
+				,TL.LotDate		
+				,TT.idTransactionType
+				,TL.idStatus
+				, [TO].[Name]
+				, TT.[Name]
+			ORDER BY
+				TL.LotDate	DESC
+				,T.idTransactionLot    ASC
+				--,T.OP_InsDateTime
+		OFFSET isnull(@offset,0) ROWS  
+		FETCH NEXT isnull(@pageSize,10) ROWS ONLY
+			
+				FOR JSON PATH
+				) AS xml	)
+						 )
+	END
+	ELSE
+	BEGIN
+	
+	SET @RESP = (
+	SELECT   CAST(
+		(
+		SELECT DISTINCT(T.idTransactionLot)
+			,TL.LotNumber
+			,T.idEntityAccount
+			,[CustomerName] = EM.[Description]
+			,[Transaction_count] = COUNT(T.idTransaction)
+			,[Commissions] = SUM(TD.Commission)
+			--,SUM(TD.IVACommission)	AS 'Vat'
+			,[GrossAmount] = SUM(TD.GrossAmount)
+			,[NetAmount] = SUM(TD.NetAmount)
+			,[TaxWithholdings_Afip] = SUM(TD.TaxWithHoldings)
+			,[TaxWithholdings_Agip] = SUM(TD.TaxWithHoldingsAgip)
+			,[TaxWithholdings_Arba] = SUM(TD.TaxWithHoldingsArba)
+			,[Balance] = NULL--SUM(TD.Balance)
+			--,SUM(TD.BankCost)		AS 'BankCost'
+			--,SUM(TD.IVABankCost)	AS 'BankCostVat'
+			,[TaxDebit] = NULL--SUM(TD.DebitTax)
+			,[TaxCredit] = NULL--SUM(TD.CreditTax)
+			,[Rounding] = NULL--SUM(TD.TotalCostRdo)
+			--,SUM(TD.IVATotal)		AS 'PayVat'
+			,TL.LotDate		
+			,[MONTH] = MONTH(TL.LotDate)
+			--,(SELECT top 1 [TO].Name +' - '+TT.Name  FROM [LP_Configuration].[TransactionType] AS TT
+			--	LEFT JOIN [LP_Configuration].[TransactionGroup] AS TG ON TG.idTransactionGroup=TT.idTransactionGroup
+			--	LEFT JOIN [LP_Configuration].[TransactionOperation] AS [TO] ON [TO].idTransactionOperation=TG.idTransactionOperation where TT.idTransactionType= T.idTransactionType) AS 'TransactionType'
+
+			, [TransactionType] = [TO].[Name] + ' - ' + TT.[Name]
+
+			,(SELECT S.[Name] FROM [LP_Common].[Status] AS S WHERE S.idStatus=TL.IdStatus) AS 'Status'
+		  FROM 
+			[LP_Operation].[TransactionLot] AS TL
+				LEFT JOIN [LP_Operation].[Transaction] AS T ON TL.idTransactionLot=T.idTransactionLot
+				LEFT JOIN [LP_Operation].[TransactionDetail] AS TD ON TD.idTransaction=T.idTransaction
+				
+				LEFT JOIN LP_Security.EntityAccount ea ON t.idEntityAccount = ea.idEntityAccount
+				LEFT JOIN [LP_Entity].[EntityUser] AS EU ON EU.idEntityUser = ea.idEntityUser
+				LEFT JOIN [LP_Entity].[EntityMerchant] AS EM ON EM.idEntityMerchant= EU.idEntityMerchant		 
+
+				LEFT JOIN [LP_Configuration].TransactionTypeProvider TTP ON T.idTransactionTypeProvider = TTP.idTransactionTypeProvider
+				LEFT JOIN [LP_Configuration].TransactionType TT ON TTP.idTransactionType = TT.idTransactionType
+				LEFT JOIN [LP_Configuration].[TransactionGroup] TG ON TT.idTransactionGroup = TG.idTransactionGroup
+				LEFT JOIN [LP_Configuration].[TransactionOperation] [TO] ON TG.idTransactionOperation = [TO].[idTransactionOperation]
+
+
+		WHERE	
+				((CAST(MONTH(TL.LotDate) AS INT) = @cycle) OR (@cycle  IS NULL )) AND
+				((TL.idStatus	=	@id_status) OR (@id_status   IS NULL )) AND
+				((TT.idTransactionType	=	@id_transactioType) OR (@id_transactioType   IS NULL )) AND
+				(( T.idEntityAccount =@idEntityAccount))
+
+		GROUP BY 
+				T.idTransactionLot
+				,T.idEntityAccount
+				,TL.DB_InsDateTime
+				,TL.LotNumber
+				,EM.[Description]	
+				,MONTH(TL.LotDate)
+				,TL.LotDate	
+				,TT.idTransactionType
+				,TL.idStatus
+				, [TO].[Name]
+				, TT.[Name]
+		ORDER BY
+			TL.LotDate	DESC
+			,T.idTransactionLot    ASC
+			--,T.OP_InsDateTime
+		OFFSET isnull(@offset,0) ROWS  
+		FETCH NEXT isnull(@pageSize,10) ROWS ONLY
+			
+			FOR JSON PATH
+		) AS xml	)
+	)
+	END
+	select @RESP
+	--SELECT value FROM OPENJSON(@json);	
+	END 
+
+	ELSE
+	BEGIN
+		SET @Status = 0
+		SET @Message = 'CLIENTE INEXISTENTE. VERFIQUE SU CUSTOMER_ID'
+	END
+END
+
+
+
+		/*SELECT * FROM [LP_Entity].[EntityUser] AS EU 
+LEFT JOIN  [LP_Security].EntityAccount  AS EA ON EA.idEntityAccount=EU.idEntityAccount AND EA.active=1
+LEFT JOIN  #LotTrans AS LT  ON EA.idEntityAccount=LT.idEntityAccount
+where EA.identification=000001400002 AND EU. active=1*/

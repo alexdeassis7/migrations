@@ -1,0 +1,298 @@
+image: atlassian/default-image:3
+
+definitions: 
+  steps:
+    - step: &buildAndDeploy
+        name: "Build, Deploy QA & WebClient and Deploy to Develop Environment"
+        clone:
+          depth: 5
+        script:
+          # Environment Variables
+          - Set-ExecutionPolicy Bypass Process
+          - $hst = $env:DB_HOST
+          - $usr = $env:DB_USR
+          - $pswd = $env:DB_PASSWD
+          - $catalog = $env:DATABASE_NAME
+          - $client_URL = $env:LP_CLIENT_URL
+          - $client_web_path = $env:LP_WEB_PATH
+          - $appSettingXML = $env:APP_SETTING
+          
+          - $destination_api_folder = $env:API_FOLDER
+          - $destination_webclient_folder = $env:WEB_FOLDER
+          - $api_poolName = $env:API_POOL_NAME
+          - $web_poolName = $env:WEB_POOL_NAME
+
+          - Write-Host "Este es el contenido"
+          - Write-Host $appSettingXML
+          
+          # Default Path
+          - $currentPath = Convert-Path(".")
+
+          # Location to Store the Bulding Output for WEB CLIENT
+          - $base_publish_folder = "$currentPath\Publish"
+          - $publish_location_WebClient = "$base_publish_folder\Front"
+          - $publish_location_API = "C:\Publish\Backend"
+
+          # Ensuring Folder Exists
+          - New-Item -ItemType Directory -Force -Path $base_publish_folder
+          - New-Item -ItemType Directory -Force -Path $publish_location_WebClient
+          - New-Item -ItemType Directory -Force -Path $publish_location_API
+
+          # BootStraping
+          # Copying Files to ClientSide Folder
+          - Copy-Item -Path C:\builder\*.ps* -Destination "$currentPath\ClientSide\" -PassThru
+          # Copying Files to BackgroundSide Folder      
+          - Copy-Item -Path C:\builder\*.ps* -Destination "$currentPath\BackgroundSide\" -PassThru
+          - Copy-Item -Path C:\builder\*.ps* -Destination $currentPath -PassThru
+
+          # Environment Variables Checking
+          - cd "$currentPath\ClientSide"
+          - .\env_checking.ps1
+          - cd $currentPath
+ 
+          # ******  STARTING WEB CLIENT BUILD  ******
+          - Write-Host "[Pointing WebClient to] $client_URL"
+
+          # Adding NodeJS and NPM to the current Path inside the Runner
+          - '$Env:PATH += ";C:\Program Files\nodejs\;$env:APPDATA\npm;"'
+
+          # Changing to ClientSide Folder
+          - cd ClientSide
+
+          # Changing to ClientSide Folder
+          - $environmentPROD_TS_FILE = "$currentPath\ClientSide\src\environments\environment.prod.ts"
+
+          # Replacing Angular Web Client URL
+          - .\replace_env_client.ps1 -file $environmentPROD_TS_FILE -valueToReplace $client_URL -Verbose
+
+          # Bulding Web Client
+          - cd $currentPath\ClientSide
+          - .\build_webclient.ps1 -webPath $client_web_path -folderToDeploy $publish_location_WebClient -Verbose
+          # ******  FINISHING WEB CLIENT PART ******
+
+          # ******  STARTING BACKEND WEB API PART ******
+          - cd $currentPath\BackgroundSide
+          - $srcFolder_Net = Convert-Path(".")
+          - .\build_and_deploy.ps1 -NetSourceCode $srcFolder_Net -folderToDeploy $publish_location_API -enable_publish $true
+          
+          # ******  ENDING WEB CLIENT PART ******
+          - Write-Host "Build Success"
+
+          # ************** PUBLISHING ****************
+          # STOPING WEBSITE AND APPLICATION POOLS
+          - .\website_manage.ps1 -action 'STOP' -api_pool_name $api_poolName -web_pool_name $web_poolName
+          
+          # Publishing
+          #Cambiar el AppSettings con el contenido de la variable de ambiente
+          - .\deploy_client.ps1 -publish_folder $publish_location_WebClient -client_folder $destination_webclient_folder
+          - .\deploy_api.ps1 -publish_folder $publish_location_API -api_folder $destination_api_folder
+
+          # Updating ConnectionString
+          - Write-Host "DATOS $hst  | $usr | $pswd "
+          - .\update_web.ps1 -DbHost $hst -DbUser $usr -DbPass $pswd -Catalog $catalog -WebConfigFile "C:\inetpub\wwwroot\$destination_api_folder\web.config" -Verbose
+          - .\replace_appsettings.ps1 -content $appSettingXML -filePath "C:\inetpub\wwwroot\$destination_api_folder\ExternalAppSettings.config" -Verbose
+          
+          # TENER EN CUENTA QUE EN PRODUCCION LAS CARPETAS DE DESTINO (API Y WEB) SON DISTINTAS
+          
+          # Re-Starting AppPools and Web Site
+          - .\website_manage.ps1 -action 'START' -api_pool_name $api_poolName -web_pool_name $web_poolName
+          # ******  ENDING WEB CLIENT PART ******
+          - Write-Host "Build And Publish Succeded"
+
+    - step: &buildOnly
+        name: "Build ONLY & WebClient and Deploy"
+        clone:
+          depth: 5
+        script:
+          # Environment Variables
+          - Set-ExecutionPolicy Bypass Process
+          - $hst = $env:DB_HOST
+          - $usr = $env:DB_USR
+          - $pswd = $env:DB_PASSWD
+          - $client_URL = $env:LP_CLIENT_URL
+          - $client_web_path = $env:LP_WEB_PATH
+          - $appSettingXML = $env:APP_SETTING
+          - Write-Host "Este es el contenido"
+          - Write-Host $appSettingXML
+          
+          # Default Path
+          - $currentPath = Convert-Path(".")
+
+          # Location to Store the Bulding Output for WEB CLIENT
+          - $base_publish_folder = "$currentPath\Publish"
+          - $publish_location_WebClient = "$base_publish_folder\Front"
+          - $publish_location_API = "C:\Publish\Backend"  
+          # TODO CAMBIAR!!!!! (Hay que ver el archivo publishProfile) o pasarle x parametro en el build
+          #  ESTO HAY QUE PASAR UN PARAMETRO X MSBUILD
+
+          # Ensuring Folder Exists
+          - New-Item -ItemType Directory -Force -Path $base_publish_folder
+          - New-Item -ItemType Directory -Force -Path $publish_location_WebClient
+          - New-Item -ItemType Directory -Force -Path $publish_location_API
+
+          # BootStraping
+          # Copying Files to ClientSide Folder
+          - Copy-Item -Path C:\builder\*.ps* -Destination "$currentPath\ClientSide\" -PassThru
+          # Copying Files to BackgroundSide Folder      
+          - Copy-Item -Path C:\builder\*.ps* -Destination "$currentPath\BackgroundSide\" -PassThru
+          - Copy-Item -Path C:\builder\*.ps* -Destination $currentPath -PassThru
+
+          # Environment Variables Checking
+          - cd "$currentPath\ClientSide"
+          - .\env_checking.ps1
+          - cd $currentPath
+ 
+          # ******  STARTING WEB CLIENT BUILD  ******
+          - Write-Host "[Pointing WebClient to] $client_URL"
+
+          # Adding NodeJS and NPM to the current Path inside the Runner
+          - '$Env:PATH += ";C:\Program Files\nodejs\;$env:APPDATA\npm;"'
+
+          # Changing to ClientSide Folder
+          - cd ClientSide
+
+          # Changing to ClientSide Folder
+          - $environmentPROD_TS_FILE = "$currentPath\ClientSide\src\environments\environment.prod.ts"
+
+          # Replacing Angular Web Client URL
+          - .\replace_env_client.ps1 -file $environmentPROD_TS_FILE -valueToReplace $client_URL -Verbose
+
+          # Bulding Web Client
+          - cd $currentPath\ClientSide
+          - .\build_webclient.ps1 -webPath $client_web_path -folderToDeploy $publish_location_WebClient -Verbose
+          # ******  FINISHING WEB CLIENT PART ******
+
+          # ******  STARTING BACKEND WEB API PART ******
+          - cd $currentPath\BackgroundSide
+          - $srcFolder_Net = Convert-Path(".")
+          - .\build_and_deploy.ps1 -NetSourceCode $srcFolder_Net -folderToDeploy $publish_location_API -enable_publish $false
+          
+          # ******  ENDING WEB CLIENT PART ******
+          - Write-Host "Build Success"
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: "Deploy Preflight for DEVELOP"
+          clone:
+            enabled: false
+          runs-on: 
+            - 'serverdev'
+            - 'windows'  
+          script:
+            - echo "Develop Build (Step necessary to have manual step (DONT REMOVE IT!) "
+      - step:
+          <<: *buildAndDeploy
+          name: 'DEPLOY DEVELOP'
+          runs-on: 
+          - 'serverdev'
+          - 'windows'
+          clone:
+            enabled: true
+            depth: 50
+          deployment: Develop
+          trigger: manual
+    qa:
+      - step:
+          name: "Deploy Preflight for QA (WARNING: DO NOT RUN IF YOU ARE NOT ALLOWED)"
+          clone:
+            enabled: false
+          runs-on: 
+            - 'serverqa'
+            - 'windows'  
+          script:
+            - echo "Just checking (Step necessary to have manual step (DONT REMOVE IT!) "
+      - step:
+          <<: *buildAndDeploy
+          runs-on: 
+          - 'serverqa'
+          - 'windows'
+          name: DEPLOY QA
+          deployment: QA
+          trigger: manual
+    sandbox:
+      - step:
+          name: "Deploy Preflight for SANDBOX (WARNING: DO NOT RUN IF YOU ARE NOT ALLOWED)"
+          clone:
+            enabled: false
+          runs-on: 
+            - 'serversandbox'
+            - 'windows'  
+          script:
+            - echo "Just checking (Step necessary to have manual step (DONT REMOVE IT!) "
+      - step:
+          <<: *buildAndDeploy
+          name: 'DEPLOY SANDBOX'
+          runs-on: 
+          - 'serversandbox'
+          - 'windows'
+          deployment: Sandbox
+          trigger: manual
+    main:
+      - step:
+          name: "Deploy Preflight for PRODUCTION (DANGER! DO NOT EXECUTE IF YOU ARE NOT ALLOWED - ALL THIS ARE CURRENTLY LOGGED)"
+          clone:
+            enabled: false
+          runs-on: 
+            - 'serverprod'
+            - 'windows'  
+          script:
+            - echo "Just checking (Step necessary to have manual step (DONT REMOVE IT!) "
+      - step:
+          <<: *buildAndDeploy
+          runs-on: 
+          - 'serverprod'
+          - 'windows'
+          name: DEPLOY PRODUCTION
+          deployment: Production
+          trigger: manual
+  pull-requests:
+    "feature/*":
+       - step:
+          <<: *buildOnly
+          name: '[FEATURE PR] Build de Web & API'
+          runs-on: 
+          - 'serverdev'
+          - 'windows'
+          clone:
+            enabled: true
+            depth: 1
+          deployment: Develop
+          trigger: automatic
+    "hotfix/*":
+       - step:
+          <<: *buildOnly
+          name: '[HOTFIX PR] Build de Web & API'
+          runs-on: 
+          - 'serverdev'
+          - 'windows'
+          clone:
+            enabled: true
+            depth: 1
+          deployment: Develop
+          trigger: automatic
+    "release/*":
+       - step:
+          <<: *buildOnly
+          name: '[RELEASE PR] Build de Web & API'
+          runs-on: 
+          - 'serverdev'
+          - 'windows'
+          clone:
+            enabled: true
+            depth: 1
+          deployment: Develop
+          trigger: automatic
+    "bugfix/*":
+       - step:
+          <<: *buildOnly
+          name: '[BUGFIX PR] Build de Web & API'
+          runs-on: 
+          - 'serverdev'
+          - 'windows'
+          clone:
+            enabled: true
+            depth: 1
+          deployment: Develop
+          trigger: automatic

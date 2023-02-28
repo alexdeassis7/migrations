@@ -1,0 +1,43 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header  modalSizeHeader modal-header-Lp ">
+        <h5 class="modal-title h5Modal"> Details -  {{' ' + nameComplete + ' (' +  IdentificationNumber +')'}} </h5>
+        <button type="button" class="close" (click)="bsModalRef.hide()" data-dismiss="modal">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body">
+     
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered text-center text-nowrap">
+                <thead class="headerLP">
+                    <tr>
+                        <th>Type Retention</th>
+                        <th>Merchant</th>
+                        <th>Submerchant</th>
+                        <th>Country</th>
+                    </tr>
+                </thead>
+                <tbody class="fontSizeData">
+        
+                    <ng-container *ngFor="let detail of ListDetailRetention">
+
+                        <tr class="borderComplete">
+                            <td>{{detail.TypeRetention }} </td>
+                            <td>{{detail.Merchant}}</td>
+                            <td>{{detail.SubMerchant  }} </td>
+                            <td>{{detail.Country }} </td>
+                        </tr>
+
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer" style="padding-bottom: 0">
+        <div class="btn-footercontainer ">
+            <button type="button" class="btn btn-dark c-pointer" style="color:white;" (click)="bsModalRef.hide()">Cerrar</button>
+        </div>
+    </div>
+</div>

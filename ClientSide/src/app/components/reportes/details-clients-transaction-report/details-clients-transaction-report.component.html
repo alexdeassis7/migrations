@@ -1,0 +1,169 @@
+<div class="card">
+    <div class="card-header bkgGray c-pointer panelCard" data-toggle="collapse" href="#filterPanel"
+        (click)="toggleFitro = !toggleFitro">
+        <i class="fas fa-filter"></i>
+        <span id="lblFilter" class="fw-400">Filters</span>
+        <i class="fa float-right" style="margin-top: 5px"
+            [ngClass]="toggleFitro ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+
+    <div class="card-body" id="filterPanel" class="collapse">
+        <div class="row" style="margin: 10px 10px 0px 10px">
+            <div class="form-group col-2" id="dateFromInput">
+                <label>Date From</label>
+                <input type="text" [(ngModel)]="dateFrom" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+            <div class="form-group col-2" id="dateToInput">
+                <label>Date To</label>
+                <input type="text" [(ngModel)]="dateTo" class="form-control" readonly bsDatepicker [bsConfig]="bsConfig"
+                    style="cursor:pointer">
+
+            </div>
+
+            <div class="col-2 text-left">
+  
+              <label for="">Country</label>
+              <ng-select [items]="ListCountries" bindLabel="NameCode" bindValue="Code" [clearable]="true"
+                [searchable]="false" placeholder="Select Country" [(ngModel)]="countryCode" (ngModelChange)="loadMerchantFilter($event)">
+      
+                <ng-template ng-label-tmp let-item="item">
+                  <div>
+                    <img height="30" width="30" [class]="item.FlagIcon" />
+                    <label class="lblCountries" for=""> {{item.Name}} </label>
+                  </div>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item" let-index="index">
+                  <div>
+                    <img height="30" width="30" [class]="item.FlagIcon" />
+                    <label class="lblCountries" for=""> {{item.Name}}</label>
+                  </div>
+                </ng-template>
+      
+              </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+                <label>Merchant</label>
+
+                <ng-select [items]="ListMerchantsFilter" bindLabel="FirstName" bindValue="idEntityUser" [clearable]="true"
+                    placeholder="Select Merchant" [(ngModel)]="merchantSelect"  (ngModelChange)="loadSubmerchantFilter($event)" 
+                   >
+                </ng-select>
+            </div>
+
+            <div class="form-group col-2">
+
+                <label>SubMerchant</label>
+
+                <ng-select [items]="ListSubmerchantFilter" [disabled]="ListSubmerchantFilter.length == 0" bindLabel="SubMerchantIdentification" 
+                    bindValue="idEntitySubMerchant" placeholder="Select SubMerchant" style=" text-align: left;  "
+                    autofocus [(ngModel)]="subMerchantSelect">
+                </ng-select>
+            </div>
+        </div>
+        <div class="row" style="margin: -8px 10px 10px 10px">
+            <div class="form-group col-2">
+                <label>ID Search</label>
+                <input type="text" [(ngModel)]="merchantId" class="form-control">
+                <small class="text-muted">Lot Out,Ticket,Merchant Id </small>
+            </div>
+
+            <div class="col-8"></div>
+            <div class="col-2" style="padding-right: 10px;">
+                <button type="button" class="btn blueBtnLp" (click)="filterReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px;">
+                    <i class="fa fa-filter"></i> Filter</button>
+
+                    <button *ngIf="merchantSelect && merchantSelectIsColombia(merchantSelect) && userPermission == 'ADMIN'" type="button" class="btn blueBtnLp" (click)="exportColombiaReport()"
+                    style="float: right; margin-top: 35px;font-size: 14px;">
+                    <i class="fa fa-file-excel"></i> Export Colombia</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="components-container  table-height" style="margin-top: 10px; margin-bottom: 10px">
+
+    
+    <div *ngIf="ListDCT.length > 0"> <button type="button" (click)="exportToExcel()"  [disabled]="statusExport" class="btn btn-success float-right"
+            style="margin-top: -10px;font-size: 14px;margin-bottom: 10px;">
+            <i class="fa fa-file-excel" *ngIf="!statusExport"></i> Export
+            <span class="spinner-border spinner-border-sm float-left" *ngIf="statusExport" style="margin-top: 3px;
+      
+        margin-right: 8px;" role="status" aria-hidden="true"></span>
+            <span class="sr-only" *ngIf="!statusExport">Loading...</span>
+
+        </button>
+
+    </div>
+    <div class="alert alert-secondary noDataAlert"  *ngIf="ListDCT.length == 0" role="alert">
+        <strong> No hay datos para mostrar. </strong>
+    </div>
+    <div *ngIf="ListDCT.length > 0">
+        <div class="table-responsive" id="divContainerTable" (scroll)="scrollFixedHead($event)"
+            style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true"
+            (scrolled)="onScrollReport()">
+            <table class="table table-hover  text-nowrap ">
+                <thead [ngStyle]="{'transform':positionTop}" class="headerLP">
+
+
+                    <tr>
+                        <th *ngFor="let nombreCol of ListColumns">{{nombreCol}}</th>
+                    </tr>
+                </thead>
+                <tbody  class="fontSizeData" >
+                    <!-- Recorro lista de payouts -->
+                    <ng-container *ngFor="let dct of ListDCT">
+
+                        <tr  class="borderComplete">
+                            <!--Datos -->
+                            <td>{{dct.idTransaction}}</td>
+                            <td>{{dct.LotNumber}}</td>
+                            <td>{{dct.TransactionDate == null ? '' : (dct.TransactionDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}</td>
+                            <td>{{dct.ProcessedDate == null ? '' : (dct.ProcessedDate | amDateFormat:'DD/MM/YYYY HH:mm:ss') }}</td>
+                            <td>{{dct.TransactionType}}</td>
+                            <td>{{dct.Ticket}}</td>
+                            <td>{{dct.AlternativeTicket}}</td>
+                            <td>{{dct.Status}}</td>
+                            <td>{{dct.DetailStatus}}</td>
+                            <td>{{dct.idLotOut}}</td>
+                            <td>{{dct.LotOutDate | amDateFormat:'DD/MM/YYYY'}}</td>
+                            <td>{{dct.Merchant}}</td>
+                            <td>{{dct.InternalDescription}}</td>
+                            <td>{{dct.SubMerchantIdentification}}</td>
+                            <td>{{dct.Recipient}}</td>
+                            <td>{{dct.Country}}</td>
+                            <td>{{dct.City}}</td>
+                            <td>{{dct.Address}}</td>
+                            <td>{{dct.Email}}</td>
+                            <td>{{dct.Birthdate == null ? '' : (dct.Birthdate | amDateFormat:'DD/MM/YYYY') }} </td>
+                            <td>{{dct.RecipientCUIT}}</td>
+                            <td>{{dct.RecipientPhoneNumber}}</td>
+                            <td>{{dct.BankBranch}}</td>
+                            <td>{{dct.BankCode}}</td>
+                            <td>{{dct.CBU}}</td>
+                            <td>{{dct.SenderEmail}}</td>
+                            <td>{{dct.SenderPhoneNumber}}</td>
+                            <td>{{dct.Amount | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                            <td>{{dct.GrossValueClientUsd | fixedDecimal : 2 : '' : dct.CurrencyTypeUsd : ''}} </td> 
+                            <td>{{dct.Payable | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                            <td>{{dct.FxMerchant | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                            <td>{{dct.Pending | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                            <td>{{dct.Confirmed | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                            <td>{{dct.LocalTax}} </td>
+                            <td>{{dct.Commission | fixedDecimal : 2 : '' : dct.CurrencyType : ''}} </td>
+                        </tr>
+
+                    </ng-container>
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+    </div>
+</div>

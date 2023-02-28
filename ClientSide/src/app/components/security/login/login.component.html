@@ -1,0 +1,36 @@
+
+   
+     <form class="form-signin text-center loginFrm">
+    <img class="img-responsive logoLP" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal blue-font" >Login</h1>
+    <div class=" form-group input-group" style="text-align: left;margin-bottom: 8px">
+      <div class="input-group-prepend">
+        <div class="input-group-text"><i class="fa fa-user text-info" ></i></div>
+    </div>
+      <input type="email" [disabled]="loginWithoutOtp"  id="inputEmail"  class="form-control" [ngClass]="validateEmail ? 'is-invalid' : '' " (input)="valEmail(userLogin)" [(ngModel)]="userLogin" [ngModelOptions]="{standalone: true}"
+        placeholder="User or E-mail" #pop="bs-popover"  triggers="" [ngClass]=" validateEmail== true ? 'is-invalid inputError' : ''" [isOpen]="validateEmail" containerClass="customPopover"  popover="Enter mail with correct format: 'example@gmail.com'" >
+  
+    </div>
+    <div class="form-group input-group" >
+        <div class="input-group-prepend">
+            <div class="input-group-text"><i class="fa fa-key text-info" ></i></div>
+        </div>
+
+      <input type="password" [disabled]="loginWithoutOtp" id="inputPassword" class="form-control"  [(ngModel)]="passLogin" [ngModelOptions]="{standalone: true}"
+        placeholder="Password">
+    </div>
+    
+    <div class="form-group input-group"  *ngIf="loginWithoutOtp">
+      <div class="input-group-prepend">
+          <div class="input-group-text"><i class="fa fa-key text-info" ></i></div>
+      </div>
+
+      <input type="password" id="inputOTP" class="form-control" [(ngModel)]="otpLogin" [ngModelOptions]="{standalone: true}"
+        placeholder="OTP">
+    </div>
+
+    <button class="btn btn-lg  btn-block blueBtnLp" [disabled]="btnLoginDisabled" type="button" (click)="firstStep()" id="LoginButton">Enter</button>
+
+  </form>
+
+ 

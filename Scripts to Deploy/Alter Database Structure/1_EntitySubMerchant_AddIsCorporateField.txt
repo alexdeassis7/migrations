@@ -1,0 +1,1 @@
+alter table [LP_Entity].[EntitySubMerchant] add IsCorporate bit null default 1 with values

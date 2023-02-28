@@ -1,0 +1,136 @@
+
+  <ng-template [ngIf]="action == 'download'" [ngIfElse]="uploadTemp">
+  
+    <div class="components-container" style="margin-top:20px">
+      <div class="table-responsive ">
+        <table class="table table-hover ">
+          <thead class="headerLP text-nowrap" >
+            <tr>
+              <th></th>
+              <th>Lote</th>
+              <th>Cliente</th>
+              <th>Tipo Transaccion</th>
+              <th>Fec. Acred.</th>
+              <th>Importe Bruto</th>
+              <th>Importe Neto</th>
+              <th>Ret. Gcias</th>
+              <th>Comisioes</th>
+              <th>IVA</th>
+              <th>Costo Bco</th>
+              <th>IVA Costo Bco</th>
+              <th>Perc IIBB</th>
+              <th>Imp. Deb.</th>
+              <th>Imp. Cred.</th>
+              <th>RDO</th>
+              <th>IVA Pagar</th>
+              <th>Saldo</th>
+              <th>Saldo Bco</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+
+  
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-template>
+  
+  <ng-template #uploadTemp>
+    <div class="components-container animated fadeIn">
+      <div class="row">
+        
+      </div>
+      <div class="row">
+        <div class="col-sm-4">     <ng-select [items]="ListMetodos" bindLabel="name" bindValue="val"  [clearable]="false" class="text-left"
+           autofocus [(ngModel)]="metodoSelect">
+        </ng-select> </div>
+        <div class="col-sm-4">
+          <div class="input-group">
+            <div class="custom-file " lang="es">
+              <input type="file" class="custom-file-input " (change)="onFileChange($event)" id="inputGroupFile04">
+              <label class="custom-file-label" for="inputGroupFile04">{{filesUpload.length == 0 ? 'Select file' : filesUpload[0].name }}</label>
+            </div>
+  
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="input-group-append">
+            <!-- <button class="btn btn-outline-primary" (click)="cargarArchivo()" *ngIf="!stateLoad"   type="button">Cargar</button> -->
+            <!-- <button class="btn btn-primary" *ngIf="filesUpload.length > 0 && !stateValidation" (click)="validarArchivo()"   type="button">Validar</button> -->
+            <button class="btn btn-success" *ngIf="stateValidation" (click)="uploadServer()"  type="button">Upload</button>
+            <button class="btn btn-secondary" *ngIf="filesUpload.length > 0" (click)="clearFiles()" style="margin-left:3px"  type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <p></p>
+      </div>
+      <div class="row" *ngIf="stateLoadServer">
+        <div class="col-sm-4">
+          <p style="font-size: .875em">Total read records</p>
+          <span class="">
+            <i class="material-icons md-24">arrow_upward</i>
+            <span  class="nav-label resultRecordUpload">
+              {{trRead}}
+            </span>
+          </span>
+        </div>
+        <div class="col-sm-4">
+          <p style="font-size: .875em">Total correct records </p>
+          <span class="text-success">
+            <i class="material-icons md-24">check_circle_outline</i>
+            <span class="nav-label resultRecordUpload">
+              {{trProcess}}
+            </span>
+          </span>
+        </div>
+        <div class="col-sm-4">
+          <p style="font-size: .875em">Total wrong records</p>
+          <span class="text-danger">
+            <i class="material-icons md-24">error_outline</i>
+            <span  class="nav-label resultRecordUpload">
+              {{trDismiss}}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <h2></h2>
+  
+    <div class="components-container">
+      <div class="table-responsive ">
+        <table class="table table-hover ">
+          <thead class="headerLP">
+            <tr style="white-space: nowrap">
+  
+              <th></th>
+              <th>Ticket</th>
+              <th>Barcode</th>
+              <th>Amount</th>
+    
+            </tr>
+          </thead>
+          <tbody style="white-space: nowrap">
+            <tr *ngFor="let tr of listTransaction">
+              <td>
+                <a class="table-detail text-success" data-toggle="collapse"  role="button"
+                  aria-expanded="false" aria-controls="detail0014"><i *ngIf="tr.status == 'ok'" class="fa fa-check-circle" style="color:gren;font-size: 20px"></i>
+                  <i class="fa fa-exclamation"  *ngIf="tr.status == 'error'"  style="color:red;"       ></i></a>
+              </td>
+              <td style="white-space: nowrap">{{tr.Ticket}}</td>
+              <td style="white-space: nowrap">{{tr.BarCodeNumber}}</td>
+              <td style="white-space: nowrap">{{'$' + tr.Amount}}</td>         
+            </tr>
+        
+          
+           
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+  </ng-template>
+  
+  

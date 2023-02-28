@@ -1,0 +1,52 @@
+CREATE PROCEDURE [LP_Retentions_ARG].[DownloadRetentionsFilesByaDate]
+
+													@merchantId		bigint
+													,@retentionCode nvarchar(10)
+													,@transactionsDate date = null
+
+AS
+
+BEGIN
+
+
+	--SELECT @idEntityUser, @idEntityType
+
+	/*	DECLARE @files table(
+			idTransactionCertificate INT,
+			FileBytes varbinary,
+			[FileName] varchar(MAX)
+		)*/
+		DECLARE @resp xml
+	/*	INSERT INTO @files([idTransactionCertificate], [FileBytes], [FileName])	
+		(
+			SELECT tc.idTransactionCertificate, tc.[FileBytes], tc.[FileName] 
+			FROM [LP_Retentions_ARG].[TransactionCertificate] tc 
+			INNER JOIN [LP_Operation].[Transaction] t on t.idTransaction = tc.idTransaction 
+			WHERE tc.[isDownloaded] = 0 
+			AND tc.[FileBytes] IS NOT NULL 
+			AND t.[idEntityUser] = @idEntityUser
+			)*/
+		--select f.[idTransactionCertificate] AS idTransactionCertificate, f.[FileBytes] AS FileBytes, f.[FileName] AS [FileName] from @files f
+
+			SET @resp = CAST(
+								(
+									SELECT 
+											tc.idTransactionCertificate, 
+											tc.[FileBytes], 
+											tc.[FileName] 
+									FROM [LP_Retentions_ARG].[TransactionCertificate] tc 
+										INNER JOIN [LP_Operation].[Transaction] t on t.idTransaction = tc.idTransaction
+										INNER JOIN [LP_Configuration].[FileType] FT ON TC.idFileType	= FT.idFileType
+
+									WHERE
+										tc.[FileBytes] IS NOT NULL 
+										AND Tc.Active = 1
+										AND FT.Code=@retentionCode
+										AND t.[idEntityUser] = @merchantId
+										AND cast(t.TransactionDate as date) = @transactionsDate 
+										FOR JSON PATH) 
+								AS XML)
+
+
+		SELECT @resp
+END

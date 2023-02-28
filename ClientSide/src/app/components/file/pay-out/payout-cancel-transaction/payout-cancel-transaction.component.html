@@ -1,0 +1,167 @@
+<div class="components-container animated fadeIn" style="text-align: left;">
+    <div class="row container-fluid" style="    margin: 0">
+
+      <div class="col-2 text-left">
+
+        <label for="">Country</label>
+        <ng-select [items]="ListCountries" bindLabel="NameCode" bindValue="Code" [clearable]="false"
+          [searchable]="false" placeholder="Select Country" (ngModelChange)="loadProviderFilter($event)"
+          [(ngModel)]="countryCode">
+
+          <ng-template ng-label-tmp let-item="item">
+            <div>
+              <img height="30" width="30" [class]="item.FlagIcon" />
+              <label class="lblCountries" for=""> {{item.Name}} </label>
+            </div>
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item" let-index="index">
+            <div>
+              <img height="30" width="30" [class]="item.FlagIcon" />
+              <label class="lblCountries" for=""> {{item.Name}}</label>
+            </div>
+          </ng-template>
+
+        </ng-select>
+      </div>
+      <div class="col-2">
+        <label for="">Transaction</label>
+        <ng-select [items]="ListTransactions" bindLabel="name" bindValue="val" [searchable]="false" [clearable]="false"
+          style=" text-align: left;" placeholder="Select Transaction" [(ngModel)]="trSelect">
+        </ng-select>
+
+      </div>
+
+
+      <div class="form-group col-2">
+        <label>Merchant</label>
+
+        <ng-select [items]="ListMerchantFilter" bindLabel="FirstName" bindValue="idEntityUser" [searchable]="true"
+          placeholder="Select Merchant" [(ngModel)]="merchantSelect" (ngModelChange)="loadSubmerchantFilter($event)" >
+        </ng-select>
+      </div>
+
+    <div class="form-group col-2">
+        <label>SubMerchant</label>
+
+        <ng-select [items]="ListSubMerchantFilter" bindLabel="SubMerchantIdentification" bindValue="idEntitySubMerchant" [searchable]="true"
+          placeholder="Select SubMerchant" [(ngModel)]="subMerchantSelect" >
+        </ng-select>
+      </div>
+      <div class="form-group col-4">
+        <label>ID Search</label>
+        <input type="text" [(ngModel)]="searchInput" class="form-control">
+        <small class="text-muted">Lot Out,Ticket,Merchant Id </small>
+    </div>
+
+    <div class="form-group col-2">
+      <label>Status</label>
+
+      <ng-select [items]="ListStatus" bindLabel="name" bindValue="val" [searchable]="false"
+        placeholder="Select Status" [(ngModel)]="statusSelect" (change)="selectOption($event)">
+      </ng-select>
+    </div>
+    <div class="form-group col-8">
+
+    </div>
+    <div class="form-group col-2">
+      <button style="float: right; margin-right: 10px; margin-top:30px " type="button" class="btn btn-warning"
+      [disabled]="checkedPayouts.length < 1" (click)="changeStatus('true')" *ngIf="statusSelect">OnHold</button>
+      <button style="float: right; margin-right: 10px; margin-top:30px " type="button" class="btn btn-danger"
+      [disabled]="checkedPayouts.length < 1" (click)="changeStatus('false')" *ngIf="!statusSelect">Cancel</button>
+      <button style="float: right; margin-right: 10px; margin-top:30px " type="button" class="btn blueBtnLp"
+        [disabled]="!validationFilter" (click)="filter()">Filter</button>
+    </div>
+
+    </div>
+    <div class="row ">
+      <div class="col-4">
+      </div>
+      <div class="col-4">
+        <div style="padding-top: 8px" class="text-center">
+          <i class="fa fa-check-circle statusOk" *ngIf="downloadStatus=='OK'"></i>
+          <i class="fa fa-times-circle statusError" *ngIf="downloadStatus == 'ERROR'"> </i>
+          <i class="fa fa-exclamation statusNotProcess" *ngIf="downloadStatus == 'NOTPROCESS'"> </i>
+  
+          <span *ngIf="downloadStatus == 'OK'" class="msgDownloadSuccess">Transactions processed successfully</span>
+          <span *ngIf="downloadStatus == 'ERROR'" class="msgDownloadError">Errors occurred in the process</span>
+          <span *ngIf="downloadStatus == 'NOTPROCESS'" class="msgDownloadNotProccess">There is no data to process</span>
+          <span *ngIf="downloadStatus == 'MIXED'" class="msgDownloadNotProccess">Some Transactions failed to be processed</span>
+        </div>
+       </div>
+    </div>
+    <div class="components-container">
+      <div class="table-responsive "style="max-height: calc(100vh - 280px);" infiniteScroll [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="1200" [infiniteScrollContainer]="'.table-responsive'" [fromRoot]="true">
+        <table class="table table-hover ">
+          <thead class="headerLP">
+            <tr style="white-space: nowrap">
+              <th><input type="checkbox" [disabled]="filteredPayouts.length < 1" [(ngModel)]="rejectAll" (ngModelChange)="loadAllTransactions($event)"></th>
+              <th>Lot Id</th>
+              <th>Ticket Number</th>
+              <th>Ticket Alternative</th>
+              <th>Beneficiary Name</th>
+              <th>Account Number</th>
+              <th>Transaction Date</th>
+              <th>Merchant Id</th>
+              <th>Merchant Name</th>
+              <th>SubMerchant</th>
+              <th>Amount</th>
+              <th>Payable</th>
+              <ng-container *ngIf="countryCode == 'MEX'">
+                <th>PreRegister Lot</th>
+              </ng-container>
+
+            </tr>
+          </thead>
+          <tbody style="white-space: nowrap">
+           <tr *ngFor="let tr of filteredPayouts">
+              <td> <input type="checkbox"  [(ngModel)]="tr.Reject" (ngModelChange)="loadCheckboxTransactions(tr, $event)"></td>
+              <td style="white-space: nowrap">{{tr.LotNumber}}</td>
+              <td style="white-space: nowrap">{{tr.Ticket}}</td>
+              <td style="white-space: nowrap">{{tr.TicketAlternative}}</td>
+              <td style="white-space: nowrap">{{tr.BeneficiaryName}}</td>
+              <td style="white-space: nowrap">{{tr.AccountNumber}}</td>
+              <td style="white-space: nowrap">
+              {{tr.TransactionDate == "" ? "" : (tr.TransactionDate |  amDateFormat:'DD/MM/YYYY HH:mm A')}}</td>
+              <td style="white-space: nowrap">{{tr.InternalDescription}}</td>
+              <td style="white-space: nowrap">{{tr.LastName}}</td>
+              <td style="white-space: nowrap">{{tr.SubMerchantIdentification}}</td>
+              <td style="white-space: nowrap">{{tr.GrossValueClient | fixedDecimal: 2 }}</td>
+              <td style="white-space: nowrap">{{tr.NetAmount | fixedDecimal: 2}}</td>
+              <ng-container *ngIf="countryCode == 'MEX'">
+                <td style="white-space: nowrap;">{{tr.PreRegisterLot}}</td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="filteredPayouts.length > 0" class="components-container">
+      <div class="table-responsive">
+        <table class="table table-hover ">
+          <thead>
+            <tr style="white-space: nowrap">
+                <th></th> 
+              <th>Transactions</th>
+              <th>Amount</th>
+              <th>Payable</th>
+            </tr>
+          </thead>
+          <tbody style="white-space: nowrap">
+           <tr>
+               <td>Total</td>
+              <td style="white-space: nowrap">{{filteredPayouts.length}} </td>
+              <td style="white-space: nowrap">{{filteredPayoutsTotal.GrossValueClient | fixedDecimal: 2 }}</td>
+              <td style="white-space: nowrap">{{filteredPayoutsTotal.NetAmount | fixedDecimal: 2}}</td>
+            </tr>
+            <tr>
+                <td>Checked</td>
+               <td style="white-space: nowrap">{{checkedPayouts.length}} </td>
+               <td style="white-space: nowrap">{{checkedPayoutsTotal.GrossValueClient | fixedDecimal: 2 }}</td>
+               <td style="white-space: nowrap">{{checkedPayoutsTotal.NetAmount | fixedDecimal: 2}}</td>
+             </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
