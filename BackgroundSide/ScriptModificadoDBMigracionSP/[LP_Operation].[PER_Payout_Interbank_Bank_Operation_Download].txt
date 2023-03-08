@@ -1,0 +1,306 @@
+USE [prod-20221226]
+GO
+/****** Object:  StoredProcedure [LP_Operation].[PER_Payout_Interbank_Bank_Operation_Download]    Script Date: 6/3/2023 22:33:41 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ALTER   PROCEDURE [LP_Operation].[PER_Payout_Interbank_Bank_Operation_Download]
+																					(
+																						@TransactionMechanism	BIT
+																						, @JSON					VARCHAR(MAX)
+																					)
+AS
+BEGIN
+
+	BEGIN TRY
+
+			/* CONFIG BLOCK: INI */
+
+			DECLARE @idCountry	INT
+			SET @idCountry = ( SELECT [idCountry] FROM [LP_Location].[Country] WHERE [Name] = 'Peru' AND [Active] = 1 )
+
+			DECLARE @idProvider	INT
+			SET @idProvider = ( SELECT [idProvider] FROM [LP_Configuration].[Provider] WHERE [Code] = 'IBPER' AND [Active] = 1 )
+
+			-- DECLARING TABLE WITH SELECTED TICKETS TO DOWNLOAD
+			DECLARE @TempTxsToDownload AS TABLE (idTransaction INT)
+			INSERT INTO @TempTxsToDownload
+			SELECT idTransaction FROM [LP_Operation].[Ticket] WHERE Ticket IN (SELECT value FROM OPENJSON(@json, '$') as Tickets)
+
+			DECLARE @idProviderPayWayService INT
+			SET @idProviderPayWayService = ( SELECT [PPWS].[idProviderPayWayService] 
+												FROM [LP_Configuration].[ProviderPayWayServices]		[PPWS]
+													INNER JOIN [LP_Configuration].[Provider]			[PR]	ON	[PR].[idProvider]		= [PPWS].[idProvider]
+													INNER JOIN [LP_Configuration].[PayWayServices]	[PWS]	ON	[PWS].[idPayWayService] = [PPWS].[idPayWayService]
+												WHERE [PR].[idProvider] = @idProvider AND [PR].[idCountry] = @idCountry
+													AND [PWS].[Code] = 'BANKDEPO' AND [PWS].[idCountry] = @idCountry )
+
+			DECLARE @idTransactionTypeProvider INT
+			SET @idTransactionTypeProvider = ( SELECT [idTransactionTypeProvider]
+												FROM [LP_Configuration].[TransactionTypeProvider] [TTP]
+													INNER JOIN [LP_Configuration].[TransactionType] [TT] ON [TT].[idTransactionType] = [TTP].[idTransactionType]
+												WHERE [TTP].[idProvider] = @idProvider AND [TT].[Code] = 'PODEPO')
+
+
+			DECLARE @TempPayoutHeader TABLE
+			(
+				[RegisterType]					VARCHAR(2)
+				,[Area]							VARCHAR(2)
+				,[Company]						VARCHAR(4)
+				,[Service]						VARCHAR(2)
+				,[PayingAccount] 				VARCHAR(13)
+				,[PayingAccountType]			VARCHAR(3)
+				,[Currency]						VARCHAR(2)
+				,[Description]					VARCHAR(12)
+				,[CreationDate]					VARCHAR(14)
+				,[ProcessType]					VARCHAR(1)
+				,[ProcessDate]					VARCHAR(8)
+				,[RecordQuantity]				VARCHAR(6)
+				,[Soles]						VARCHAR(15)
+				,[Dollars]						VARCHAR(15)
+				,[MacroVersion]					VARCHAR(5)
+				,[LineComplete]					VARCHAR(MAX)
+			)
+
+			DECLARE @TempPayoutBody TABLE
+			(
+				[idx]								INT IDENTITY (1,1)
+				,[RecordCode]						VARCHAR(2)
+				, [BeneficiaryCode]					VARCHAR(20)
+				, [DocumentType]					VARCHAR(1)
+				, [DocumentNumber]					VARCHAR(20)
+				, [ExpirationDate]					VARCHAR(8)
+				, [Currency]						VARCHAR(2)
+				, [Amount]							VARCHAR(15)
+				, [Filler]							VARCHAR(1)
+				, [PaymentType]						VARCHAR(2)
+				, [AccountType]						VARCHAR(3)
+				, [AccountCurrency]					VARCHAR(2)
+				, [AccountOffice]					VARCHAR(3)
+				, [AccountNumber]					VARCHAR(20)
+				, [PersonType]						VARCHAR(1)
+				, [IdentificationType]				VARCHAR(2)
+				, [IdentificationNumber]			VARCHAR(15)
+				, [BeneficiaryName]					VARCHAR(60)
+				, [CTSCurrency]						VARCHAR(2)
+				, [CTSAmount]						VARCHAR(15)
+				, [Filler2]							VARCHAR(6)
+				, [PhoneNumber]						VARCHAR(40)
+				, [Email]							VARCHAR(140)
+
+				, [LineComplete]					VARCHAR(MAX)
+				, [DecimalAmount]					[LP_Common].[LP_F_DECIMAL]
+				, [idTransactionLot]			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+				, [idTransaction]				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+			)
+
+			DECLARE @LinesPayout TABLE
+			(
+				[idLine]			INT IDENTITY(1,1)
+				, [Line]			VARCHAR(MAX)
+			)
+
+			/* CONFIG BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* BODY BLOCK: INI */
+
+			INSERT INTO @TempPayoutBody ([RecordCode],[BeneficiaryCode],[DocumentType],[DocumentNumber],[ExpirationDate],[Currency],[Amount]
+										,[Filler],[PaymentType],[AccountType],[AccountCurrency],[AccountOffice],[AccountNumber],[PersonType],[IdentificationType],[IdentificationNumber],
+										[BeneficiaryName],[CTSCurrency],[CTSAmount],[Filler2],[PhoneNumber],[Email],[DecimalAmount],[idTransactionLot],[idTransaction])
+			SELECT
+				[RecordCode] = '02',
+				[BeneficiaryCode] = LEFT([TRD].RecipientCUIT + SPACE(20), 20),
+				[DocumentType] = ' ',
+				--[DocumentNumber] = REPLICATE('0', 6) + [T2].[Ticket], --+ SPACE(6),-- SPACE(20),
+				[DocumentNumber] = REPLICATE('0', 6) + RIGHT(REPLICATE('0', 14) + [TRD].[InternalDescription], 14), --+ SPACE(6),-- SPACE(20),
+				[ExpirationDate] = '        ',
+				[Currency] = '01',
+				[Amount] = RIGHT(REPLICATE('0', 15) + CAST(REPLACE(REPLACE(FORMAT([TD].[NetAmount],'N', 'en-US'),',',''), '.','') AS VARCHAR), 15),
+				[Filler] = ' ',
+				[PaymentType] = (CASE [BC].Code
+											WHEN '003' THEN '09'
+											ELSE '99'
+											END),
+				[AccountType] = (CASE [BC].Code
+											WHEN '003' THEN (CASE(LEFT([BAT].Code, 1))
+																WHEN 'C' THEN '001'
+																ELSE '002'
+																END)
+											ELSE '   '
+											END),
+				[AccountCurrency] = '01',
+				[AccountOffice] = (CASE [BC].Code
+											WHEN '003' THEN LEFT(RIGHT([TRD].[RecipientAccountNumber], 17),3)
+											ELSE '   '
+											END),
+				[AccountNumber] = (CASE [BC].Code
+											WHEN '003' THEN LEFT(RIGHT([TRD].[RecipientAccountNumber], 12),10) + SPACE(10)
+											ELSE [TRD].[RecipientAccountNumber]
+											END),
+				[PersonType] = ' ',
+				[IdentificationType] = (CASE [EIT].Code
+											WHEN 'DNI' THEN '01'
+											WHEN 'RUC' THEN '02'
+											WHEN 'CE' THEN '03'
+											WHEN 'Passport' THEN '05'
+											ELSE '00'
+											END),
+				[IdentificationNumber] = LEFT([TRD].RecipientCUIT + SPACE(15), 15),
+				[BeneficiaryName] = LEFT([TRD].Recipient + SPACE(60), 60),
+				[CTSCurrency] = SPACE(2),
+				[CTSAmount] = SPACE(15),
+				[Filler2] = SPACE(6),
+				[PhoneNumber] = SPACE(40),
+				[Email] = SPACE(140),
+
+ 				[DecimalAmount] = [TD].[NetAmount]
+				,[idTransactionLot]			= [TL].[idTransactionLot]
+				,[idTransaction]				= [T].[idTransaction]
+			FROM
+				[LP_Operation].[Transaction]									[T]
+					INNER JOIN	[LP_Operation].[TransactionLot]					[TL]	ON	[T].[idTransactionLot]				= [TL].[idTransactionLot]
+					INNER JOIN	[LP_Operation].[TransactionRecipientDetail]		[TRD]	ON	[T].[idTransaction]					= [TRD].[idTransaction]
+					INNER JOIN	[LP_Operation].[TransactionDetail]				[TD]	ON	[T].[idTransaction]					= [TD].[idTransaction]
+					INNER JOIN	[LP_Configuration].[BankAccountType]			[BAT]	ON	[TRD].[idBankAccountType]			= [BAT].[idBankAccountType] 
+																						AND [BAT].[idCountry]					= @idCountry
+					INNER JOIN	[LP_Operation].[Ticket]							[T2]	ON	[T].[idTransaction]					= [T2].[idTransaction]
+					INNER JOIN  [LP_Configuration].[BankCode]					[BC]	ON	[BC].[idBankCode]					= [TRD].[idBankCode]
+					 LEFT JOIN  [LP_Entity].[EntityIdentificationType]			[EIT]	ON	[EIT].[idEntityIdentificationType]	= [TRD].[idEntityIdentificationType]
+					 LEFT JOIN	[LP_Operation].[TransactionEntitySubMerchant]	[TESM]	ON	[TESM].[idTransaction]				= [T].[idTransaction]
+					 LEFT JOIN	[LP_Entity].[EntitySubMerchant]					[ESM]	ON	[ESM].[idEntitySubMerchant]			= [TESM].[idEntitySubMerchant]
+					INNER JOIN	@TempTxsToDownload								[TEMP]	ON	[TEMP].[idTransaction]				= [T].[idTransaction]
+
+			WHERE
+				[T].[idStatus] = [LP_Operation].[fnGetIdStatusByCode]('Received')
+				AND [TD].[NetAmount] > 0
+			ORDER BY [T].[TransactionDate] ASC
+			
+
+			INSERT INTO @TempPayoutHeader ([RegisterType],[Area],[Company],[Service],[PayingAccount],[PayingAccountType],[Currency]
+						,[Description],[CreationDate],[ProcessType],[ProcessDate],[RecordQuantity],[Soles],[Dollars],[MacroVersion])
+			SELECT
+				[RegisterType] = '01',
+				[Area] = '03',
+				[Company] = '1LOC',
+				[Service] = '01',
+				[PayingAccount] = '2003003735603',
+				[PayingAccountType] = '001',
+				[Currency] = '01',
+				[Description] = SPACE(12),
+				[CreationDate] = FORMAT(DATEADD(HOUR, -5, GETUTCDATE()), 'yyyyMMddHHmmss'),
+				[ProcessType] = '0',
+				[ProcessDate] = FORMAT(DATEADD(HOUR, -5, GETUTCDATE()), 'yyyyMMdd'),
+				[RecordQuantity] = RIGHT('000000' + CAST((SELECT COUNT(*) FROM @TempPayoutBody) AS VARCHAR), 6),
+				[Soles] = RIGHT(REPLICATE('0', 15) + CAST(REPLACE(REPLACE(FORMAT((SELECT SUM(DecimalAmount) FROM @TempPayoutBody),'N', 'en-US'),',',''),'.','') AS VARCHAR), 15),
+				[Dollars] = REPLICATE('0', 15),
+				[MacroVersion] = 'MC001'
+
+
+			/* BODY BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+	
+			/* HEADER BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+			/* UPDATE PAYOUT BLOCK: INI */
+
+			UPDATE @TempPayoutBody
+			SET [LineComplete] = [RecordCode] + [BeneficiaryCode] + [DocumentType] + [DocumentNumber] + [ExpirationDate] + [Currency] + [Amount] + [Filler] + [PaymentType] + [AccountType] + [AccountCurrency] + [AccountOffice] + [AccountNumber] + [PersonType] + [IdentificationType] + [IdentificationNumber] + [BeneficiaryName] + [CTSCurrency] + [CTSAmount] + [Filler2] + [PhoneNumber] + [Email]
+
+			UPDATE @TempPayoutHeader
+			SET [LineComplete] = [RegisterType] + [Area] + [Company] + [Service] + [PayingAccount] + [PayingAccountType] + [Currency] + [Description] + [CreationDate] + [ProcessType] + [ProcessDate] + [RecordQuantity] + [Soles] + [Dollars] + [MacroVersion]
+
+			/* UPDATE PAYOUT BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+			
+			/* INSERT LINES BLOCK: INI */
+			INSERT INTO @LinesPayout
+			SELECT [LineComplete] FROM @TempPayoutHeader
+
+			INSERT INTO @LinesPayout
+			SELECT [LineComplete] FROM @TempPayoutBody
+
+			/* INSERT LINES BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* UPDATE TRANSACTIONS STATUS BLOCK: INI */
+
+			DECLARE @idStatus INT
+			DECLARE @idLotOut INT
+			SET @idStatus = [LP_Operation].[fnGetIdStatusByCode]('InProgress')
+			SET @idLotOut =  ( SELECT MAX([idLotOut]) + 1 FROM [LP_Operation].[Transaction] )
+			IF(@idLotOut IS NULL)
+			BEGIN
+				SET @idLotOut = 1
+			END
+
+			
+			BEGIN TRANSACTION
+
+				UPDATE	[LP_Operation].[TransactionLot]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransactionLot] IN(SELECT [idTransactionLot] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[Transaction]
+				SET		[idStatus] = @idStatus
+						,[idProviderPayWayService] = @idProviderPayWayService
+						,[idTransactionTypeProvider] = @idTransactionTypeProvider
+						,[idLotOut] = @idLotOut
+						,[lotOutDate] = GETDATE()
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionRecipientDetail]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionDetail]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionInternalStatus]
+				SET		[idInternalStatus] = [LP_Operation].[fnGetIdInternalStatusByCodeCatalogCountryProvider](@idCountry, @idProvider, 'PEND', 'SCM')
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+			COMMIT TRANSACTION
+			
+
+			/* UPDATE TRANSACTIONS STATUS BLOCK: FIN */
+
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+			/* SELECT FINAL BLOCK: INI */
+
+			DECLARE @Rows INT
+			SET @Rows = ((SELECT COUNT(*) FROM @TempPayoutBody))
+
+			IF(@Rows > 0)
+			BEGIN
+				SELECT [Line] FROM @LinesPayout ORDER BY [idLine] ASC
+			END
+
+			/* SELECT FINAL BLOCK: FIN */
+
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION
+
+		DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE()--'INTERNAL ERROR'
+        DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+
+		RAISERROR
+				(
+					@ErrorMessage,
+					@ErrorSeverity,
+					@ErrorState
+				);
+	END CATCH
+END

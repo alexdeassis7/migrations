@@ -1,0 +1,337 @@
+USE [prod-20221226]
+GO
+/****** Object:  StoredProcedure [LP_Operation].[COL_Payout_ACCIVAL_Bank_Operation_Download]    Script Date: 6/3/2023 22:08:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER   PROCEDURE [LP_Operation].[COL_Payout_ACCIVAL_Bank_Operation_Download]
+																					(
+																						@TransactionMechanism	BIT
+																						, @JSON					VARCHAR(MAX)
+																					)
+AS
+BEGIN
+
+	BEGIN TRY
+
+			/* CONFIG BLOCK: INI */
+
+			DECLARE @idCountry	INT
+			SET @idCountry = ( SELECT [idCountry] FROM [LP_Location].[Country] WHERE [Code] = 'COP' AND [Active] = 1 )
+
+			DECLARE @idProvider	INT
+			SET @idProvider = ( SELECT [idProvider] FROM [LP_Configuration].[Provider] WHERE [Code] = 'ACCIVAL' AND [Active] = 1 )
+
+			-- DECLARING TABLE WITH SELECTED TICKETS TO DOWNLOAD
+			DECLARE @TempTxsToDownload AS TABLE (idTransaction INT)
+			INSERT INTO @TempTxsToDownload
+			SELECT idTransaction FROM [LP_Operation].[Ticket] WHERE Ticket IN (SELECT value FROM OPENJSON(@json, '$') as Tickets)
+
+			DECLARE @idProviderPayWayService INT
+			SET @idProviderPayWayService = ( SELECT [PPWS].[idProviderPayWayService] 
+												FROM [LP_Configuration].[ProviderPayWayServices]		[PPWS]
+													INNER JOIN [LP_Configuration].[Provider]			[PR]	ON	[PR].[idProvider]		= [PPWS].[idProvider]
+													INNER JOIN [LP_Configuration].[PayWayServices]	[PWS]	ON	[PWS].[idPayWayService] = [PPWS].[idPayWayService]
+												WHERE [PR].[idProvider] = @idProvider AND [PR].[idCountry] = @idCountry
+													AND [PWS].[Code] = 'BANKDEPO' AND [PWS].[idCountry] = @idCountry )
+
+			DECLARE @idTransactionTypeProvider INT
+			SET @idTransactionTypeProvider = ( SELECT [idTransactionTypeProvider]
+												FROM [LP_Configuration].[TransactionTypeProvider] [TTP]
+													INNER JOIN [LP_Configuration].[TransactionType] [TT] ON [TT].[idTransactionType] = [TTP].[idTransactionType]
+												WHERE [TTP].[idProvider] = @idProvider AND [TT].[Code] = 'PODEPO')
+
+
+			DECLARE @TempPayoutBody TABLE
+			(
+				[idx]							INT IDENTITY (1,1)
+				, [RegistryType]				VARCHAR(MAX)
+				, [LEN_RegistryType]			INT				--6 valor empty
+				, [OriginDebitAccount]			VARCHAR(MAX)
+				, [LEN_OriginDebitAccount]		INT				--16 alineado a la izquierda con espacios a la derecha
+				, [OriginAccountType]		    VARCHAR(MAX)
+				, [LEN_OriginAccountType]	    INT				--2             valores 20 (CC) y 21 (CA)
+				, [BeneficiaryBankCode]			VARCHAR(MAX)
+				, [LEN_BeneficiaryBankCode]		INT				--6
+				, [BeneficiaryAccountType]		VARCHAR(MAX)
+				, [LEN_BeneficiaryAccountType]	INT				--2
+				, [BeneficiaryAccount]			VARCHAR(MAX)
+				, [LEN_BeneficiaryAccount]		INT				--16 alineado a la izquierda con espacios a la derecha
+				, [BeneficiaryDocumentID]		VARCHAR(MAX)
+				, [LEN_BeneficiaryDocumentID]	INT				--12
+				, [BeneficiaryName]				VARCHAR(MAX)
+				, [LEN_BeneficiaryName]			INT				--22
+				, [PaymentDescription] 			VARCHAR(MAX)
+				, [LEN_PaymentDescription]		INT				--80 
+				, [Value]						VARCHAR(MAX)
+				, [LEN_Value]					INT				--15 (parte entera [13] + parte decimal [2])
+				, [Email]						VARCHAR(MAX)	
+				, [LEN_Email]					INT				--60 optional
+
+				, [LineComplete]				VARCHAR(MAX)
+				, [idTransactionLot]			[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+				, [idTransaction]				[LP_Common].[LP_I_UNIQUE_IDENTIFIER_INT]
+
+				, [DecimalAmount]				[LP_Common].[LP_F_DECIMAL]
+				, [Acum]						[LP_Common].[LP_F_DECIMAL] NULL
+				, [ToProcess]					[LP_Common].[LP_F_BOOL]
+			)
+
+			DECLARE @TempBeneficiaries TABLE
+			(
+				[AccountNumber]					VARCHAR(MAX)
+				, [AccountType]					VARCHAR(MAX)
+				, [BeneficiaryName]				VARCHAR(MAX)
+				, [BeneficiaryBank]				VARCHAR(MAX)
+				, [Id]							VARCHAR(MAX)
+				, [IdType]						VARCHAR(MAX)	
+				, [OwnerValidation]				VARCHAR(MAX)
+				, [Address]						VARCHAR(MAX)
+				, [City]						VARCHAR(MAX)
+				, [Email]						VARCHAR(MAX)
+				, [Telephone]					VARCHAR(MAX)
+				, [Fax]							VARCHAR(MAX)
+				, [DayLimited]					VARCHAR(MAX)	
+
+				, [LineComplete]				VARCHAR(MAX)
+			)
+
+			DECLARE @LinesPayout TABLE
+			(
+				[idLine]			INT IDENTITY(1,1)
+				, [Line]			VARCHAR(MAX)
+			)
+
+			DECLARE @LinesBeneficiaries TABLE
+			(
+				[idLine]			INT IDENTITY(1,1)
+				, [Line]			VARCHAR(MAX)
+			)
+
+
+			/* CONFIG BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* BODY BLOCK: INI */
+
+			INSERT INTO @TempPayoutBody ([RegistryType], [LEN_RegistryType], [OriginDebitAccount], [LEN_OriginDebitAccount], [OriginAccountType], [LEN_OriginAccountType], [BeneficiaryBankCode], [LEN_BeneficiaryBankCode],
+										[BeneficiaryAccountType], [LEN_BeneficiaryAccountType], [BeneficiaryAccount], [LEN_BeneficiaryAccount], [BeneficiaryDocumentID], [LEN_BeneficiaryDocumentID], [BeneficiaryName], 
+                                        [LEN_BeneficiaryName], [PaymentDescription], [LEN_PaymentDescription], [Value], [LEN_Value], [Email], [LEN_Email], [idTransactionLot], [idTransaction], [DecimalAmount], [ToProcess])
+			SELECT
+				[RegistryType]					= '      '
+                , [LEN_RegistryType]			= 6
+				, [OriginDebitAccount]			= LEFT('91000005060     ', 16)
+				, [LEN_OriginDebitAccount]		= 16
+				, [OriginAccountType]		    = LEFT('21', 2)
+				, [LEN_OriginAccountType]	    = 2
+				, [BeneficiaryBankCode]			= LEFT(CASE --1014/1006 (ITAU)
+														WHEN [BC].[Code] = '1014' THEN '1006'
+														ELSE [BC].[Code]
+													   END	+'      ',6)
+				, [LEN_BeneficiaryBankCode]		= 6
+				, [BeneficiaryAccountType]		=   CASE --21 (BANK-NEQUI), --19 (BANK-RAPPIPAY), --19 (BANK-DAVIPLATA), --21 CA, --20 CC
+                                                        WHEN [BC].[Code] = '1507' THEN 21
+                                                        WHEN [BC].[Code] = '1151' THEN 19
+                                                        WHEN [BC].[Code] = '1551' THEN 19
+														WHEN [BAT].[Code] = 27    THEN 20
+														WHEN [BAT].[Code] = 37    THEN 21
+														ELSE 19
+													END
+				, [LEN_BeneficiaryAccountType]	= 2
+				, [BeneficiaryAccount]		    = LEFT([TRD].[RecipientAccountNumber] + '                ', 16)
+				, [LEN_BeneficiaryAccount]	    = 16
+                , [BeneficiaryDocumentID]		= LEFT([TRD].[RecipientCUIT] + '            ', 12)
+				, [LEN_BeneficiaryDocumentID]	= 12
+				, [BeneficiaryName]		        = LEFT([TRD].[Recipient] + '                      ', 22)
+				, [LEN_BeneficiaryName]	        = 22
+				, [PaymentDescription]		    = LEFT(RIGHT(REPLICATE('0', 14) + [TRD].[InternalDescription], 14) + 'LOCALPAYMENT                                                                    ', 80)
+				, [LEN_PaymentDescription]	    = DATALENGTH(LEFT([T2].[Ticket] + '                                                                                ', 80))
+				, [Value]                       = RIGHT('000000000000000' + CAST([LP_Common].[fnConvertDecimalToIntToAmount]([TD].[NetAmount]) AS VARCHAR(15)), 15)
+				, [LEN_Value]					= DATALENGTH(RIGHT('000000000000000' + CAST([LP_Common].[fnConvertDecimalToIntToAmount]([TD].[NetAmount]) AS VARCHAR(15)), 15))
+				, [Email]						= LEFT('                                                            ', 60)
+				, [LEN_Email]					= 60
+				, [idTransactionLot]			= [TL].[idTransactionLot]
+				, [idTransaction]				= [T].[idTransaction]
+
+				, [DecimalAmount]				= [TD].[NetAmount]
+				, [ToProcess]					= 1
+
+
+			FROM
+				[LP_Operation].[Transaction]									[T]
+					INNER JOIN	[LP_Operation].[TransactionLot]					[TL]	ON	[T].[idTransactionLot]				= [TL].[idTransactionLot]
+					INNER JOIN	[LP_Operation].[TransactionRecipientDetail]		[TRD]	ON	[T].[idTransaction]					= [TRD].[idTransaction]
+					INNER JOIN	[LP_Operation].[TransactionDetail]				[TD]	ON	[T].[idTransaction]					= [TD].[idTransaction]
+					INNER JOIN	[LP_Configuration].[BankAccountType]			[BAT]	ON	[TRD].[idBankAccountType]			= [BAT].[idBankAccountType] 
+																						AND [BAT].[idCountry]					= @idCountry
+					INNER JOIN	[LP_Operation].[Ticket]							[T2]	ON	[T].[idTransaction]					= [T2].[idTransaction]
+					INNER JOIN  [LP_Configuration].[BankCode]					[BC]	ON	[BC].[idBankCode]					= [TRD].[idBankCode]
+					INNER JOIN  [LP_Configuration].[TransactionTypeProvider]	[TTP]	ON	[TTP].[idTransactionTypeProvider] = [T].[idTransactionTypeProvider]
+					 LEFT JOIN  [LP_Entity].[EntityIdentificationType]			[EIT]	ON	[EIT].[idEntityIdentificationType]	= [TRD].[idEntityIdentificationType]
+					 LEFT JOIN	[LP_Operation].[TransactionEntitySubMerchant]	[TESM]	ON	[TESM].[idTransaction]				= [T].[idTransaction]
+					 LEFT JOIN	[LP_Entity].[EntitySubMerchant]					[ESM]	ON	[ESM].[idEntitySubMerchant]			= [TESM].[idEntitySubMerchant]
+					INNER JOIN	@TempTxsToDownload								[TEMP]	ON	[TEMP].[idTransaction]				= [T].[idTransaction]
+
+			WHERE
+				[T].[idStatus] = [LP_Operation].[fnGetIdStatusByCode]('Received')
+				AND [TD].[NetAmount] > 0
+				AND [TTP].[idTransactionType] = 2
+                --AND [TTP].[idProvider] = @idProvider
+			ORDER BY [T].[TransactionDate] ASC
+
+
+			/* BODY BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+			/* UPDATE PAYOUT BLOCK: INI */
+
+			UPDATE @TempPayoutBody
+			SET [LineComplete] = [RegistryType] + [OriginDebitAccount] + [OriginAccountType] + [BeneficiaryBankCode] + [BeneficiaryAccountType] + [BeneficiaryAccount] + [BeneficiaryDocumentID] + 
+                                 [BeneficiaryName] + [PaymentDescription] + [Value] + [Email]
+
+			/* UPDATE PAYOUT BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* BENEFICIARIES BLOCK: INI */
+
+			INSERT INTO @TempBeneficiaries ([AccountNumber]	, [AccountType], [BeneficiaryName], [BeneficiaryBank], [Id], [IdType], [OwnerValidation], [Address], [City], [Email], [Telephone], [Fax], [DayLimited])
+			SELECT
+
+				[AccountNumber]					= [TRD].[RecipientAccountNumber]
+				, [AccountType]					= 	CASE --1 CC --7 CA --9 ELECTRONIC DEPOSIT
+														WHEN [BAT].[Code] = 27 THEN 20
+														WHEN [BAT].[Code] = 37 THEN 21
+														ELSE 19
+													END					
+				, [BeneficiaryName]				= '"' + [TRD].[Recipient] + '"'
+				, [BeneficiaryBank]				=	CASE --1014/1006 (ITAU)
+														WHEN [BC].[Code] = '1014' THEN '1006'
+														ELSE [BC].[Code]
+													END
+				, [Id]							= [TRD].[RecipientCUIT]
+				, [IdType]						= [EIT].[Code]
+				, [OwnerValidation]				= '"Si"'
+				, [Address]						= '""'
+				, [City]						= '""'
+				, [Email]						= '""'
+				, [Telephone]					= '""'
+				, [Fax]							= '""'
+				, [DayLimited]					= '1'
+
+			FROM
+				[LP_Operation].[TransactionRecipientDetail]			[TRD]
+				INNER JOIN [LP_Operation].[Transaction]				[T]		ON	[T].idTransaction					= [TRD].[idTransaction]
+				INNER JOIN [LP_Operation].[TransactionDetail]		[TD]	ON	[TD].idTransaction					= [T].[idTransaction]
+				INNER JOIN [LP_Configuration].[BankCode]			[BC]	ON	[BC].[idBankCode]					= [TRD].[idBankCode]
+				INNER JOIN [LP_Entity].[EntityIdentificationType]	[EIT]	ON	[EIT].[idEntityIdentificationType]	= [TRD].[idEntityIdentificationType]
+				INNER JOIN [LP_Configuration].[BankAccountType]		[BAT]	ON	[BAT].[idBankAccountType]			= [TRD].[idBankAccountType]
+				INNER JOIN	@TempTxsToDownload								[TEMP]	ON	[TEMP].[idTransaction]				= [T].[idTransaction]
+			WHERE
+				[T].[idTransaction] IN (SELECT [idTransaction] FROM @TempPayoutBody)
+				AND [TD].[NetAmount] > = 0
+
+			UPDATE @TempBeneficiaries
+			SET [LineComplete] = [AccountNumber] + ',' + [AccountType] + ',' + [BeneficiaryName] + ',' + [BeneficiaryBank] + ',' + [Id] + ',' + [IdType] + ',' + [OwnerValidation] + ',' + 
+								[Address] + ',' + [City] + ',' + [Email] + ',' + [Telephone] + ',' + [Fax] + ',' + [DayLimited]
+
+			/* BENEFICIARIES BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* INSERT LINES BLOCK: INI */
+
+			INSERT INTO @LinesPayout
+			SELECT [LineComplete] FROM @TempPayoutBody
+
+			INSERT INTO @LinesBeneficiaries
+			SELECT [LineComplete] FROM @TempBeneficiaries
+
+			/* INSERT LINES BLOCK: FIN */
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+
+			/* UPDATE TRANSACTIONS STATUS BLOCK: INI */
+
+			DECLARE @idStatus INT
+			DECLARE @idLotOut INT
+			SET @idStatus = [LP_Operation].[fnGetIdStatusByCode]('InProgress')
+			SET @idLotOut =  ( SELECT MAX([idLotOut]) + 1 FROM [LP_Operation].[Transaction] )
+			IF(@idLotOut IS NULL)
+			BEGIN
+				SET @idLotOut = 1
+			END
+
+			BEGIN TRANSACTION
+
+				UPDATE	[LP_Operation].[TransactionLot]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransactionLot] IN(SELECT [idTransactionLot] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[Transaction]
+				SET		[idStatus] = @idStatus
+						,[idProviderPayWayService] = @idProviderPayWayService
+						,[idTransactionTypeProvider] = @idTransactionTypeProvider
+						,[idLotOut] = @idLotOut
+						,[lotOutDate] = GETDATE()
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionRecipientDetail]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionDetail]
+				SET		[idStatus] = @idStatus
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+				UPDATE	[LP_Operation].[TransactionInternalStatus]
+				SET		[idInternalStatus] = [LP_Operation].[fnGetIdInternalStatusByCodeCatalogCountryProvider](@idCountry, @idProvider, 'PEND', 'SCM')
+				WHERE	[idTransaction] IN(SELECT [idTransaction] FROM @TempPayoutBody)
+
+			COMMIT TRANSACTION
+
+			/* TRACKING TRANSACTIONS DATES */
+
+
+
+
+			/* UPDATE TRANSACTIONS STATUS BLOCK: FIN */
+
+			/* --------------------------------------------------------------------------------- x --------------------------------------------------------------------------------- */
+
+			/* SELECT FINAL BLOCK: INI */
+
+			--SELECT DATALENGTH([Line]), * FROM @Lines
+
+			DECLARE @Rows INT
+			SET @Rows = ((SELECT COUNT(*) FROM @TempPayoutBody))
+
+			IF(@Rows > 0)
+			BEGIN
+				SELECT [Line] FROM @LinesPayout ORDER BY [idLine] ASC
+				SELECT [Line] FROM @LinesBeneficiaries ORDER BY [idLine] ASC
+                SELECT SUM([LP_Common].[fnConvertDecimalToIntToAmount]([DecimalAmount])) as Total FROM @TempPayoutBody
+			END
+
+			/* SELECT FINAL BLOCK: FIN */
+
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION
+
+		DECLARE @ErrorMessage NVARCHAR(4000) = 'INTERNAL ERROR'
+        DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+
+		RAISERROR
+				(
+					@ErrorMessage,
+					@ErrorSeverity,
+					@ErrorState
+				);
+	END CATCH
+END
