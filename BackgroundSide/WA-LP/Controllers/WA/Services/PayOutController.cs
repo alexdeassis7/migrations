@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿﻿using Newtonsoft.Json;
 using SharedBusiness.Exceptions;
 using SharedBusiness.Filters;
 using SharedBusiness.Log;
@@ -1899,7 +1899,7 @@ namespace WA_LP.Controllers.WA.Services
                     else if (countryCode == "BOL")
                     {
                         // TODO: Mejorar el pase de parametros
-                        return ProcessBoliviaPayout(data, customer, countryCode, customerByAdmin, countryCodeByAdmin, _customer, TransactionMechanism, subMerchantsUsers, blackList, validatorData);
+                        return ProcessBoliviaPayout(data, customer, countryCode, customerByAdmin, countryCodeByAdmin, _customer, TransactionMechanism, subMerchantsUsers, blackList, validatorData, _provider);
                     }
 
                     #endregion
@@ -2433,7 +2433,7 @@ namespace WA_LP.Controllers.WA.Services
             }
             
         }
-        private HttpResponseMessage ProcessBoliviaPayout(string data, string customer, string countryCode, string customerByAdmin, string countryCodeByAdmin, string _customer, bool transactionMechanism, List<Filter.EntitySubMerchant> subMerchantsUsers, List<BlackList> blackList, Dictionary<object, object> validatorData)
+        private HttpResponseMessage ProcessBoliviaPayout(string data, string customer, string countryCode, string customerByAdmin, string countryCodeByAdmin, string _customer, bool transactionMechanism, List<Filter.EntitySubMerchant> subMerchantsUsers, List<BlackList> blackList, Dictionary<object, object> validatorData, string _provider)
         {
             var request = JsonConvert.DeserializeObject<List<BoliviaPayoutCreateRequest>>(data);
 
@@ -2561,7 +2561,13 @@ namespace WA_LP.Controllers.WA.Services
 
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, response);
+            List<String> ticketsNumbers = new List<String>(); //alex
+
+            foreach (SharedModel.Models.Services.Bolivia.BoliviaPayoutCreateResponse transaction in response) //alex
+            {
+                ticketsNumbers.Add(transaction.Ticket); //alex
+            }
+            return DownloadPayOutBankTxt(_provider, ticketsNumbers);//alex;
         }
 
         private static void ValidateSubMerchantsBolivia(List<BlackList> blackList, BoliviaPayoutCreateRequest model, Filter.EntitySubMerchant subMerchant)
@@ -2601,12 +2607,12 @@ namespace WA_LP.Controllers.WA.Services
                 model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ConceptCodeNotFound", Messages = new List<string>() { "Concept Code not found" }, CodeTypeError = new List<string> { "ConceptCodeNotFound" } });
             }
 
-            if (blackList.Any(x => x.accountNumber.Replace(" ", "").ToLower() == model.beneficiary_account_number.Replace(" ", "").ToLower()
-                || x.beneficiaryName.Replace(" ", "").ToLower() == model.beneficiary_name.Replace(" ", "").ToLower()
-                || x.documentId.Replace(" ", "").ToLower() == model.beneficiary_document_id.Replace(" ", "").ToLower()))
-            {
-                model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_BENEFICIARY_BLACKLISTED", Messages = new List<string>() { "Beneficiary is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
-            }
+            //if (blackList.Any(x => x.accountNumber.Replace(" ", "").ToLower() == model.beneficiary_account_number.Replace(" ", "").ToLower()
+            //    || x.beneficiaryName.Replace(" ", "").ToLower() == model.beneficiary_name.Replace(" ", "").ToLower()
+            //    || x.documentId.Replace(" ", "").ToLower() == model.beneficiary_document_id.Replace(" ", "").ToLower()))
+            //{
+            //    model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_BENEFICIARY_BLACKLISTED", Messages = new List<string>() { "Beneficiary is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
+            //}
 
             if (string.IsNullOrEmpty(model.beneficiary_document_id))
             {
@@ -2631,19 +2637,19 @@ namespace WA_LP.Controllers.WA.Services
             }
 
             // BlackList
-            if (blackList.Any(x => x.accountNumber.Replace(" ", "").ToLower() == model.beneficiary_account_number.Replace(" ", "").ToLower() || x.beneficiaryName.Replace(" ", "").ToLower() == model.beneficiary_name.Replace(" ", "").ToLower() || x.documentId.Replace(" ", "").ToLower() == model.beneficiary_document_id.Replace(" ", "").ToLower()))
-            {
-                model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_BENEFICIARY_BLACKLISTED", Messages = new List<string>() { "Beneficiary is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
-            }
+            //if (blackList.Any(x => x.accountNumber.Replace(" ", "").ToLower() == model.beneficiary_account_number.Replace(" ", "").ToLower() || x.beneficiaryName.Replace(" ", "").ToLower() == model.beneficiary_name.Replace(" ", "").ToLower() || x.documentId.Replace(" ", "").ToLower() == model.beneficiary_document_id.Replace(" ", "").ToLower()))
+            //{
+            //    model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_BENEFICIARY_BLACKLISTED", Messages = new List<string>() { "Beneficiary is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
+            //}
 
             // Sender Name
-            if (model.sender_name != null)
-            {
-                if (blackList.Any(x => x.isSender == "1" && x.beneficiaryName.Replace(" ", "").ToLower() == model.sender_name.Replace(" ", "").ToLower()))
-                {
-                    model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_SENDER_BLACKLISTED", Messages = new List<string>() { "Sender is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
-                }
-            }
+            //if (model.sender_name != null)
+            //{
+            //    if (blackList.Any(x => x.isSender == "1" && x.beneficiaryName.Replace(" ", "").ToLower() == model.sender_name.Replace(" ", "").ToLower()))
+            //    {
+            //        model.ErrorRow.Errors.Add(new ErrorModel.ValidationErrorGroup { Key = "ERROR_REJECTED_SENDER_BLACKLISTED", Messages = new List<string>() { "Sender is in the blacklist" }, CodeTypeError = new List<string> { "REJECTED" } });
+            //    }
+            //}
 
 
             if (!model.ErrorRow.HasError)
@@ -3969,7 +3975,8 @@ namespace WA_LP.Controllers.WA.Services
 
                     }
 
-                    return Task.FromResult(Request.CreateResponse(HttpStatusCode.OK, ResponseModel));
+                    return Task.FromResult(Request.CreateRespon
+se(HttpStatusCode.OK, ResponseModel));
                 }
                 else
                 {
