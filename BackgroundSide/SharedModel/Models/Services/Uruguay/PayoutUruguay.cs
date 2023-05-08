@@ -184,13 +184,13 @@ namespace SharedModel.Models.Services.Uruguay
                 public string beneficiary_name { get; set; }
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
 
-                [Required(ErrorMessage = "Parameter :: beneficiary_document_type :: is required.#REQUIRED")]
+                //[Required(ErrorMessage = "Parameter :: beneficiary_document_type :: is required.#REQUIRED")]
                 [RegularExpression("(CI|RUT)$", ErrorMessage = "Parameter :: beneficiary_document_type :: invalid format, only allow codes: 'CI' | 'RUT' .#INVALID")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 public string beneficiary_document_type { get; set; }
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
 
-                [Required(ErrorMessage = "Parameter :: beneficiary_document_id :: is required.#REQUIRED")]
+                //[Required(ErrorMessage = "Parameter :: beneficiary_document_id :: is required.#REQUIRED")]
                 [StringLength(12, MinimumLength = 8, ErrorMessage = "Parameter :: beneficiary_document_id :: invalid length .#INVALID")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 public string beneficiary_document_id { get; set; }
