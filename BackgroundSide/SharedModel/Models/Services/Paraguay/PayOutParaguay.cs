@@ -176,7 +176,7 @@ namespace SharedModel.Models.Services.Paraguay
                 [JsonProperty(Order = 12)]
                 [Required(ErrorMessage = "Parameter :: beneficiary_name :: is required.#REQUIRED")]
                 [StringLength(60, MinimumLength = 1, ErrorMessage = "Parameter :: beneficiary_name :: has minimun 1 characters and 60 characters maximum.#LENGTH")]
-                [RegularExpression("^([A-Za-z0-9\\u00C0-\\u00D6\\u00D8-\\u00f6\\u00f8-\\u00ff\\s][^\r\n]{1,60})$", ErrorMessage = "Parameter :: beneficiary_name :: invalid format, only allow: letters and spaces, and length has between 1 and 60 characters.#INVALID")]
+                [RegularExpression("^[a-zA-Z0-9\\s][^\r\n]{1,60}$", ErrorMessage = "Parameter :: beneficiary_name :: invalid format, only allow: letters and spaces, and length has between 1 and 60 characters.#INVALID")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 public string beneficiary_name { get; set; } = "";
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
