@@ -13,7 +13,7 @@ namespace SharedModel.ValidationsAttrs
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             string membername = validationContext.MemberName;
-            Regex expresion = new Regex("^([0-9.K-]{9,12})$");
+            Regex expresion = new Regex("^([0-9.K-]{8,12})$");
             if (!expresion.IsMatch(value.ToString()))
             {
                 return new ValidationResult(ErrorMessage = ErrorMessage, new string[] { membername });

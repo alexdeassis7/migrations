@@ -130,7 +130,7 @@ namespace SharedModel.Models.Services.Ecuador
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
 
         [Required(ErrorMessage = "Parameter :: beneficiary_document_id :: is required.#REQUIRED")]
-        [StringLength(13, MinimumLength = 10, ErrorMessage = "Parameter :: beneficiary_document_id :: invalid length .#INVALID")]
+        [StringLength(13, MinimumLength = 5, ErrorMessage = "Parameter :: beneficiary_document_id :: invalid length .#INVALID")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
         public string beneficiary_document_id { get; set; }
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
