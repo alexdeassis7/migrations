@@ -14,15 +14,15 @@ namespace SharedModel.ValidationsAttrs
         {
             string membername = validationContext.MemberName;
             Regex expresion = new Regex("^([0-9.K-]{8,12})$");
-            if (!expresion.IsMatch(value.ToString()))
+            if (!expresion.IsMatch(value.ToString().Replace('k', 'K')))
             {
                 return new ValidationResult(ErrorMessage = ErrorMessage, new string[] { membername });
             }
 
-            var rut = value.ToString().Replace(".", "").Replace("-", "");
+            var rut = value.ToString().Replace(".", "").Replace("-", "").Replace('k', 'K');
             string dv = rut.Substring(rut.Length - 1, 1);
             rut = rut.Substring(0, rut.Length - 1);
-            if (dv != digitoVerificador(Int32.Parse(rut))) 
+            if (dv != digitoVerificador(Int32.Parse(rut)).Replace('k', 'K'))
             {
                 return new ValidationResult(ErrorMessage = ErrorMessage, new string[] { membername });
             }
