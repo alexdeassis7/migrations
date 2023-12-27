@@ -107,8 +107,8 @@ namespace SharedModel.Models.Services.Chile
                 private Int64 _amount { get; set; }
                 [JsonProperty(Order = 26)]
                 [Required(ErrorMessage = "Parameter :: amount :: is required.#REQUIRED")]
-                [Range(100, 700000000, ErrorMessage = "Parameter :: amount :: value out range [100 - 700000000].#INVALID")]
-                [RegularExpression("^[0-9]{3,9}$", ErrorMessage = "Parameter :: amount :: invalid length, must be between 3 and 9 characters.#LENGTH")]
+                [Range(100, 20000000000, ErrorMessage = "Parameter :: amount :: value out range [100 - 20000000000].#INVALID")]
+                [RegularExpression("^[0-9]{3,10}$", ErrorMessage = "Parameter :: amount :: invalid length, must be between 3 and 10 characters.#LENGTH")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 public Int64 amount { get { return _amount < 100 ? 99 : (Int64)Math.Round((Decimal)_amount / 100) * 100; } set { _amount = value; } }
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
