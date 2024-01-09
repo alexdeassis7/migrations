@@ -45,6 +45,11 @@ namespace SharedModel.ValidationsAttrs.Mexico
                 //Validar que el tipo de cuenta sea 'A' Caja de Ahorro ó 'C' Cuenta Corriente
                 if (bankAccountTypeValue.ToString() == "A" || bankAccountTypeValue.ToString() == "C")
                 {
+                    if (type.GetProperty("bank_code").GetValue(instance).ToString() != clabe.Substring(0, 3))
+                    {
+                        return new ValidationResult(ErrorMessage = "Parameter :: beneficiary_account_number :: invalid format: The account number and the bank code do not match.", new string[] { membername });
+                    }
+
                     Regex expresion = new Regex("^[0-9]{18}$"); //VALIDA QUE SU LONGITUD MAXIMA SEA DE 18 CARACTERES
                     if (!expresion.IsMatch(clabe.ToString()))
                     {
