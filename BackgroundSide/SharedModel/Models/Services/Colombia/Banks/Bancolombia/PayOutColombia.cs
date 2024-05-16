@@ -143,8 +143,9 @@ namespace SharedModel.Models.Services.Colombia.Banks.Bancolombia
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 [JsonProperty(Order = 14)]
                 [Required(ErrorMessage = "Parameter :: id :: is required.#REQUIRED")]
-                [StringLength(15, MinimumLength = 1, ErrorMessage = "Parameter :: id :: has 1 minimum characters length and maximum 15 characters length.#LENGTH")] //ver minimum
-                [RegularExpression("^[0-9]{1,15}$", ErrorMessage = "Parameter :: id :: invalid length, must be only numbers and between 1 and 15 characters.#INVALID")]
+                [IdAttributeColombia]
+                //StringLength(15, MinimumLength = 1, ErrorMessage = "Parameter :: id :: has 1 minimum characters length and maximum 15 characters length.#LENGTH")] //ver minimum
+                // [RegularExpression("^[0-9]{5,12}$", ErrorMessage = "Parameter :: id :: invalid length, must be only numbers and between 1 and 15 characters.#INVALID")]
 #pragma warning disable CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente
                 public string id { get; set; }
 #pragma warning restore CS1591 // Falta el comentario XML para el tipo o miembro visible públicamente

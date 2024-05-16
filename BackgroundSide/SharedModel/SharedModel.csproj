@@ -229,6 +229,7 @@
     <Compile Include="ValidationsAttrs\BankCodeAttribute.cs" />
     <Compile Include="ValidationsAttrs\Brasil\BeneficiaryDocumentNumberAttribute.cs" />
     <Compile Include="ValidationsAttrs\CBUAttribute.cs" />
+    <Compile Include="ValidationsAttrs\Colombia\IdAttributeColombia.cs" />
     <Compile Include="ValidationsAttrs\CUITAttribute.cs" />
     <Compile Include="ValidationsAttrs\ExpiredDateAttribute.cs" />
     <Compile Include="ValidationsAttrs\Mexico\BankCodeAttribute.cs" />
